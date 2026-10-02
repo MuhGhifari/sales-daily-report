@@ -251,17 +251,17 @@ Estimated running cost at < 50 users: hosting & DB on free tiers; main cost is t
 
 | Action | SPG | Leader | Area Mgr | Admin |
 |--------|:---:|:------:|:--------:|:-----:|
-| Submit own report | ✅ | – | – | – |
-| Edit own report (≤ 2 days) | ✅ | – | – | – |
-| Edit/unlock team reports | ❌ | ✅ own team | ✅ own area | ✅ |
-| View own targets & progress | ✅ | – | – | – |
-| View team data | ❌ | ✅ own team | ✅ own area | ✅ |
-| Set targets | ❌ | ✅ own team | ✅ own area | ✅ |
-| Team settings (working days, holidays) | ❌ | ✅ own team | ✅ own area | ✅ |
-| Manage SPGs | ❌ | ✅ own team | ✅ own area | ✅ |
-| Manage Leaders / teams / stores | ❌ | ❌ | ✅ own area | ✅ |
-| Manage products & prices | ❌ | ❌ | ❌ | ✅ |
-| Export | ❌ | ✅ | ✅ | ✅ |
+| Submit own report | Yes | – | – | – |
+| Edit own report (≤ 2 days) | Yes | – | – | – |
+| Edit/unlock team reports | No | Yes own team | Yes own area | Yes |
+| View own targets & progress | Yes | – | – | – |
+| View team data | No | Yes own team | Yes own area | Yes |
+| Set targets | No | Yes own team | Yes own area | Yes |
+| Team settings (working days, holidays) | No | Yes own team | Yes own area | Yes |
+| Manage SPGs | No | Yes own team | Yes own area | Yes |
+| Manage Leaders / teams / stores | No | No | Yes own area | Yes |
+| Manage products & prices | No | No | No | Yes |
+| Export | No | Yes | Yes | Yes |
 
 All checks enforced **server-side**.
 

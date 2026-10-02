@@ -101,7 +101,7 @@ One layout for every page, the same on phone and desktop:
 - Wrong username/password → "Username atau password salah".
 - After login, redirect by role: SPG → `spg/beranda.html`, Leader → `leader/dashboard.html`, Supervisor → `supervisor/dashboard.html`, Admin → `admin/produk.html`.
 - The logged-in user is kept in the browser (sessionStorage). "Keluar" clears it.
-- ⚠️ Demo only: the passwords sit in the page source, so anyone can read them. Replace this with real login before any real data goes in.
+- **Demo only:**: the passwords sit in the page source, so anyone can read them. Replace this with real login before any real data goes in.
 
 ### 4.2 `spg/beranda.html` — Home (gamified)
 The top of the page is about **today**, shown like a game score:
