@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laporan SPG — Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* NIVEA-inspired palette: deep brand blue + white, soft blue tints */
+    --nivea: #00136F;
+    --nivea-2: #1F3A9E;
+    --nivea-3: #4A6BC9;
+    --sky: #E9EEF9;
+    --sky-2: #F4F7FC;
+    --line: #D8E0F0;
+    --ink: #0B1640;
+    --muted: #5B6585;
+    --white: #FFFFFF;
+    --ok: #1E8E5A;
+    --ok-bg: #E3F4EC;
+    --warn: #A86A00;
+    --warn-bg: #FFF3DC;
+    --bad: #C8323C;
+    --bad-bg: #FCE6E8;
+    --radius: 14px;
+    --shadow: 0 10px 30px rgba(0, 19, 111, .12);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: "Nunito Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background: var(--sky-2);
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, select { font: inherit; color: inherit; }
+
+  /* ---------- Gallery chrome ---------- */
+  .top {
+    background: var(--nivea);
+    color: var(--white);
+    padding: 20px 16px 0;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .top-inner { max-width: 1440px; margin: 0 auto; }
+  .top h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: .2px; }
+  .top p { margin: 4px 0 14px; opacity: .8; font-size: 14px; }
+  .roles { display: flex; gap: 4px; overflow-x: auto; }
+  .roles button {
+    border: 0; background: transparent; color: rgba(255,255,255,.75);
+    padding: 10px 16px; border-radius: 10px 10px 0 0; cursor: pointer;
+    font-weight: 700; white-space: nowrap;
+  }
+  .roles button[aria-selected="true"] { background: var(--sky-2); color: var(--nivea); }
+  main { max-width: 1440px; margin: 0 auto; padding: 24px 16px 64px; }
+  .role { display: none; }
+  .role.active { display: block; }
+  .section-title { font-size: 13px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin: 8px 0 14px; }
+  .caption { font-size: 13px; color: var(--muted); margin: 10px 4px 0; max-width: 360px; }
+
+  /* ---------- Phone frames ---------- */
+  .phones { display: flex; flex-wrap: wrap; gap: 28px; }
+  .phone-wrap { display: flex; flex-direction: column; }
+  .phone-label { font-weight: 800; margin: 0 0 10px 4px; }
+  .phone {
+    width: 360px; max-width: calc(100vw - 32px); height: 740px;
+    background: var(--sky-2); border-radius: 34px; overflow: hidden;
+    border: 8px solid #10183a; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; position: relative;
+  }
+  .statusbar { height: 26px; background: var(--nivea); color: #fff; font-size: 12px; display: flex; justify-content: space-between; padding: 6px 18px 0; font-weight: 700; }
+  .appbar { background: var(--nivea); color: #fff; padding: 10px 18px 16px; }
+  .appbar .hello { font-size: 13px; opacity: .8; }
+  .appbar .name { font-size: 18px; font-weight: 800; }
+  .appbar .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .appbar .back { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 17px; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.18); display: grid; place-items: center; font-weight: 800; }
+  .screen { flex: 1; overflow-y: auto; padding: 14px; }
+  .tabbar { display: flex; border-top: 1px solid var(--line); background: #fff; }
+  .tabbar div { flex: 1; text-align: center; padding: 8px 0 12px; font-size: 11px; color: var(--muted); font-weight: 700; }
+  .tabbar div.on { color: var(--nivea); }
+  .tabbar svg { display: block; margin: 0 auto 3px; }
+
+  /* ---------- Cards & atoms ---------- */
+  .card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
+  .card h3 { margin: 0 0 2px; font-size: 13px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: .6px; }
+  .amount { font-size: 22px; font-weight: 800; color: var(--nivea); }
+  .amount small { display: block; font-size: 13px; color: var(--muted); font-weight: 600; }
+  .bar { height: 10px; background: var(--sky); border-radius: 99px; overflow: hidden; margin: 10px 0 6px; }
+  .bar > span { display: block; height: 100%; background: var(--nivea-2); border-radius: 99px; }
+  .bar.ok > span { background: var(--ok); }
+  .bar.low > span { background: var(--bad); }
+  .meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+  .meta b { color: var(--ink); }
+  .hint { background: var(--sky); border-radius: 10px; padding: 8px 10px; font-size: 13px; margin-top: 10px; color: var(--nivea); font-weight: 700; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; border: 0; border-radius: 12px; padding: 14px; font-weight: 800; cursor: pointer;
+    background: var(--nivea); color: #fff; font-size: 15px;
+  }
+  .btn.ghost { background: #fff; color: var(--nivea); border: 1.5px solid var(--nivea); }
+  .btn.small { width: auto; padding: 9px 14px; font-size: 13px; border-radius: 10px; }
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 12px; font-weight: 800; }
+  .pill.ok { background: var(--ok-bg); color: var(--ok); }
+  .pill.bad { background: var(--bad-bg); color: var(--bad); }
+  .pill.warn { background: var(--warn-bg); color: var(--warn); }
+  .pill.info { background: var(--sky); color: var(--nivea); }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 6px; }
+  .input { width: 100%; padding: 12px; border: 1.5px solid var(--line); border-radius: 10px; background: #fff; }
+  .input:focus { outline: none; border-color: var(--nivea-3); box-shadow: 0 0 0 3px var(--sky); }
+  .input[readonly] { background: var(--sky-2); color: var(--muted); }
+  .list-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--sky); font-size: 14px; }
+  .list-row:last-child { border-bottom: 0; }
+  .list-row { gap: 10px; }
+  .list-row > b { white-space: nowrap; }
+  .muted { color: var(--muted); }
+
+  /* Login */
+  .login { flex: 1; background: linear-gradient(180deg, var(--nivea) 0 42%, var(--sky-2) 42%); padding: 40px 20px 20px; display: flex; flex-direction: column; }
+  .brand-badge { width: 72px; height: 72px; border-radius: 50%; background: #fff; display: grid; place-items: center; margin: 10px auto 12px; box-shadow: 0 6px 18px rgba(0,0,0,.2); }
+  .login h2 { color: #fff; text-align: center; margin: 0; font-size: 22px; }
+  .login .sub { color: rgba(255,255,255,.8); text-align: center; font-size: 13px; margin: 4px 0 28px; }
+  .otp { display: flex; gap: 8px; justify-content: space-between; }
+  .otp input { flex: 1; min-width: 0; width: 100%; height: 50px; text-align: center; font-size: 20px; font-weight: 800; border: 1.5px solid var(--line); border-radius: 10px; }
+  .otp input.filled { border-color: var(--nivea-3); background: var(--sky); color: var(--nivea); }
+  .wa { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ok); font-weight: 700; margin: 6px 0 14px; }
+
+  /* Report form */
+  .line { border: 1px solid var(--line); border-radius: 12px; padding: 10px; margin-bottom: 10px; background: #fff; }
+  .line .top-row { display: flex; gap: 8px; align-items: center; }
+  .line select { flex: 1; padding: 9px; border: 1.5px solid var(--line); border-radius: 9px; background: #fff; min-width: 0; }
+  .line .del { border: 0; background: var(--bad-bg); color: var(--bad); width: 34px; height: 34px; border-radius: 9px; cursor: pointer; font-weight: 800; flex: none; }
+  .line .nums { display: grid; grid-template-columns: 70px 1fr 1fr; gap: 8px; margin-top: 8px; align-items: end; }
+  .line .nums label { font-size: 11px; color: var(--muted); font-weight: 700; display: block; margin-bottom: 3px; }
+  .line .nums input { width: 100%; padding: 8px; border: 1.5px solid var(--line); border-radius: 9px; }
+  .line .sub { font-weight: 800; color: var(--nivea); text-align: right; padding-bottom: 8px; }
+  .add-line { width: 100%; border: 1.5px dashed var(--nivea-3); background: transparent; color: var(--nivea); padding: 10px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+  .total-box { position: sticky; bottom: 0; background: #fff; border-top: 1px solid var(--line); padding: 12px 14px; }
+  .total-box .meta { margin-bottom: 10px; font-size: 14px; }
+  .total-box .meta b { font-size: 20px; color: var(--nivea); }
+  .check { display: flex; gap: 8px; align-items: center; font-size: 14px; margin: 4px 0 12px; }
+
+  /* Calendar */
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-size: 12px; }
+  .cal .h { color: var(--muted); font-weight: 800; padding-bottom: 4px; }
+  .cal .d { aspect-ratio: 1; border-radius: 9px; display: grid; place-items: center; font-weight: 800; position: relative; }
+  .cal .d.ok { background: var(--ok-bg); color: var(--ok); }
+  .cal .d.miss { background: var(--bad-bg); color: var(--bad); }
+  .cal .d.off { background: transparent; color: #b4bbd0; }
+  .cal .d.today { outline: 2px solid var(--nivea); }
+  .cal .d.future { color: #b4bbd0; background: var(--sky-2); }
+  .cal .d .lock { position: absolute; right: 2px; top: 1px; font-size: 8px; }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+
+  /* ---------- Desktop frames ---------- */
+  .browser { background: #fff; border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 36px; border: 1px solid var(--line); }
+  .browser-bar { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: #eef1f8; border-bottom: 1px solid var(--line); }
+  .browser-bar i { width: 11px; height: 11px; border-radius: 50%; background: #c9d0e3; display: inline-block; }
+  .browser-bar .url { margin-left: 12px; background: #fff; border-radius: 8px; padding: 4px 12px; font-size: 12px; color: var(--muted); flex: 1; max-width: 420px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .app { display: grid; grid-template-columns: 220px 1fr; min-height: 640px; }
+  .side { background: var(--nivea); color: #fff; padding: 18px 12px; }
+  .side .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; padding: 0 8px 18px; }
+  .side .logo .dot { width: 34px; height: 34px; border-radius: 50%; background: #fff; display: grid; place-items: center; }
+  .side a { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.75); text-decoration: none; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+  .side a.on { background: rgba(255,255,255,.14); color: #fff; }
+  .side .who { margin-top: 24px; padding: 12px 10px; border-top: 1px solid rgba(255,255,255,.15); font-size: 13px; }
+  .side .who b { display: block; font-size: 14px; }
+  .content { padding: 22px 24px; background: var(--sky-2); min-width: 0; }
+  .page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .page-head h2 { margin: 0; font-size: 22px; }
+  .page-head p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+  .seg { display: inline-flex; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 3px; }
+  .seg button { border: 0; background: transparent; padding: 7px 12px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; color: var(--muted); }
+  .seg button.on { background: var(--nivea); color: #fff; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+  .kpi { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+  .kpi .l { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  .kpi .v { font-size: 24px; font-weight: 800; color: var(--nivea); margin-top: 4px; }
+  .kpi .s { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .grid-2 { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); gap: 16px; margin-bottom: 16px; }
+  .panel { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; min-width: 0; }
+  .panel h4 { margin: 0 0 12px; font-size: 15px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: .5px; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 10px; border-bottom: 1px solid var(--sky); white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .mini-bar { width: 80px; height: 8px; background: var(--sky); border-radius: 99px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 8px; }
+  .mini-bar span { display: block; height: 100%; background: var(--nivea-2); }
+  .mini-bar.ok span { background: var(--ok); }
+  .mini-bar.low span { background: var(--bad); }
+  .rank { width: 24px; height: 24px; border-radius: 50%; background: var(--sky); color: var(--nivea); display: inline-grid; place-items: center; font-size: 12px; font-weight: 800; margin-right: 8px; }
+  .person { display: flex; align-items: center; }
+  .person small { display: block; color: var(--muted); font-size: 12px; }
+  .missing { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px; background: var(--bad-bg); border-radius: 10px; margin-bottom: 8px; font-size: 14px; }
+  .missing small { display: block; color: var(--muted); }
+  .missing .btn { white-space: nowrap; flex: none; }
+  .chart svg { width: 100%; height: auto; display: block; }
+  .t-input { width: 140px; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 9px; text-align: right; font-variant-numeric: tabular-nums; }
+  .t-input.override { border-color: var(--warn); background: var(--warn-bg); }
+  .derived { color: var(--muted); font-style: italic; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { border: 1.5px solid var(--line); background: #fff; border-radius: 10px; padding: 8px 14px; font-weight: 800; cursor: pointer; }
+  .chip.on { background: var(--nivea); color: #fff; border-color: var(--nivea); }
+  .switch { width: 40px; height: 22px; background: var(--line); border-radius: 99px; position: relative; display: inline-block; vertical-align: middle; cursor: pointer; }
+  .switch::after { content: ""; position: absolute; width: 18px; height: 18px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: left .15s; }
+  .switch.on { background: var(--nivea-2); }
+  .switch.on::after { left: 20px; }
+  .note { font-size: 13px; color: var(--muted); }
+
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .side { display: none; }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .content { padding: 16px; }
+  }
+  @media (max-width: 420px) {
+    .phone { height: 700px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <h1>Laporan Harian SPG — Mockup</h1>
+    <p>Mockup tampilan untuk klien NIVEA · Data contoh, hari ini = Kamis, 22 Oktober 2026</p>
+    <nav class="roles" role="tablist">
+      <button role="tab" aria-selected="true" data-role="spg">SPG (HP)</button>
+      <button role="tab" aria-selected="false" data-role="leader">Leader</button>
+      <button role="tab" aria-selected="false" data-role="area">Area Manager</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- =============================== SPG =============================== -->
+<section class="role active" id="role-spg">
+  <div class="section-title">Aplikasi SPG · tampilan HP</div>
+  <div class="phones">
+
+    <!-- 1. Login -->
+    <div class="phone-wrap" id="shot-spg-login">
+      <div class="phone-label">1 · Masuk</div>
+      <div class="phone">
+        <div class="statusbar"><span>09:41</span><span>4G ▮▮▮</span></div>
+        <div class="login">
+          <div class="brand-badge">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#00136F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg>
+          </div>
+          <h2>Laporan SPG</h2>
+          <div class="sub">NIVEA · Laporan Penjualan Harian</div>
+          <div class="card" style="padding:18px">
+            <div class="field">
+              <label>Nomor HP (WhatsApp)</label>
+              <input class="input" value="0812-3456-7890">
+            </div>
+            <div class="wa">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Z"/></svg>
+              Kode dikirim ke WhatsApp ••7890
+            </div>
+            <div class="field">
+              <label>Kode OTP (6 digit)</label>
+              <div class="otp">
+                <input class="filled" value="4"><input class="filled" value="8"><input class="filled" value="2"><input class="filled" value="9"><input><input>
+              </div>
+            </div>
+            <button class="btn">Masuk</button>
+            <p class="note" style="text-align:center;margin:12px 0 0">Kirim ulang kode dalam <b>0:42</b></p>
+          </div>
+          <p class="note" style="text-align:center;margin-top:auto">Belum terdaftar? Hubungi Leader Anda.</p>
+        </div>
+      </div>
+      <p class="caption">Login pakai nomor HP + kode OTP via WhatsApp. Bisa diganti ke PIN jika ingin tanpa biaya WhatsApp.</p>
+    </div>
+
+    <!-- 2. Beranda -->
+    <div class="phone-wrap" id="shot-spg-home">
+      <div class="phone-label">2 · Beranda (Target & Pencapaian)</div>
+      <div class="phone">
+        <div class="statusbar"><span>09:41</span><span>4G ▮▮▮</span></div>
+        <div class="appbar">
+          <div class="row">
+            <div>
+              <div class="hello">Selamat siang,</div>
+              <div class="name">Sari Wulandari</div>
+            </div>
+            <div class="avatar">SW</div>
+          </div>
+          <div class="hello" style="margin-top:6px">Toko Kemang · Tim Jakarta Selatan</div>
+        </div>
+        <div class="screen">
+          <div class="card">
+            <div class="meta"><h3>Hari Ini</h3><span class="pill ok">✓ Sudah lapor</span></div>
+            <div class="amount">Rp 1.245.000 <small>/ Rp 1.852.000</small></div>
+            <div class="bar"><span style="width:67%"></span></div>
+            <div class="meta"><span>Kamis, 22 Okt</span><b>67%</b></div>
+          </div>
+          <div class="card">
+            <h3>Minggu Ini</h3>
+            <div class="amount">Rp 7.380.000 <small>/ Rp 11.111.000</small></div>
+            <div class="bar"><span style="width:66%"></span></div>
+            <div class="meta"><span>19 – 25 Okt</span><b>66%</b></div>
+            <div class="hint">Sisa Rp 3.731.000 dalam 2 hari kerja → ± Rp 1.866.000/hari</div>
+          </div>
+          <div class="card">
+            <h3>Bulan Ini</h3>
+            <div class="amount">Rp 33.640.000 <small>/ Rp 50.000.000</small></div>
+            <div class="bar"><span style="width:67%"></span></div>
+            <div class="meta"><span>Oktober · 19 dari 27 hari kerja</span><b>67%</b></div>
+            <div class="hint">Sisa Rp 16.360.000 dalam 8 hari kerja → ± Rp 2.045.000/hari</div>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:6px">Produk Terlaris Bulan Ini</h3>
+            <div class="list-row"><span>Body Lotion Extra White 400ml</span><b>Rp 9,8 jt</b></div>
+            <div class="list-row"><span>Soft Moisturizing Creme 100ml</span><b>Rp 8,1 jt</b></div>
+            <div class="list-row"><span>Men Deep Facial Foam 100g</span><b>Rp 5,7 jt</b></div>
+          </div>
+          <button class="btn ghost">✎ Ubah Laporan Hari Ini</button>
+        </div>
+        <div class="tabbar">
+          <div class="on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Beranda</div>
+          <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Isi Laporan</div>
+          <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Riwayat</div>
+          <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Profil</div>
+        </div>
+      </div>
+      <p class="caption">Target harian & mingguan dihitung otomatis dari target bulanan (27 hari kerja, Sen–Sab).</p>
+    </div>
+
+    <!-- 3. Isi Laporan -->
+    <div class="phone-wrap" id="shot-spg-report">
+      <div class="phone-label">3 · Isi Laporan (per produk)</div>
+      <div class="phone">
+        <div class="statusbar"><span>09:41</span><span>4G ▮▮▮</span></div>
+        <div class="appbar">
+          <div class="back">← Laporan Penjualan</div>
+        </div>
+        <div class="screen">
+          <div class="field">
+            <label>Tanggal</label>
+            <select class="input">
+              <option>Kamis, 22 Oktober 2026 (hari ini)</option>
+              <option>Rabu, 21 Oktober 2026</option>
+              <option>Selasa, 20 Oktober 2026</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Toko</label>
+            <input class="input" value="Toko Kemang" readonly>
+          </div>
+          <label class="check"><input type="checkbox" id="noSales"> Tidak ada penjualan hari ini</label>
+          <div style="font-size:13px;font-weight:800;margin-bottom:8px">Produk Terjual</div>
+          <div id="lines"></div>
+          <button class="add-line" id="addLine">+ Tambah Produk</button>
+          <div class="field" style="margin-top:14px">
+            <label>Catatan (opsional)</label>
+            <input class="input" placeholder="mis. hujan, toko sepi">
+          </div>
+        </div>
+        <div class="total-box">
+          <div class="meta"><span>Total Penjualan</span><b id="grandTotal">Rp 0</b></div>
+          <button class="btn">Kirim Laporan</button>
+        </div>
+      </div>
+      <p class="caption">Harga terisi otomatis dari katalog dan bisa diubah (diskon/promo). Total dihitung otomatis. Coba tambah/ubah produk.</p>
+    </div>
+
+    <!-- 4. Riwayat -->
+    <div class="phone-wrap" id="shot-spg-history">
+      <div class="phone-label">4 · Riwayat</div>
+      <div class="phone">
+        <div class="statusbar"><span>09:41</span><span>4G ▮▮▮</span></div>
+        <div class="appbar">
+          <div class="row"><div class="back">Riwayat Laporan</div></div>
+        </div>
+        <div class="screen">
+          <div class="card">
+            <div class="meta" style="margin-bottom:10px"><b style="font-size:15px">‹ Oktober 2026 ›</b><span class="pill info">18/19 hari</span></div>
+            <div class="cal" id="cal"></div>
+            <div class="legend">
+              <span><i style="background:var(--ok-bg);border:1px solid var(--ok)"></i>Sudah lapor</span>
+              <span><i style="background:var(--bad-bg);border:1px solid var(--bad)"></i>Belum lapor</span>
+              <span>🔒 Terkunci</span>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:4px">Laporan Terakhir</h3>
+            <div class="list-row"><div><b>Kam, 22 Okt</b><br><span class="muted">4 produk · bisa diubah s/d 24 Okt</span></div><b>Rp 1.245.000</b></div>
+            <div class="list-row"><div><b>Rab, 21 Okt</b><br><span class="muted">5 produk · bisa diubah s/d 23 Okt</span></div><b>Rp 1.910.000</b></div>
+            <div class="list-row"><div><b>Sel, 20 Okt</b><br><span class="muted">3 produk · bisa diubah s/d 22 Okt</span></div><b>Rp 1.580.000</b></div>
+            <div class="list-row"><div><b>Sen, 19 Okt</b><br><span class="muted">4 produk · 🔒 terkunci</span></div><b>Rp 2.645.000</b></div>
+            <div class="list-row"><div><b>Sab, 17 Okt</b><br><span class="muted">6 produk · 🔒 terkunci</span></div><b>Rp 2.390.000</b></div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Beranda</div>
+          <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Isi Laporan</div>
+          <div class="on"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Riwayat</div>
+          <div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Profil</div>
+        </div>
+      </div>
+      <p class="caption">Laporan bisa diubah sampai 2 hari setelah tanggal laporan, lalu terkunci (Leader masih bisa membuka).</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- =============================== LEADER =============================== -->
+<section class="role" id="role-leader">
+
+  <!-- Dashboard Tim -->
+  <div class="section-title">Leader · Dashboard Tim</div>
+  <div class="browser" id="shot-leader-dashboard">
+    <div class="browser-bar"><i></i><i></i><i></i><span class="url">laporan-spg / dashboard-tim</span></div>
+    <div class="app">
+      <aside class="side">
+        <div class="logo"><span class="dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00136F" stroke-width="2.4" stroke-linecap="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg></span>Laporan SPG</div>
+        <a class="on" href="#">▦ Dashboard Tim</a>
+        <a href="#">◎ Target</a>
+        <a href="#">☰ Laporan SPG</a>
+        <a href="#">👥 Kelola Tim</a>
+        <a href="#">⚙ Pengaturan Tim</a>
+        <div class="who"><b>Rina Agustina</b>Leader · Tim Jakarta Selatan</div>
+      </aside>
+      <div class="content">
+        <div class="page-head">
+          <div><h2>Tim Jakarta Selatan</h2><p>8 SPG · 8 toko · Kamis, 22 Oktober 2026</p></div>
+          <div class="toolbar">
+            <div class="seg"><button>Hari ini</button><button>Minggu ini</button><button class="on">Bulan ini</button><button>Pilih tanggal</button></div>
+            <button class="btn small ghost">⭳ Export Excel</button>
+          </div>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><div class="l">Penjualan Bulan Ini</div><div class="v">Rp 241,1 jt</div><div class="s">dari target Rp 355 jt</div></div>
+          <div class="kpi"><div class="l">Pencapaian</div><div class="v">67,9%</div><div class="s"><span class="pill warn">▼ 2,5% di bawah laju</span></div></div>
+          <div class="kpi"><div class="l">Penjualan Hari Ini</div><div class="v">Rp 9,9 jt</div><div class="s">75% dari target harian Rp 13,1 jt</div></div>
+          <div class="kpi"><div class="l">Sudah Lapor Hari Ini</div><div class="v">6 / 8</div><div class="s">2 SPG belum lapor</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <h4>Penjualan Harian vs Target <span class="note">Oktober 2026 · dalam juta Rp</span></h4>
+            <div class="chart" id="trend"></div>
+          </div>
+          <div class="panel">
+            <h4>Belum Lapor Hari Ini <span class="pill bad">2</span></h4>
+            <div class="missing"><div><b>Rani Kusuma</b><small>Toko Blok M · terakhir lapor 21 Okt</small></div><button class="btn small">Ingatkan WA</button></div>
+            <div class="missing"><div><b>Indah Permata</b><small>Toko Tebet · terakhir lapor 20 Okt</small></div><button class="btn small">Ingatkan WA</button></div>
+            <p class="note">Pengingat otomatis dikirim pukul 20:00 WIB.</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <h4>Pencapaian per SPG <span class="note">urut berdasarkan %</span></h4>
+            <div class="table-wrap">
+              <table id="spgTable">
+                <thead><tr><th>SPG</th><th class="num">Penjualan</th><th class="num">Target</th><th>Pencapaian</th><th>Hari ini</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel">
+            <h4>Penjualan per Produk</h4>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Produk</th><th class="num">Qty</th><th class="num">Rp</th></tr></thead>
+                <tbody>
+                  <tr><td>Body Lotion Extra White 400ml</td><td class="num">812</td><td class="num">69.020.000</td></tr>
+                  <tr><td>Soft Moisturizing Creme 100ml</td><td class="num">905</td><td class="num">58.825.000</td></tr>
+                  <tr><td>Men Deep Facial Foam 100g</td><td class="num">742</td><td class="num">40.810.000</td></tr>
+                  <tr><td>Deodorant Roll-on 50ml</td><td class="num">1.104</td><td class="num">27.600.000</td></tr>
+                  <tr><td>Micellar Water 400ml</td><td class="num">284</td><td class="num">26.980.000</td></tr>
+                  <tr><td class="muted">Lainnya (9 produk)</td><td class="num muted">391</td><td class="num muted">17.905.000</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Target -->
+  <div class="section-title">Leader · Atur Target</div>
+  <div class="browser" id="shot-leader-target">
+    <div class="browser-bar"><i></i><i></i><i></i><span class="url">laporan-spg / target</span></div>
+    <div class="app">
+      <aside class="side">
+        <div class="logo"><span class="dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00136F" stroke-width="2.4" stroke-linecap="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg></span>Laporan SPG</div>
+        <a href="#">▦ Dashboard Tim</a>
+        <a class="on" href="#">◎ Target</a>
+        <a href="#">☰ Laporan SPG</a>
+        <a href="#">👥 Kelola Tim</a>
+        <a href="#">⚙ Pengaturan Tim</a>
+        <div class="who"><b>Rina Agustina</b>Leader · Tim Jakarta Selatan</div>
+      </aside>
+      <div class="content">
+        <div class="page-head">
+          <div><h2>Target Penjualan</h2><p>Oktober 2026 · 27 hari kerja (Sen–Sab) · 0 hari libur</p></div>
+          <div class="toolbar">
+            <div class="seg"><button>‹</button><button class="on">Oktober 2026</button><button>›</button></div>
+            <button class="btn small ghost">Salin dari bulan lalu</button>
+            <button class="btn small ghost" id="applyAll">Terapkan ke semua</button>
+            <button class="btn small">Simpan</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h4>Isi target bulanan — target mingguan & harian dihitung otomatis <span class="note"><span class="pill warn">kuning</span> = diubah manual</span></h4>
+          <div class="table-wrap">
+            <table id="targetTable">
+              <thead><tr><th>SPG</th><th>Toko</th><th class="num">Target Bulanan (Rp)</th><th class="num">Target Mingguan</th><th class="num">Target Harian</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p class="note" style="margin:12px 0 0">Harian = bulanan ÷ hari kerja. Mingguan = harian × hari kerja di minggu itu. Klik nilai mingguan/harian untuk mengubah manual.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pengaturan -->
+  <div class="section-title">Leader · Pengaturan Tim</div>
+  <div class="browser" id="shot-leader-settings">
+    <div class="browser-bar"><i></i><i></i><i></i><span class="url">laporan-spg / pengaturan-tim</span></div>
+    <div class="app">
+      <aside class="side">
+        <div class="logo"><span class="dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00136F" stroke-width="2.4" stroke-linecap="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg></span>Laporan SPG</div>
+        <a href="#">▦ Dashboard Tim</a>
+        <a href="#">◎ Target</a>
+        <a href="#">☰ Laporan SPG</a>
+        <a href="#">👥 Kelola Tim</a>
+        <a class="on" href="#">⚙ Pengaturan Tim</a>
+        <div class="who"><b>Rina Agustina</b>Leader · Tim Jakarta Selatan</div>
+      </aside>
+      <div class="content">
+        <div class="page-head"><div><h2>Pengaturan Tim</h2><p>Berlaku untuk semua SPG di Tim Jakarta Selatan</p></div><button class="btn small">Simpan</button></div>
+        <div class="grid-2">
+          <div>
+            <div class="panel" style="margin-bottom:16px">
+              <h4>Hari Kerja</h4>
+              <div class="chips" id="days"></div>
+              <p class="note" style="margin:12px 0 0" id="dayCount"></p>
+            </div>
+            <div class="panel">
+              <h4>Hari Libur <button class="btn small ghost">+ Tambah</button></h4>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Tetap hari kerja?</th></tr></thead>
+                  <tbody>
+                    <tr><td>Jum, 25 Des 2026</td><td>Hari Raya Natal</td><td><span class="switch on"></span> <span class="note">Ya — toko ramai</span></td></tr>
+                    <tr><td>Sab, 26 Des 2026</td><td>Cuti bersama</td><td><span class="switch"></span> <span class="note">Tidak</span></td></tr>
+                    <tr><td>Jum, 1 Jan 2027</td><td>Tahun Baru</td><td><span class="switch"></span> <span class="note">Tidak</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="note" style="margin:12px 0 0">Hari libur yang bukan hari kerja tidak dihitung saat membagi target bulanan.</p>
+            </div>
+          </div>
+          <div class="panel">
+            <h4>Laporan</h4>
+            <div class="field">
+              <label>Batas waktu SPG mengubah laporan</label>
+              <select class="input"><option>1 hari</option><option selected>2 hari</option><option>3 hari</option><option>7 hari</option></select>
+            </div>
+            <div class="field">
+              <label>Jam pengingat via WhatsApp</label>
+              <input class="input" value="20:00 WIB">
+            </div>
+            <div class="field">
+              <label>Zona waktu</label>
+              <select class="input"><option>WIB (Asia/Jakarta)</option><option>WITA</option><option>WIT</option></select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================== AREA =============================== -->
+<section class="role" id="role-area">
+  <div class="section-title">Area Manager · Dashboard Area</div>
+  <div class="browser" id="shot-area-dashboard">
+    <div class="browser-bar"><i></i><i></i><i></i><span class="url">laporan-spg / dashboard-area</span></div>
+    <div class="app">
+      <aside class="side">
+        <div class="logo"><span class="dot"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00136F" stroke-width="2.4" stroke-linecap="round"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg></span>Laporan SPG</div>
+        <a class="on" href="#">▦ Dashboard Area</a>
+        <a href="#">◎ Target</a>
+        <a href="#">🏬 Tim & Toko</a>
+        <a href="#">👥 Leader & SPG</a>
+        <a href="#">⚙ Pengaturan</a>
+        <div class="who"><b>Budi Santoso</b>Area Manager · Jabodetabek</div>
+      </aside>
+      <div class="content">
+        <div class="page-head">
+          <div><h2>Area Jabodetabek</h2><p>5 tim · 38 SPG · Kamis, 22 Oktober 2026</p></div>
+          <div class="toolbar">
+            <div class="seg"><button>Hari ini</button><button>Minggu ini</button><button class="on">Bulan ini</button><button>Pilih tanggal</button></div>
+            <button class="btn small ghost">⭳ Export Excel</button>
+          </div>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><div class="l">Penjualan Bulan Ini</div><div class="v">Rp 1,10 M</div><div class="s">dari target Rp 1,62 M</div></div>
+          <div class="kpi"><div class="l">Pencapaian</div><div class="v">68,0%</div><div class="s"><span class="pill warn">▼ 2,4% di bawah laju</span></div></div>
+          <div class="kpi"><div class="l">Tim Terbaik</div><div class="v" style="font-size:20px">Jakarta Pusat</div><div class="s">74,6% dari target</div></div>
+          <div class="kpi"><div class="l">Sudah Lapor Hari Ini</div><div class="v">33 / 38</div><div class="s">5 SPG belum lapor</div></div>
+        </div>
+        <div class="panel">
+          <h4>Perbandingan Tim <span class="note">klik tim untuk melihat detail</span></h4>
+          <div class="table-wrap">
+            <table id="teamTable">
+              <thead><tr><th>Tim</th><th>Leader</th><th class="num">SPG</th><th class="num">Penjualan</th><th class="num">Target</th><th>Pencapaian</th><th class="num">Lapor hari ini</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p class="note" style="margin:12px 0 0">Laju seharusnya s/d hari ini: 70,4% (19 dari 27 hari kerja).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+  const rp = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+  const num = n => Math.round(n).toLocaleString('id-ID');
+  const jt = n => (n / 1e6).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' jt';
+  const barClass = pct => pct >= 100 ? 'ok' : pct < 55 ? 'low' : '';
+
+  /* ---------- Role tabs ---------- */
+  document.querySelectorAll('.roles button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.roles button').forEach(b => b.setAttribute('aria-selected', b === btn));
+      document.querySelectorAll('.role').forEach(s => s.classList.toggle('active', s.id === 'role-' + btn.dataset.role));
+    });
+  });
+
+  /* ---------- Report form ---------- */
+  const products = [
+    ['Soft Moisturizing Creme 100ml', 65000],
+    ['Men Deep Facial Foam 100g', 55000],
+    ['Body Lotion Extra White 400ml', 85000],
+    ['Deodorant Roll-on 50ml', 25000],
+    ['Micellar Water 400ml', 95000],
+    ['Creme Tin 150ml', 60000],
+    ['Lip Care Original 4.8g', 30000],
+  ];
+  const linesEl = document.getElementById('lines');
+  function addLine(pi = 0, qty = 1, price = products[pi][1]) {
+    const d = document.createElement('div');
+    d.className = 'line';
+    d.innerHTML = `
+      <div class="top-row">
+        <select>${products.map((p, i) => `<option value="${i}" ${i === pi ? 'selected' : ''}>${p[0]}</option>`).join('')}</select>
+        <button class="del" title="Hapus">×</button>
+      </div>
+      <div class="nums">
+        <div><label>Qty</label><input type="number" min="0" value="${qty}" class="qty"></div>
+        <div><label>Harga satuan</label><input type="number" min="0" step="500" value="${price}" class="price"></div>
+        <div class="sub"></div>
+      </div>`;
+    d.querySelector('select').addEventListener('change', e => { d.querySelector('.price').value = products[e.target.value][1]; recalc(); });
+    d.querySelector('.del').addEventListener('click', () => { d.remove(); recalc(); });
+    d.querySelectorAll('input').forEach(i => i.addEventListener('input', recalc));
+    linesEl.appendChild(d);
+    recalc();
+  }
+  function recalc() {
+    let total = 0;
+    linesEl.querySelectorAll('.line').forEach(l => {
+      const sub = (+l.querySelector('.qty').value || 0) * (+l.querySelector('.price').value || 0);
+      l.querySelector('.sub').textContent = rp(sub);
+      total += sub;
+    });
+    document.getElementById('grandTotal').textContent = rp(total);
+  }
+  [[0, 5], [1, 6], [2, 4], [3, 10]].forEach(([p, q]) => addLine(p, q));
+  document.getElementById('addLine').addEventListener('click', () => addLine(4, 1));
+  document.getElementById('noSales').addEventListener('change', e => {
+    linesEl.style.opacity = e.target.checked ? .35 : 1;
+    linesEl.style.pointerEvents = e.target.checked ? 'none' : '';
+    document.getElementById('grandTotal').textContent = e.target.checked ? rp(0) : (recalc(), document.getElementById('grandTotal').textContent);
+  });
+
+  /* ---------- Calendar (Oct 2026, starts Thursday) ---------- */
+  (() => {
+    const cal = document.getElementById('cal');
+    const heads = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    let html = heads.map(h => `<div class="h">${h}</div>`).join('');
+    html += '<div></div>'.repeat(3); // Oct 1 2026 = Thursday
+    const missed = [13];
+    for (let d = 1; d <= 31; d++) {
+      const dow = (3 + d - 1) % 7; // 0 = Mon
+      let cls = 'ok', lock = d < 20;
+      if (dow === 6) { cls = 'off'; lock = false; }
+      else if (d > 22) { cls = 'future'; lock = false; }
+      else if (missed.includes(d)) cls = 'miss';
+      if (d === 22) cls += ' today';
+      html += `<div class="d ${cls}">${d}${lock ? '<span class="lock">🔒</span>' : ''}</div>`;
+    }
+    cal.innerHTML = html;
+  })();
+
+  /* ---------- Leader: trend chart ---------- */
+  (() => {
+    const data = [[1,12.4],[2,13.1],[3,15.8],[5,11.2],[6,12.0],[7,12.6],[8,11.9],[9,13.4],[10,16.2],[12,11.0],[13,12.3],[14,12.8],[15,12.1],[16,13.6],[17,15.9],[19,11.5],[20,12.2],[21,11.27],[22,9.87]];
+    const target = 13.15, W = 640, H = 240, L = 34, R = 10, T = 14, B = 26, max = 18;
+    const x0 = L, w = (W - L - R) / data.length, y = v => T + (H - T - B) * (1 - v / max);
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik penjualan harian tim vs target">`;
+    [0, 5, 10, 15].forEach(v => {
+      s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#E9EEF9"/>`;
+      s += `<text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="#5B6585">${v}</text>`;
+    });
+    data.forEach(([d, v], i) => {
+      const bx = x0 + i * w + w * .18, bw = w * .64, today = d === 22;
+      s += `<rect x="${bx}" y="${y(v)}" width="${bw}" height="${y(0) - y(v)}" rx="3" fill="${today ? '#4A6BC9' : '#00136F'}" opacity="${today ? .55 : 1}"><title>${d} Okt: Rp ${v.toLocaleString('id-ID')} jt</title></rect>`;
+      if (i % 2 === 0 || today) s += `<text x="${bx + bw / 2}" y="${H - 8}" text-anchor="middle" font-size="11" fill="#5B6585">${d}</text>`;
+    });
+    s += `<line x1="${L}" x2="${W - R}" y1="${y(target)}" y2="${y(target)}" stroke="#A86A00" stroke-width="2" stroke-dasharray="6 4"/>`;
+    s += '</svg>';
+    document.getElementById('trend').innerHTML = s + '<p class="note" style="margin:6px 0 0"><b style="color:#A86A00">– – Target harian tim Rp 13,1 jt</b> · Batang terang = hari ini (laporan belum lengkap) · Minggu libur.</p>';
+  })();
+
+  /* ---------- Leader: SPG table ---------- */
+  const spgs = [
+    ['Sari Wulandari', 'Toko Kemang', 33640000, 50000000, true],
+    ['Dewi Lestari', 'Toko Pondok Indah', 41200000, 50000000, true],
+    ['Putri Ayu', 'Toko Cilandak', 29850000, 45000000, true],
+    ['Rani Kusuma', 'Toko Blok M', 18400000, 40000000, false],
+    ['Maya Sari', 'Toko Fatmawati', 36900000, 45000000, true],
+    ['Indah Permata', 'Toko Tebet', 22750000, 40000000, false],
+    ['Fitri Handayani', 'Toko Pancoran', 31300000, 45000000, true],
+    ['Lina Marlina', 'Toko Mampang', 27100000, 40000000, true],
+  ];
+  document.querySelector('#spgTable tbody').innerHTML = [...spgs]
+    .sort((a, b) => b[2] / b[3] - a[2] / a[3])
+    .map(([n, st, s, t, ok], i) => {
+      const p = s / t * 100;
+      return `<tr>
+        <td><div class="person"><span class="rank">${i + 1}</span><div>${n}<small>${st}</small></div></div></td>
+        <td class="num">${num(s)}</td><td class="num">${num(t)}</td>
+        <td><span class="mini-bar ${barClass(p)}"><span style="width:${Math.min(p, 100)}%"></span></span><b>${p.toFixed(0)}%</b></td>
+        <td>${ok ? '<span class="pill ok">✓ Lapor</span>' : '<span class="pill bad">Belum</span>'}</td></tr>`;
+    }).join('');
+
+  /* ---------- Leader: target table ---------- */
+  const WORK_DAYS_MONTH = 27, WORK_DAYS_WEEK = 6;
+  const round1000 = n => Math.round(n / 1000) * 1000;
+  const tBody = document.querySelector('#targetTable tbody');
+  tBody.innerHTML = spgs.map(([n, st, , t], i) => `
+    <tr data-i="${i}">
+      <td><b>${n}</b></td><td class="muted">${st}</td>
+      <td class="num"><input class="t-input month" value="${num(t)}"></td>
+      <td class="num week"></td><td class="num day"></td>
+    </tr>`).join('');
+  function derive(tr, overrideDay) {
+    const m = +tr.querySelector('.month').value.replace(/\D/g, '') || 0;
+    const day = round1000(m / WORK_DAYS_MONTH), week = round1000(m / WORK_DAYS_MONTH * WORK_DAYS_WEEK);
+    tr.querySelector('.week').innerHTML = `<span class="derived">${num(week)}</span>`;
+    tr.querySelector('.day').innerHTML = overrideDay
+      ? `<input class="t-input override" value="${num(overrideDay)}">`
+      : `<span class="derived">${num(day)}</span>`;
+  }
+  tBody.querySelectorAll('tr').forEach((tr, i) => {
+    derive(tr, i === 3 ? 1200000 : null); // example manual override
+    tr.querySelector('.month').addEventListener('input', () => derive(tr, i === 3 ? 1200000 : null));
+  });
+  document.getElementById('applyAll').addEventListener('click', () => {
+    const first = tBody.querySelector('.month').value;
+    tBody.querySelectorAll('tr').forEach(tr => { tr.querySelector('.month').value = first; derive(tr); });
+  });
+
+  /* ---------- Leader: working days ---------- */
+  (() => {
+    const names = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    const on = [1, 1, 1, 1, 1, 1, 0];
+    const box = document.getElementById('days');
+    const render = () => {
+      box.innerHTML = names.map((n, i) => `<button class="chip ${on[i] ? 'on' : ''}" data-i="${i}">${n}</button>`).join('');
+      const perWeek = on.reduce((a, b) => a + b, 0);
+      document.getElementById('dayCount').textContent = `${perWeek} hari kerja per minggu. Contoh: semua SPG mall bisa dipilih 7 hari.`;
+    };
+    box.addEventListener('click', e => { const b = e.target.closest('.chip'); if (!b) return; on[b.dataset.i] ^= 1; render(); });
+    render();
+  })();
+
+  /* ---------- Area: team table ---------- */
+  const teams = [
+    ['Jakarta Pusat', 'Andi Pratama', 9, 268.4, 360, '9/9'],
+    ['Bekasi', 'Siti Rahma', 8, 214.5, 300, '7/8'],
+    ['Jakarta Selatan', 'Rina Agustina', 8, 241.14, 355, '6/8'],
+    ['Tangerang', 'Hendra Wijaya', 6, 176.2, 280, '6/6'],
+    ['Jakarta Barat', 'Yuni Rahmawati', 7, 198.7, 320, '5/7'],
+  ];
+  document.querySelector('#teamTable tbody').innerHTML = teams.map(([t, l, n, s, g, r], i) => {
+    const p = s / g * 100, full = r.split('/')[0] === r.split('/')[1];
+    return `<tr>
+      <td><div class="person"><span class="rank">${i + 1}</span><b>${t}</b></div></td>
+      <td>${l}</td><td class="num">${n}</td>
+      <td class="num">Rp ${s.toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt</td>
+      <td class="num">Rp ${g} jt</td>
+      <td><span class="mini-bar ${barClass(p)}"><span style="width:${p}%"></span></span><b>${p.toFixed(1).replace('.', ',')}%</b></td>
+      <td class="num"><span class="pill ${full ? 'ok' : 'warn'}">${r}</span></td></tr>`;
+  }).join('');
+</script>
+</body>
+</html>
