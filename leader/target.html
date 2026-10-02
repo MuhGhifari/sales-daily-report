@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#00136F">
+<title>Target · Laporan SPG</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../">
+<main>
+  <div class="toolbar">
+    <div><h1>Target Penjualan</h1><p class="lead" id="sub"></p></div>
+    <div class="row">
+      <button type="button" class="btn small ghost" id="prev" aria-label="Bulan sebelumnya">‹</button>
+      <b id="month" style="min-width:130px;text-align:center"></b>
+      <button type="button" class="btn small ghost" id="next" aria-label="Bulan berikutnya">›</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row wrap" style="margin-bottom:10px">
+      <p class="small muted" style="margin:0">Isi target bulanan. Target mingguan & harian dihitung otomatis. Isi kolom mingguan/harian hanya jika ingin mengubah manual (<span class="pill warn">kuning</span>).</p>
+      <div class="row">
+        <button type="button" class="btn small ghost" id="copyPrev">Salin bulan lalu</button>
+        <button type="button" class="btn small ghost" id="applyAll">Terapkan ke semua</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>SPG</th><th class="num">Bulanan (Rp)</th><th class="num">Mingguan (Rp)</th><th class="num">Harian (Rp)</th><th>Diatur oleh</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:14px;text-align:right"><button type="button" class="btn" id="save">Simpan Target</button></div>
+  </div>
+  <p class="small muted">Harian = bulanan ÷ hari kerja bulan itu. Mingguan = harian × hari kerja per minggu. Team Leader dan Supervisor sama-sama bisa mengatur target.</p>
+</main>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/pages/leader-target.js"></script>
+</body>
+</html>

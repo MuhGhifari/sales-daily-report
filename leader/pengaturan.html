@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#00136F">
+<title>Pengaturan Tim · Laporan SPG</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../">
+<main>
+  <div class="toolbar">
+    <div><h1>Pengaturan Tim</h1><p class="lead" id="sub"></p></div>
+    <button type="button" class="btn" id="save">Simpan Pengaturan</button>
+  </div>
+  <div class="grid-2">
+    <div>
+      <section class="card">
+        <h2>Hari Kerja</h2>
+        <div class="chips" id="days"></div>
+        <p class="small muted" id="dayCount" style="margin:10px 0 0"></p>
+      </section>
+      <section class="card">
+        <h2>Laporan</h2>
+        <div class="field">
+          <label for="editDays">Batas SPG mengubah laporan (hari)</label>
+          <input class="input" type="number" id="editDays" min="0" max="14" step="1">
+        </div>
+        <div class="field">
+          <label for="reminder">Jam pengingat WhatsApp</label>
+          <input class="input" type="time" id="reminder">
+        </div>
+      </section>
+    </div>
+    <section class="card">
+      <h2>Hari Libur</h2>
+      <div class="table-wrap"><table id="holidays"></table></div>
+      <div class="form-grid" style="margin-top:14px">
+        <div class="field"><label for="hDate">Tanggal</label><input class="input" type="date" id="hDate"></div>
+        <div class="field"><label for="hName">Keterangan</label><input class="input" id="hName" placeholder="mis. Idul Fitri"></div>
+      </div>
+      <div class="row wrap">
+        <label class="check"><input type="checkbox" id="hWork"> Tetap hari kerja (toko buka)</label>
+        <button type="button" class="btn small ghost" id="addHoliday">+ Tambah</button>
+      </div>
+      <p class="small muted" style="margin:10px 0 0">Hari libur yang bukan hari kerja tidak dihitung saat membagi target bulanan.</p>
+    </section>
+  </div>
+</main>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/pages/leader-pengaturan.js"></script>
+</body>
+</html>

@@ -2,10 +2,52 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=mockup/">
-<title>Laporan SPG</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#00136F">
+<title>Masuk · Laporan SPG</title>
+<link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
-<p><a href="mockup/">Buka mockup Laporan SPG →</a></p>
+<body data-root="" class="login">
+<div class="login-box">
+  <div class="login-head">
+    <div class="logo">📊</div>
+    <h1>Laporan SPG</h1>
+    <p>NIVEA · Laporan Penjualan Harian</p>
+  </div>
+  <form class="card" id="form" autocomplete="on" style="padding:20px">
+    <div class="error" id="err" hidden></div>
+    <div class="field">
+      <label for="username">Username</label>
+      <input class="input" id="username" name="username" autocomplete="username" autocapitalize="none" required>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input class="input" id="password" name="password" type="password" autocomplete="current-password" required>
+    </div>
+    <button class="btn block" type="submit">Masuk</button>
+  </form>
+  <div class="card">
+    <h2>Akun demo</h2>
+    <p class="small muted" style="margin-top:-4px">Klik salah satu untuk mengisi form.</p>
+    <div class="table-wrap">
+      <table class="demo-accounts">
+        <thead><tr><th>Peran</th><th>Username</th><th>Password</th></tr></thead>
+        <tbody>
+          <tr class="click" data-user="sari" data-pass="spg123"><td>SPG</td><td><b>sari</b></td><td>spg123</td></tr>
+          <tr class="click" data-user="dewi" data-pass="spg123"><td>SPG</td><td><b>dewi</b></td><td>spg123</td></tr>
+          <tr class="click" data-user="rani" data-pass="spg123"><td>SPG</td><td><b>rani</b></td><td>spg123</td></tr>
+          <tr class="click" data-user="rina" data-pass="leader123"><td>Team Leader</td><td><b>rina</b></td><td>leader123</td></tr>
+          <tr class="click" data-user="budi" data-pass="super123"><td>Supervisor</td><td><b>budi</b></td><td>super123</td></tr>
+          <tr class="click" data-user="admin" data-pass="admin123"><td>Admin</td><td><b>admin</b></td><td>admin123</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted" style="margin:10px 0 0">SPG lain di Tim Jakarta Selatan: putri, maya, indah, fitri, lina (password spg123).</p>
+  </div>
+  <p class="small center"><a href="#" id="reset">Reset data demo</a></p>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/js/pages/login.js"></script>
 </body>
 </html>

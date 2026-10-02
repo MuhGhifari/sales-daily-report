@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#00136F">
+<title>Dashboard Tim · Laporan SPG</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../">
+<main>
+  <div class="toolbar">
+    <div><h1 id="title"></h1><p class="lead" id="sub"></p></div>
+    <div class="seg" id="tabs" role="tablist">
+      <button type="button" data-p="day">Hari ini</button>
+      <button type="button" data-p="week">Minggu ini</button>
+      <button type="button" data-p="month" class="on">Bulan ini</button>
+    </div>
+  </div>
+  <div class="kpis" id="kpis"></div>
+  <section class="card" id="missing"></section>
+  <section class="card">
+    <div class="row wrap" style="margin-bottom:8px">
+      <h2 style="margin:0">Peringkat SPG <span class="small muted" id="period-note"></span></h2>
+      <button type="button" class="btn small ghost" id="export">⭳ Export Excel (CSV)</button>
+    </div>
+    <div class="table-wrap"><table id="spgs"></table></div>
+    <p class="small muted" style="margin:8px 0 0">Klik nama SPG untuk melihat laporannya.</p>
+  </section>
+  <section class="card">
+    <h2>Penjualan per Produk</h2>
+    <div class="table-wrap"><table id="products"></table></div>
+  </section>
+</main>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/pages/leader-dashboard.js"></script>
+</body>
+</html>

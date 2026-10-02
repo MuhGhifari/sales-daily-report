@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#00136F">
+<title>Isi Laporan · Laporan SPG</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../">
+<main>
+  <h1 id="title">Isi Laporan</h1>
+  <p class="lead" id="sub"></p>
+  <div id="notes-top"></div>
+  <form id="form" novalidate>
+    <div class="card">
+      <div class="field"><label for="date">Tanggal</label><div id="dateField"></div></div>
+      <div class="field"><label for="store">Toko</label><input class="input" id="store" readonly></div>
+      <label class="check"><input type="checkbox" id="noSales"> Tidak ada penjualan</label>
+    </div>
+    <h2>Produk Terjual</h2>
+    <div id="lines"></div>
+    <button type="button" class="add-line" id="add">+ Tambah Produk</button>
+    <div class="field" style="margin-top:14px">
+      <label for="notes">Catatan (opsional)</label>
+      <input class="input" id="notes" maxlength="200" placeholder="mis. hujan, toko sepi, ada promo">
+    </div>
+    <div class="total-bar">
+      <div class="row"><span>Total Penjualan</span><b class="big" id="total">Rp 0</b></div>
+      <button class="btn block" type="submit" id="submit">Kirim Laporan</button>
+    </div>
+  </form>
+</main>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/pages/spg-laporan.js"></script>
+</body>
+</html>

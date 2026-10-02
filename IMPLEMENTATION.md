@@ -3,7 +3,7 @@
 This plan replaces the current single-file mockup (`mockup/index.html`, the gallery of phone and browser frames) with **one real HTML page per screen** and a simple layout.
 The pages are static and are served from GitHub Pages. They use mock data for now, and the same pages are later connected to the real backend (see §8).
 
-> Status: plan only. No code until this is approved.
+> Status: built. Live at https://muhghifari.github.io/sales-daily-report/
 
 ---
 
@@ -35,7 +35,7 @@ The pages are static and are served from GitHub Pages. They use mock data for no
 │   ├── target.html             → Set targets
 │   ├── tim.html                → Manage SPGs (add / deactivate)
 │   └── pengaturan.html         → Working days, holidays, edit window
-├── area/
+├── supervisor/
 │   └── dashboard.html          → Team comparison across the area
 ├── admin/
 │   └── produk.html             → Product catalog & prices
@@ -93,11 +93,11 @@ One layout for every page, the same on phone and desktop:
   | `rani` | `spg123` | SPG | Rani Kusuma |
   | *(other SPGs in the team, same pattern)* | `spg123` | SPG | |
   | `rina` | `leader123` | Leader | Rina Agustina |
-  | `budi` | `area123` | Area Manager / Supervisor | Budi Santoso |
+  | `budi` | `super123` | Supervisor | Budi Santoso |
   | `admin` | `admin123` | Admin | Admin |
 
 - Wrong username/password → "Username atau password salah".
-- After login, redirect by role: SPG → `spg/beranda.html`, Leader → `leader/dashboard.html`, Area → `area/dashboard.html`, Admin → `admin/produk.html`.
+- After login, redirect by role: SPG → `spg/beranda.html`, Leader → `leader/dashboard.html`, Supervisor → `supervisor/dashboard.html`, Admin → `admin/produk.html`.
 - The logged-in user is kept in the browser (sessionStorage). "Keluar" clears it.
 - ⚠️ Demo only: the passwords sit in the page source, so anyone can read them. Replace this with real login before any real data goes in.
 
@@ -186,7 +186,7 @@ The top of the page is about **today**, shown like a game score:
 - Report edit window: number of days (default 2).
 - Reminder time (default 20:00).
 
-### 4.10 `area/dashboard.html` — Dashboard Area
+### 4.10 `supervisor/dashboard.html` — Dashboard Area
 - Same summary as the team dashboard, for the whole area.
 - Team table: team, leader, SPG count, sales, target, %, reported today. Click → that team's dashboard (read-only view of `leader/dashboard.html?tim=…`).
 
@@ -214,7 +214,7 @@ All pages get data **only** through these functions, never by reading mock array
 | `getTargets(teamId, month)` / `saveTargets(rows)` | leader/target |
 | `getTeam(teamId)` / `saveSpg(spg)` | leader/tim |
 | `getTeamSettings(teamId)` / `saveTeamSettings(s)` | leader/pengaturan |
-| `getAreaDashboard(areaId, period)` | area/dashboard |
+| `areaSummary(areaId, period)` | supervisor/dashboard |
 
 - Mock data: 1 area, 5 teams, 1 fully filled team (8 SPGs), 7 products, and October 2026 reports generated with a fixed random seed so the numbers are always the same.
 - Data the user changes (reports, targets, settings) is kept in localStorage so the demo feels real. A "Reset data demo" link restores it.

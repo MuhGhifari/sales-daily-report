@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#00136F">
+<title>Laporan Tim · Laporan SPG</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../">
+<main>
+  <h1>Laporan Tim</h1>
+  <p class="lead" id="sub"></p>
+  <div class="card">
+    <div class="form-grid">
+      <div class="field"><label for="spg">SPG</label><select class="input" id="spg"></select></div>
+      <div class="field"><label for="from">Dari tanggal</label><input class="input" type="date" id="from"></div>
+      <div class="field"><label for="to">Sampai tanggal</label><input class="input" type="date" id="to"></div>
+    </div>
+    <p class="small" id="summary" style="margin:0"></p>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table id="table"></table></div>
+    <p class="small muted" style="margin:8px 0 0">Klik baris untuk melihat produk. Laporan yang terkunci bisa dibuka agar SPG bisa mengubahnya.</p>
+  </div>
+</main>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/pages/leader-laporan.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#00136F">
+<title>Peringkat · Laporan SPG</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body data-root="../">
+<main>
+  <h1>Peringkat Tim 🏆</h1>
+  <p class="lead" id="sub"></p>
+  <div style="margin-bottom:14px">
+    <div class="seg" id="tabs" role="tablist">
+      <button type="button" data-p="day">Hari ini</button>
+      <button type="button" data-p="week">Minggu ini</button>
+      <button type="button" data-p="month" class="on">Bulan ini</button>
+    </div>
+  </div>
+  <div id="me"></div>
+  <div class="podium" id="podium"></div>
+  <div class="card rank-list" id="list"></div>
+  <p class="small muted">Peringkat dihitung dari % pencapaian target masing-masing, jadi adil walaupun targetnya berbeda.</p>
+</main>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/pages/spg-peringkat.js"></script>
+</body>
+</html>
