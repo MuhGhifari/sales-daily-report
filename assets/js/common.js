@@ -12,11 +12,46 @@
     admin: 'admin/produk.html',
   };
   const NAV = {
-    spg: [['spg/beranda.html', '🏠', 'Beranda'], ['spg/laporan.html', '✏️', 'Isi Laporan'], ['spg/peringkat.html', '🏆', 'Peringkat'], ['spg/riwayat.html', '📅', 'Riwayat']],
+    spg: [['spg/beranda.html', 'home', 'Beranda'], ['spg/laporan.html', 'edit', 'Isi Laporan'], ['spg/peringkat.html', 'trophy', 'Peringkat'], ['spg/riwayat.html', 'calendar', 'Riwayat']],
     leader: [['leader/dashboard.html', 'Dashboard'], ['leader/laporan.html', 'Laporan'], ['leader/target.html', 'Target'], ['leader/tim.html', 'Kelola Tim'], ['leader/pengaturan.html', 'Pengaturan']],
     supervisor: [['supervisor/dashboard.html', 'Dashboard Area'], ['leader/dashboard.html', 'Dashboard Tim'], ['leader/laporan.html', 'Laporan'], ['leader/target.html', 'Target'], ['leader/tim.html', 'Kelola Tim'], ['leader/pengaturan.html', 'Pengaturan']],
     admin: [['admin/produk.html', 'Produk']],
   };
+
+  /* ---------- Icons (Lucide, ISC license — inline SVG, inherit text color) ---------- */
+  const ICONS = {
+    home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+    edit: '<path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/>',
+    trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.7V17c0 .6-.5 1-1 1.2C7.9 18.8 7 20.2 7 22"/><path d="M14 14.7V17c0 .6.5 1 1 1.2 1.1.6 2 2 2 3.8"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+    calendar: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    chart: '<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
+    flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4.1 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+    award: '<circle cx="12" cy="8" r="6"/><path d="M15.5 12.9 17 22l-5-3-5 3 1.5-9.1"/>',
+    gem: '<path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/>',
+    target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    crown: '<path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7Z"/><path d="M5 20h14"/>',
+    up: '<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>',
+    down: '<path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    lock: '<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    unlock: '<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
+    x: '<path d="M18 6 6 18M6 6l12 12"/>',
+    plus: '<path d="M5 12h14M12 5v14"/>',
+    left: '<path d="m15 18-6-6 6-6"/>',
+    right: '<path d="m9 18 6-6-6-6"/>',
+    download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
+    message: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+    sparkles: '<path d="M9.9 15.5a2 2 0 0 0-1.4-1.4l-6.1-1.6a.5.5 0 0 1 0-1l6.1-1.6a2 2 0 0 0 1.4-1.4l1.6-6.1a.5.5 0 0 1 1 0l1.6 6.1a2 2 0 0 0 1.4 1.4l6.1 1.6a.5.5 0 0 1 0 1l-6.1 1.6a2 2 0 0 0-1.4 1.4l-1.6 6.1a.5.5 0 0 1-1 0Z"/>',
+    coffee: '<path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><path d="M6 2v2M10 2v2M14 2v2"/>',
+  };
+  function icon(name, opts) {
+    opts = opts || {};
+    const style = opts.color ? ` style="color:${opts.color}"` : '';
+    return `<svg class="icon${opts.cls ? ' ' + opts.cls : ''}"${style} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name] || ''}</svg>`;
+  }
+  const levelIcon = (lv, cls) => icon(lv.icon, { color: lv.iconColor, cls });
+  const levelBadge = lv => `<span class="lvl">${levelIcon(lv)}${lv.name}</span>`;
 
   /* ---------- Formatting ---------- */
   const nf = new Intl.NumberFormat('id-ID');
@@ -68,10 +103,10 @@
     top.className = 'topbar';
     top.innerHTML = `
       <div class="topbar-inner">
-        <a class="brand" href="${root + HOME[user.role]}"><span class="brand-dot">📊</span>Laporan SPG</a>
+        <a class="brand" href="${root + HOME[user.role]}"><span class="brand-dot">${icon('chart')}</span>Laporan SPG</a>
         <div class="user">
           <div class="who"><b>${esc(user.name)}</b><span>${ROLE_LABEL[user.role]}${where ? ' · ' + esc(where) : ''}</span></div>
-          <button class="logout" type="button">Keluar</button>
+          <button class="logout" type="button" aria-label="Keluar">${icon('logout')}<span>Keluar</span></button>
         </div>
       </div>`;
     top.querySelector('.logout').addEventListener('click', () => { Data.logout(); location.href = root + 'index.html'; });
@@ -82,8 +117,8 @@
       document.body.classList.add('spg');
       const nav = document.createElement('nav');
       nav.className = 'bottomnav';
-      nav.innerHTML = items.map(([href, icon, label]) =>
-        `<a href="${root + href}" class="${isOn(href) ? 'on' : ''}"><span class="ic">${icon}</span>${label}</a>`).join('');
+      nav.innerHTML = items.map(([href, ic, label]) =>
+        `<a href="${root + href}" class="${isOn(href) ? 'on' : ''}" ${isOn(href) ? 'aria-current="page"' : ''}>${icon(ic, { cls: 'ic' })}${label}</a>`).join('');
       document.body.append(nav);
     } else {
       const nav = document.createElement('nav');
@@ -156,7 +191,7 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, init, teamId, toast, ring, animateRings, bar, downloadCsv,
+    root, HOME, ROLE_LABEL, init, teamId, toast, ring, animateRings, bar, downloadCsv, icon, levelIcon, levelBadge,
     esc, num, rp, rpK, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
   };

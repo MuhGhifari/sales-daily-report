@@ -31,7 +31,7 @@
         const key = r.userId + '|' + r.date;
         const lockedByTime = r.date < D.addDays(D.TODAY, -D.getSettings(teamId).editDays);
         const status = !lockedByTime ? '<span class="pill ok">SPG bisa ubah</span>'
-          : r.unlocked ? '<span class="pill warn">Dibuka Leader</span>' : '<span class="pill off">🔒 Terkunci</span>';
+          : r.unlocked ? '<span class="pill warn">Dibuka Leader</span>' : `<span class="pill off">${App.icon('lock')} Terkunci</span>`;
         const lockBtn = lockedByTime
           ? `<button class="btn small ghost" data-lock="${key}">${r.unlocked ? 'Kunci lagi' : 'Buka kunci'}</button>` : '';
         return `<tr class="click" data-key="${key}">

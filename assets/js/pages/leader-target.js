@@ -83,7 +83,7 @@
       daily: App.parseNum(tr.querySelector('.daily').value),
     }));
     D.saveTargets(rows, user.id);
-    App.toast('Target ' + App.monthName(mk) + ' disimpan ✓');
+    App.toast('Target ' + App.monthName(mk) + ' disimpan.');
     render();
   });
 

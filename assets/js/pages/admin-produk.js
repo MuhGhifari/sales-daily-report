@@ -43,7 +43,7 @@
     const price = Math.round(+form.price.value);
     if (!form.name.value.trim() || !(price > 0)) { App.toast('Isi nama produk dan harga yang benar.'); return; }
     D.saveProduct({ id: form.id.value || undefined, name: form.name.value.trim(), sku: form.sku.value.trim(), price, active: form.active.checked });
-    App.toast('Produk disimpan ✓');
+    App.toast('Produk disimpan.');
     fill(null);
     render();
   });

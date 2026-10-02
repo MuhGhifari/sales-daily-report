@@ -33,7 +33,7 @@
     for (let i = 0; i <= editDays; i++) options.push(D.addDays(D.TODAY, -i));
     if (!options.includes(date)) options.push(date);
     $('dateField').innerHTML = `<select class="input" id="date">${options.map(d =>
-      `<option value="${d}" ${d === date ? 'selected' : ''}>${App.dateLong(d)}${d === D.TODAY ? ' (hari ini)' : ''}${D.isLocked(owner.id, d) ? ' 🔒' : ''}</option>`).join('')}</select>`;
+      `<option value="${d}" ${d === date ? 'selected' : ''}>${App.dateLong(d)}${d === D.TODAY ? ' (hari ini)' : ''}${D.isLocked(owner.id, d) ? ' (terkunci)' : ''}</option>`).join('')}</select>`;
   } else {
     $('dateField').innerHTML = `<input type="date" class="input" id="date" max="${D.TODAY}" value="${date}">`;
   }
@@ -43,7 +43,7 @@
     $('notes-top').innerHTML = `<div class="notice">Tanggal ini hari libur tim. Laporan tetap bisa dikirim.</div>`;
   }
   if (!editable) {
-    $('notes-top').innerHTML = `<div class="notice">🔒 Laporan ini terkunci karena sudah lebih dari ${editDays} hari. Minta Team Leader membuka kunci jika perlu diubah.</div>`;
+    $('notes-top').innerHTML = `<div class="notice">${App.icon('lock')} Laporan ini terkunci karena sudah lebih dari ${editDays} hari. Minta Team Leader membuka kunci jika perlu diubah.</div>`;
   }
 
   /* ----- Product lines ----- */
@@ -63,7 +63,7 @@
     el.innerHTML = `
       <div class="line-top">
         <select class="input" aria-label="Produk">${productOptions(item.productId)}</select>
-        <button type="button" class="del" aria-label="Hapus produk">×</button>
+        <button type="button" class="del" aria-label="Hapus produk">${App.icon('x')}</button>
       </div>
       <div class="line-nums">
         <div><label>Qty</label><input class="input qty" type="number" inputmode="numeric" min="0" step="1" value="${item.qty}"></div>
@@ -129,10 +129,10 @@
     D.saveReport({ userId: owner.id, date, items, noSales, notes: $('notes').value.trim() }, user.id);
 
     if (isSpg) {
-      let msg = report ? 'Laporan diperbarui ✓' : 'Laporan terkirim ✓';
+      let msg = report ? 'Laporan diperbarui.' : 'Laporan terkirim.';
       if (trackLevel) {
         const after = D.level(D.progress(owner.id, 'day', date).pct);
-        if (after.min > before.min) msg = `Selamat! Kamu mencapai ${after.emoji} ${after.label} hari ini! 🎉`;
+        if (after.min > before.min) msg = `Selamat! Kamu mencapai ${after.label} hari ini.`;
       }
       try { sessionStorage.setItem('lspg-celebrate', msg); } catch (err) { /* ignore */ }
       location.href = 'beranda.html';

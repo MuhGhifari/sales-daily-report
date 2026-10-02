@@ -17,12 +17,12 @@
     let pace = '';
     if (a.expected != null) {
       const diff = a.pct - a.expected;
-      pace = diff >= 0 ? `<span class="pill ok">▲ ${App.pct1(diff)} di atas laju</span>` : `<span class="pill warn">▼ ${App.pct1(-diff)} di bawah laju</span>`;
+      pace = diff >= 0 ? `<span class="pill ok">${App.icon('up')} ${App.pct1(diff)} di atas laju</span>` : `<span class="pill warn">${App.icon('down')} ${App.pct1(-diff)} di bawah laju</span>`;
     }
     $('kpis').innerHTML = `
       <div class="card kpi"><div class="l">Penjualan ${LABEL[period]}</div><div class="v">${App.rpShort(a.actual)}</div><div class="small muted">dari target ${App.rpShort(a.target)}</div></div>
-      <div class="card kpi"><div class="l">Pencapaian Area</div><div class="v">${App.pct1(a.pct)} ${lv.emoji}</div>${App.bar(a.pct, lv.color)}${pace}</div>
-      <div class="card kpi"><div class="l">Tim Terbaik</div><div class="v" style="font-size:20px">🏆 ${best ? App.esc(best.team.name) : '–'}</div><div class="small muted">${best ? App.pct1(best.pct) + ' dari target' : ''}</div></div>
+      <div class="card kpi"><div class="l">Pencapaian Area</div><div class="v">${App.pct1(a.pct)}</div>${App.bar(a.pct, lv.color)}${pace}</div>
+      <div class="card kpi"><div class="l">Tim Terbaik</div><div class="v" style="font-size:20px">${best ? App.esc(best.team.name) : '–'}</div><div class="small muted">${best ? App.pct1(best.pct) + ' dari target' : ''}</div></div>
       <div class="card kpi"><div class="l">Lapor Hari Ini</div><div class="v">${a.reported} / ${a.size}</div><div class="small muted">${a.size - a.reported} SPG belum lapor</div></div>`;
 
     $('teams').innerHTML = `
@@ -51,7 +51,7 @@
         <td><b>${App.esc(r.user.name)}</b><small>${App.esc(r.user.store)}</small></td>
         <td>${App.esc(D.team(r.user.teamId).name)}</td>
         <td><b>${App.pct(r.pct)}</b></td>
-        <td>${r.level.emoji} ${r.level.name}</td>
+        <td>${App.levelBadge(r.level)}</td>
       </tr>`).join('')}</tbody>`;
   }
 

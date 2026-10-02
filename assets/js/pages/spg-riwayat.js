@@ -27,8 +27,8 @@
         const t = D.dailyTarget(user.id, d);
         const p = t ? r.total / t * 100 : 0;
         const lv = D.level(p);
-        status = D.isLocked(user.id, d) ? '<span class="pill off">🔒 Terkunci</span>' : '<span class="pill ok">Terkirim</span>';
-        amount = `${App.rp(r.total)}<div class="small muted">${t ? `${lv.emoji} ${App.pct(p)}` : r.noSales ? 'Tidak ada penjualan' : ''}</div>`;
+        status = D.isLocked(user.id, d) ? `<span class="pill off">${App.icon('lock')} Terkunci</span>` : `<span class="pill ok">${App.icon('check')} Terkirim</span>`;
+        amount = `${App.rp(r.total)}<div class="small muted">${t ? `<span class="lvl">${App.levelIcon(lv)}${App.pct(p)}</span>` : r.noSales ? 'Tidak ada penjualan' : ''}</div>`;
       } else if (!working) {
         status = '<span class="pill off">Libur</span>';
       } else {

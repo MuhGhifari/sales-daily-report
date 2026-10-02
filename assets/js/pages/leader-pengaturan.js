@@ -66,7 +66,7 @@
     D.saveSettings(teamId, s);
     s = D.getSettings(teamId);
     const mk = D.monthKey(D.TODAY);
-    App.toast(`Pengaturan disimpan ✓ ${App.monthName(mk)}: ${D.workingDaysInMonth(teamId, mk)} hari kerja`);
+    App.toast(`Pengaturan disimpan. ${App.monthName(mk)}: ${D.workingDaysInMonth(teamId, mk)} hari kerja`);
   });
 
   renderDays();

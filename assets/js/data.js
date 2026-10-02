@@ -311,11 +311,12 @@
   }
 
   const LEVELS = [
-    { min: 120, name: 'Berlian', label: 'Level Berlian', emoji: '💎', color: '#1E8E5A' },
-    { min: 100, name: 'Emas', label: 'Level Emas', emoji: '🥇', color: '#C9A227' },
-    { min: 80, name: 'Perak', label: 'Level Perak', emoji: '🥈', color: '#00136F' },
-    { min: 50, name: 'Perunggu', label: 'Level Perunggu', emoji: '🥉', color: '#B26B00' },
-    { min: 0, name: 'Ayo Semangat!', label: 'Ayo Semangat!', emoji: '💪', color: '#C8323C' },
+    // color = ring/progress color, iconColor = medal color
+    { min: 120, name: 'Berlian', label: 'Level Berlian', icon: 'gem', color: '#1E8E5A', iconColor: '#1E8E5A' },
+    { min: 100, name: 'Emas', label: 'Level Emas', icon: 'award', color: '#C9A227', iconColor: '#B8901A' },
+    { min: 80, name: 'Perak', label: 'Level Perak', icon: 'award', color: '#00136F', iconColor: '#7A8699' },
+    { min: 50, name: 'Perunggu', label: 'Level Perunggu', icon: 'award', color: '#B26B00', iconColor: '#A0612A' },
+    { min: 0, name: 'Pemula', label: 'Level Pemula', icon: 'target', color: '#C8323C', iconColor: '#C8323C' },
   ];
   const level = pct => LEVELS.find(l => pct >= l.min);
   const nextLevel = pct => LEVELS.slice().reverse().find(l => l.min > pct) || null;

@@ -56,6 +56,8 @@ Rules:
 
 ## 3. Layout (simple)
 
+Icons: one inline SVG line-icon set (Lucide, ISC license) in `assets/js/common.js` — no emoji anywhere in the UI.
+
 One layout for every page, the same on phone and desktop:
 
 ```
@@ -111,35 +113,35 @@ The top of the page is about **today**, shown like a game score:
         │   │  Rp 1.245.000 │    │      (fills clockwise, color by level)
         │    ╲ / 1.852.000 ╱     │
         │      ╰───────╯        │
-        │   🥈 Level Perak       │
+        │     Level Perak       │
         │ Rp 607.000 lagi → 100% │
         └───────────────────────┘
-  🏆 Peringkat #5 dari 8       🔥 Streak 4 hari
+  Peringkat #5 dari 8          Streak 4 hari
   Rp 150.000 lagi untuk naik ke #4
 ```
 
 - **Big ring**: today's sales ÷ today's target, in %. It can go past 100% (the ring fills, then shows a second lap / "120%").
 - **Level for today**, based on the %:
 
-  | % of daily target | Level | Ring color |
-  |-------------------|-------|-----------|
-  | 0–49% | Ayo Semangat! | red |
-  | 50–79% | 🥉 Perunggu | amber |
-  | 80–99% | 🥈 Perak | NIVEA blue |
-  | 100–119% | 🥇 Emas | gold |
-  | ≥ 120% | 💎 Berlian | green |
+  | % of daily target | Level | Icon | Ring color |
+  |-------------------|-------|------|-----------|
+  | 0–49% | Pemula | target | red |
+  | 50–79% | Perunggu | bronze medal | amber |
+  | 80–99% | Perak | silver medal | NIVEA blue |
+  | 100–119% | Emas | gold medal | gold |
+  | ≥ 120% | Berlian | gem | green |
 
 - **Next goal**: "Rp X lagi untuk mencapai 100%" (or the next level).
 - **Rank card**: "Peringkat #5 dari 8 (bulan ini)" plus how much more is needed to pass the person above. Links to `peringkat.html`.
 - **Streak**: number of working days in a row the SPG hit 100% of the daily target. Missing a report breaks the streak; days off and holidays don't.
 - Below that, smaller progress bars for **Minggu ini** and **Bulan ini** with "Sisa Rp X dalam N hari kerja → ± Rp Y/hari".
 - If today's report isn't sent yet, the ring shows 0% and a big "Isi Laporan Hari Ini" button.
-- After submitting a report that reaches a new level, show a short celebration message ("Selamat! Kamu mencapai Level Emas 🥇").
+- After submitting a report that reaches a new level, show a short celebration message ("Selamat! Kamu mencapai Level Emas hari ini.").
 
 ### 4.2b `spg/peringkat.html` — Leaderboard
 - Tabs: **Hari ini / Minggu ini / Bulan ini**.
 - Ranked by **% of own target**, not by Rp, so SPGs with different targets compete fairly. Ties are broken by higher Rp.
-- Top 3 shown as a podium (🥇🥈🥉), then a list: rank, name, store, %, level badge.
+- Top 3 shown as a podium (crown for #1, silver and bronze medals), then a list: rank, name, store, %, level badge.
 - The logged-in SPG's row is highlighted and always visible (pinned at the bottom if it's off screen).
 - Shows names and % only, not other SPGs' Rp amounts. *(Question for you: OK to show Rp too?)*
 

@@ -14,8 +14,8 @@
     if (s.expected == null) return '';
     const diff = s.pct - s.expected;
     return diff >= 0
-      ? `<span class="pill ok">▲ ${App.pct1(diff)} di atas laju</span>`
-      : `<span class="pill warn">▼ ${App.pct1(-diff)} di bawah laju</span>`;
+      ? `<span class="pill ok">${App.icon('up')} ${App.pct1(diff)} di atas laju</span>`
+      : `<span class="pill warn">${App.icon('down')} ${App.pct1(-diff)} di bawah laju</span>`;
   }
 
   function render() {
@@ -26,18 +26,18 @@
 
     $('kpis').innerHTML = `
       <div class="card kpi"><div class="l">Penjualan ${LABEL[period]}</div><div class="v">${App.rpShort(s.actual)}</div><div class="small muted">dari target ${App.rpShort(s.target)}</div></div>
-      <div class="card kpi"><div class="l">Pencapaian Tim</div><div class="v">${App.pct1(s.pct)} ${lv.emoji}</div>${App.bar(s.pct, lv.color)}${pace(s)}</div>
-      <div class="card kpi"><div class="l">Lapor Hari Ini</div><div class="v">${s.working ? `${s.reported} / ${s.size}` : 'Libur'}</div><div class="small muted">${s.missing.length ? s.missing.length + ' SPG belum lapor' : s.working ? 'Semua sudah lapor ✓' : 'Hari ini bukan hari kerja'}</div></div>`;
+      <div class="card kpi"><div class="l">Pencapaian Tim</div><div class="v">${App.pct1(s.pct)}</div>${App.bar(s.pct, lv.color)}${pace(s)}</div>
+      <div class="card kpi"><div class="l">Lapor Hari Ini</div><div class="v">${s.working ? `${s.reported} / ${s.size}` : 'Libur'}</div><div class="small muted">${s.missing.length ? s.missing.length + ' SPG belum lapor' : s.working ? 'Semua sudah lapor' : 'Hari ini bukan hari kerja'}</div></div>`;
 
     $('missing').innerHTML = !s.working ? '' : !s.missing.length
-      ? `<h2>Belum Lapor Hari Ini</h2><p class="muted" style="margin:0">✓ Semua SPG sudah mengirim laporan hari ini.</p>`
+      ? `<h2>Belum Lapor Hari Ini</h2><p class="muted lvl" style="margin:0">${App.icon('check', { color: 'var(--ok)' })}Semua SPG sudah mengirim laporan hari ini.</p>`
       : `<h2>Belum Lapor Hari Ini <span class="pill bad">${s.missing.length}</span></h2>
         ${s.missing.map(u => {
-          const text = encodeURIComponent(`Halo ${u.name.split(' ')[0]}, jangan lupa isi laporan penjualan hari ini ya 🙏`);
+          const text = encodeURIComponent(`Halo ${u.name.split(' ')[0]}, jangan lupa isi laporan penjualan hari ini ya. Terima kasih.`);
           const wa = u.phone ? `https://wa.me/62${u.phone.replace(/\D/g, '').replace(/^0/, '')}?text=${text}` : '';
           return `<div class="row" style="padding:8px 0;border-bottom:1px solid var(--sky)">
             <div><b>${App.esc(u.name)}</b><div class="small muted">${App.esc(u.store)}</div></div>
-            ${wa ? `<a class="btn small" href="${wa}" target="_blank" rel="noopener">Ingatkan WA</a>` : ''}
+            ${wa ? `<a class="btn small" href="${wa}" target="_blank" rel="noopener">${App.icon('message')} Ingatkan WA</a>` : ''}
           </div>`;
         }).join('')}`;
     $('missing').hidden = !s.working;
@@ -51,9 +51,9 @@
           <td class="num">${App.num(r.actual)}</td>
           <td class="num">${App.num(Math.round(r.target / 1000) * 1000)}</td>
           <td><span class="mini-bar"><span style="width:${Math.min(r.pct, 100)}%;background:${r.level.color}"></span></span><b>${App.pct(r.pct)}</b></td>
-          <td>${r.level.emoji} ${r.level.name}</td>
-          <td class="num">${D.streak(r.user.id, D.TODAY) ? '🔥 ' + D.streak(r.user.id, D.TODAY) : '–'}</td>
-          <td>${!s.working ? '<span class="pill off">Libur</span>' : D.getReport(r.user.id, D.TODAY) ? '<span class="pill ok">✓ Lapor</span>' : '<span class="pill bad">Belum</span>'}</td>
+          <td>${App.levelBadge(r.level)}</td>
+          <td class="num">${D.streak(r.user.id, D.TODAY) ? `<span class="lvl">${App.icon('flame', { color: '#D9622B' })}${D.streak(r.user.id, D.TODAY)}</span>` : '–'}</td>
+          <td>${!s.working ? '<span class="pill off">Libur</span>' : D.getReport(r.user.id, D.TODAY) ? `<span class="pill ok">${App.icon('check')} Lapor</span>` : '<span class="pill bad">Belum</span>'}</td>
         </tr>`).join('')}</tbody>`;
     $('spgs').querySelectorAll('tr.click').forEach(tr => tr.addEventListener('click', () => {
       location.href = 'laporan.html?spg=' + encodeURIComponent(tr.dataset.id);
