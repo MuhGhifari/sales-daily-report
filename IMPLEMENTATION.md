@@ -25,8 +25,9 @@ The pages are static and are served from GitHub Pages. They use mock data for no
 /
 ├── index.html                  → Masuk (login)
 ├── spg/
-│   ├── beranda.html            → SPG home: target progress
+│   ├── beranda.html            → SPG home: big daily % ring, rank, streak
 │   ├── laporan.html            → Fill in / edit daily report (per product)
+│   ├── peringkat.html          → Team leaderboard (ranked by % of target)
 │   └── riwayat.html            → Report history
 ├── leader/
 │   ├── dashboard.html          → Team summary
@@ -71,25 +72,76 @@ One layout for every page, the same on phone and desktop:
 └──────────────────────────────────────┘
 ```
 
-- **SPG pages**: top bar + bottom navigation (3 items). Designed for phones first.
+- **SPG pages**: top bar + bottom navigation (4 items: Beranda, Isi Laporan, Peringkat, Riwayat). Designed for phones first.
 - **Leader / Area / Admin pages**: top bar + a row of navigation links under it (it scrolls sideways on phones). No sidebar.
 - Single column by default. Tables scroll sideways inside their own box on small screens, never the whole page.
-- **No charts in v1.** Progress bars and tables only. A chart can be added later if the client asks.
+- **No charts in v1** other than the SPG's daily % ring (plain SVG, no library). Elsewhere: progress bars and tables.
 - Colors: NIVEA blue `#00136F`, white, light blue tints, plus green, amber and red only for status. Font: system font stack (nothing to download).
 
 ---
 
 ## 4. Pages
 
-### 4.1 `index.html` — Masuk
-- Phone number field → "Kirim Kode WhatsApp" → 6-digit OTP field → "Masuk".
-- Prototype only: any OTP works. A small "Akun demo" box underneath has three links: masuk sebagai SPG / Leader / Area Manager.
-- After login, redirect by role: SPG → `spg/beranda.html`, Leader → `leader/dashboard.html`, Area → `area/dashboard.html`.
+### 4.1 `index.html` — Masuk (hardcoded accounts)
+- Username + password → "Masuk". WhatsApp OTP is postponed.
+- Accounts are **hardcoded** in `data.js` (username, password, name, role, team):
 
-### 4.2 `spg/beranda.html` — Home
-- Three progress blocks: **Hari ini**, **Minggu ini**, **Bulan ini**. Each shows sales / target, a bar and a %.
-- Week and month also show "Sisa Rp X dalam N hari kerja → ± Rp Y/hari".
-- Status line: "Laporan hari ini: sudah / belum dikirim" with a button to `laporan.html`.
+  | Username | Password | Role | Name |
+  |----------|----------|------|------|
+  | `sari` | `spg123` | SPG | Sari Wulandari |
+  | `dewi` | `spg123` | SPG | Dewi Lestari |
+  | `rani` | `spg123` | SPG | Rani Kusuma |
+  | *(other SPGs in the team, same pattern)* | `spg123` | SPG | |
+  | `rina` | `leader123` | Leader | Rina Agustina |
+  | `budi` | `area123` | Area Manager / Supervisor | Budi Santoso |
+  | `admin` | `admin123` | Admin | Admin |
+
+- Wrong username/password → "Username atau password salah".
+- After login, redirect by role: SPG → `spg/beranda.html`, Leader → `leader/dashboard.html`, Area → `area/dashboard.html`, Admin → `admin/produk.html`.
+- The logged-in user is kept in the browser (sessionStorage). "Keluar" clears it.
+- ⚠️ Demo only: the passwords sit in the page source, so anyone can read them. Replace this with real login before any real data goes in.
+
+### 4.2 `spg/beranda.html` — Home (gamified)
+The top of the page is about **today**, shown like a game score:
+
+```
+        ┌───────────────────────┐
+        │      ╭───────╮        │
+        │    ╱    67%    ╲      │   ← big circular ring = today's % of daily target
+        │   │  Rp 1.245.000 │    │      (fills clockwise, color by level)
+        │    ╲ / 1.852.000 ╱     │
+        │      ╰───────╯        │
+        │   🥈 Level Perak       │
+        │ Rp 607.000 lagi → 100% │
+        └───────────────────────┘
+  🏆 Peringkat #5 dari 8       🔥 Streak 4 hari
+  Rp 150.000 lagi untuk naik ke #4
+```
+
+- **Big ring**: today's sales ÷ today's target, in %. It can go past 100% (the ring fills, then shows a second lap / "120%").
+- **Level for today**, based on the %:
+
+  | % of daily target | Level | Ring color |
+  |-------------------|-------|-----------|
+  | 0–49% | Ayo Semangat! | red |
+  | 50–79% | 🥉 Perunggu | amber |
+  | 80–99% | 🥈 Perak | NIVEA blue |
+  | 100–119% | 🥇 Emas | gold |
+  | ≥ 120% | 💎 Berlian | green |
+
+- **Next goal**: "Rp X lagi untuk mencapai 100%" (or the next level).
+- **Rank card**: "Peringkat #5 dari 8 (bulan ini)" plus how much more is needed to pass the person above. Links to `peringkat.html`.
+- **Streak**: number of working days in a row the SPG hit 100% of the daily target. Missing a report breaks the streak; days off and holidays don't.
+- Below that, smaller progress bars for **Minggu ini** and **Bulan ini** with "Sisa Rp X dalam N hari kerja → ± Rp Y/hari".
+- If today's report isn't sent yet, the ring shows 0% and a big "Isi Laporan Hari Ini" button.
+- After submitting a report that reaches a new level, show a short celebration message ("Selamat! Kamu mencapai Level Emas 🥇").
+
+### 4.2b `spg/peringkat.html` — Leaderboard
+- Tabs: **Hari ini / Minggu ini / Bulan ini**.
+- Ranked by **% of own target**, not by Rp, so SPGs with different targets compete fairly. Ties are broken by higher Rp.
+- Top 3 shown as a podium (🥇🥈🥉), then a list: rank, name, store, %, level badge.
+- The logged-in SPG's row is highlighted and always visible (pinned at the bottom if it's off screen).
+- Shows names and % only, not other SPGs' Rp amounts. *(Question for you: OK to show Rp too?)*
 
 ### 4.3 `spg/laporan.html` — Isi Laporan
 - Date (today and the previous 2 days only), store (read-only).
@@ -108,7 +160,7 @@ One layout for every page, the same on phone and desktop:
 - Period filter: Hari ini / Minggu ini / Bulan ini.
 - Summary: total sales, team target, % achieved, reports submitted today (x / y).
 - "Belum lapor hari ini" list with a "Ingatkan WA" button (opens a `wa.me` link with a prefilled message, so no paid API is needed).
-- SPG table: name, store, sales, target, %, today's status. Click a row → `laporan.html?spg=…`.
+- SPG leaderboard table (same ranking as `spg/peringkat.html`): rank, name, store, sales, target, %, level, streak, today's status. Click a row → `laporan.html?spg=…`.
 - Product table: product, qty, Rp.
 - "Export Excel" button (prototype: downloads a CSV).
 
@@ -118,6 +170,7 @@ One layout for every page, the same on phone and desktop:
 - Leader can edit or unlock a locked report.
 
 ### 4.7 `leader/target.html` — Target
+- Who can set targets: the **Team Leader** (own team) and the **Supervisor / Area Manager** (any team in the area). The last person to change a target is shown next to it ("diatur oleh Rina, 1 Okt").
 - Month selector, with "27 hari kerja" shown for the month.
 - One row per SPG: monthly target input; weekly and daily targets calculated next to it.
 - Optional manual override for weekly/daily (highlighted when overridden).
@@ -149,8 +202,11 @@ All pages get data **only** through these functions, never by reading mock array
 
 | Function | Used by |
 |----------|---------|
-| `login(phone, otp)` / `currentUser()` / `logout()` | all |
+| `login(username, password)` / `currentUser()` / `logout()` | all |
 | `getMyProgress(date)` → today / week / month actual & target | spg/beranda |
+| `getLevel(percent)` → level name, emoji, color | spg/beranda, spg/peringkat, leader/dashboard |
+| `getLeaderboard(teamId, period)` → ranked list by % | spg/beranda, spg/peringkat, leader/dashboard |
+| `getStreak(userId, date)` → days in a row at ≥ 100% | spg/beranda, leader/dashboard |
 | `getReport(userId, date)` / `saveReport(report)` | spg/laporan, leader/laporan |
 | `listReports({ userId?, teamId?, from, to })` | spg/riwayat, leader/laporan |
 | `getProducts()` / `saveProduct(p)` | spg/laporan, admin/produk |
@@ -170,7 +226,7 @@ All pages get data **only** through these functions, never by reading mock array
 
 1. **Clean up**: delete `mockup/` (page + screenshots), point the root `index.html` at the new login page.
 2. **Foundation**: `style.css` (tokens, top bar, nav, cards, progress bar, table, form, buttons), `common.js` (formatting, header, nav, role guard), `data.js` with mock data and the target calculation.
-3. **SPG pages**: login → beranda → laporan → riwayat.
+3. **SPG pages**: login → beranda (ring, level, rank, streak) → laporan → peringkat → riwayat.
 4. **Leader pages**: dashboard → target → laporan → tim → pengaturan.
 5. **Area + Admin pages**.
 6. **Check** (§7), then push. GitHub Pages updates automatically.
@@ -182,7 +238,9 @@ Each step is a separate commit, so you can review the SPG pages on GitHub Pages 
 ## 7. Done when
 
 - [ ] Every page opens on its own by URL, with no gallery or frames.
-- [ ] Login → correct home page for each role; opening another role's page redirects to login.
+- [ ] Every hardcoded account logs in and lands on its role's home page; a wrong password shows an error; opening another role's page redirects to login.
+- [ ] Beranda shows the big daily % ring with the right level color; submitting a report updates the ring, level, rank and streak.
+- [ ] Leaderboard ranks by % of target and highlights the logged-in SPG.
 - [ ] Works at 375px phone width with no sideways page scroll; tables scroll inside their box.
 - [ ] A report submitted on `laporan.html` shows on `beranda.html`, `riwayat.html` and the leader dashboard.
 - [ ] Changing a monthly target updates the weekly/daily values and the SPG's Beranda.
@@ -201,6 +259,8 @@ The pages stay. Only `data.js` is swapped from mock data to real calls, dependin
 
 ## 9. Questions before coding
 
-1. Is the page list in §2 right? Anything to add or drop (e.g. an SPG profile page, an Admin users page)?
-2. OK to drop charts for now and use tables + progress bars only?
-3. OK to delete the old `mockup/` folder?
+1. **Country**: you mentioned the UK. Is the client's market the UK (English text, £, UK holidays) or Indonesia (Bahasa Indonesia, Rp)? This plan currently assumes Indonesia.
+2. **Supervisor**: is "Supervisor" the same role as Area Manager (above several Team Leaders)? If so, I'll call it "Supervisor" on screen.
+3. **Leaderboard privacy**: can SPGs see each other's Rp amounts, or only the %?
+4. Is the page list in §2 right? Anything to add or drop?
+5. OK to delete the old `mockup/` folder?
