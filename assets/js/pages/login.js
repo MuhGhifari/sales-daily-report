@@ -3,6 +3,8 @@
   const existing = Data.currentUser();
   if (existing) { location.replace(App.home(existing)); return; }
 
+  if (App.BRAND_LOGO) document.getElementById('mark').outerHTML = App.logoImg();
+
   const form = document.getElementById('form');
   const err = document.getElementById('err');
 

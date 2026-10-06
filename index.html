@@ -5,20 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#ffffff">
 <title>Masuk · Laporan SPG</title>
-<link rel="stylesheet" href="assets/css/style.css?v=20261006033700">
-<script>/* version check */(function(v,r){try{fetch(r+"assets/version.json?t="+Date.now(),{cache:"no-store"}).then(function(x){return x.json()}).then(function(j){if(j.v&&j.v!==v){var u=new URL(location.href);if(u.searchParams.get("_v")!==j.v){u.searchParams.set("_v",j.v);location.replace(u.href)}}}).catch(function(){})}catch(e){}})("20261006033700","")</script>
+<link rel="stylesheet" href="assets/css/style.css?v=20261006034758">
+<script>/* version check */(function(v,r){try{fetch(r+"assets/version.json?t="+Date.now(),{cache:"no-store"}).then(function(x){return x.json()}).then(function(j){if(j.v&&j.v!==v){var u=new URL(location.href);if(u.searchParams.get("_v")!==j.v){u.searchParams.set("_v",j.v);location.replace(u.href)}}}).catch(function(){})}catch(e){}})("20261006034758","")</script>
 </head>
-<body data-root="">
+<body data-root="" class="login">
 <div class="login-box">
-  <span class="brand">Laporan SPG</span>
-  <p class="sub">NIVEA · Laporan penjualan harian</p>
-  <form id="form" autocomplete="on">
+  <div class="head">
+    <span class="brand-mark" id="mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></span>
+    <span class="brand">Laporan SPG</span>
+    <p class="sub">NIVEA Indonesia · Laporan penjualan harian</p>
+  </div>
+  <form id="form" class="card" autocomplete="on">
     <p class="error" id="err" hidden></p>
     <div class="field"><label for="username">Username</label><input class="input" id="username" name="username" autocomplete="username" autocapitalize="none" required></div>
     <div class="field"><label for="password">Password</label><input class="input" id="password" name="password" type="password" autocomplete="current-password" required></div>
     <button class="btn block" type="submit">Masuk</button>
   </form>
-  <div class="demo">
+  <div class="demo card">
     <h2>Akun demo</h2>
     <div class="rows">
       <div data-user="sari" data-pass="spg123"><span>SPG</span><span class="muted">sari / spg123</span></div>
@@ -29,8 +32,8 @@
     <p class="note"><a href="#" id="reset">Reset data demo</a></p>
   </div>
 </div>
-<script src="assets/js/data.js?v=20261006033700"></script>
-<script src="assets/js/common.js?v=20261006033700"></script>
-<script src="assets/js/pages/login.js?v=20261006033700"></script>
+<script src="assets/js/data.js?v=20261006034758"></script>
+<script src="assets/js/common.js?v=20261006034758"></script>
+<script src="assets/js/pages/login.js?v=20261006034758"></script>
 </body>
 </html>

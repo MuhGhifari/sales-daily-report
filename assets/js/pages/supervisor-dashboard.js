@@ -17,9 +17,9 @@
       pace = diff >= 0 ? `<span class="ok">${App.pct1(diff)} di atas laju</span>` : `<span class="warn">${App.pct1(-diff)} di bawah laju</span>`;
     }
     $('stats').innerHTML = `
-      <div class="stat"><div class="l">Penjualan</div><div class="v">${App.rpShort(a.actual)}</div><div class="s">dari ${App.rpShort(a.target)}</div></div>
-      <div class="stat"><div class="l">Pencapaian</div><div class="v">${App.pct1(a.pct)}</div><div class="s">${pace}</div></div>
-      <div class="stat"><div class="l">Mulai shift hari ini</div><div class="v">${a.reported}/${a.size}</div></div>`;
+      <div class="stat"><span class="badge">${App.icon('chart')}</span><div><div class="l">Penjualan</div><div class="v">${App.rpShort(a.actual)}</div><div class="s">dari ${App.rpShort(a.target)}</div></div></div>
+      <div class="stat"><span class="badge ${a.pct >= (a.expected || 0) ? 'green' : 'amber'}">${App.icon('target')}</span><div><div class="l">Pencapaian</div><div class="v">${App.pct1(a.pct)}</div><div class="s">${pace}</div></div></div>
+      <div class="stat"><span class="badge">${App.icon('userCheck')}</span><div><div class="l">Mulai shift hari ini</div><div class="v">${a.reported}/${a.size}</div></div></div>`;
 
     const [cf, ct] = D.chartRange(period, D.TODAY);
     App.trendChart($('trend'), D.dailySeries(a.teams.flatMap(t => t.lb.map(r => r.user.id)), a.teams.map(t => t.team.id), cf, ct));
@@ -27,13 +27,13 @@
     $('teams').innerHTML = `
       <thead><tr><th>#</th><th>Tim</th><th>Team Leader</th><th class="num">Penjualan</th><th class="num">Target</th><th class="num">%</th><th class="num">Lapor</th></tr></thead>
       <tbody>${a.teams.map((t, i) => `<tr class="click" data-id="${t.team.id}">
-        <td class="muted">${i + 1}</td>
+        <td>${App.rankBadge(i + 1)}</td>
         <td>${App.esc(t.team.name)}<small>${t.size} SPG</small></td>
         <td>${App.esc(D.user(t.team.leaderId).name)}</td>
         <td class="num">${App.rpShort(t.actual)}</td>
         <td class="num">${App.rpShort(t.target)}</td>
         <td class="num"><b>${App.pct1(t.pct)}</b></td>
-        <td class="num">${t.reported}/${t.size}</td>
+        <td class="num"><span class="pill ${t.reported === t.size ? 'ok' : 'warn'}">${t.reported}/${t.size}</span></td>
       </tr>`).join('')}</tbody>`;
     $('teams').querySelectorAll('tr.click').forEach(tr => tr.addEventListener('click', () => {
       location.href = '../leader/dashboard.html?tim=' + tr.dataset.id;

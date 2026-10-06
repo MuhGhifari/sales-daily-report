@@ -12,8 +12,8 @@
     $('list').innerHTML = lb.map(r => {
       const isMe = r.user.id === user.id;
       return `<div class="${isMe ? 'me' : ''}">
-        <div class="muted" style="width:28px">${r.rank}</div>
-        <div class="grow"><b>${App.esc(r.user.name)}${isMe ? ' (kamu)' : ''}</b><span>${App.esc(r.user.store)}</span></div>
+        ${App.rankBadge(r.rank)}
+        <div class="grow">${App.person(r.user.name + (isMe ? ' (kamu)' : ''), r.user.store)}</div>
         <div class="val"><b>${App.pct(r.pct)}</b></div>
       </div>`;
     }).join('') || '<p class="empty">Belum ada data.</p>';

@@ -42,7 +42,7 @@
           : '';
         return `<tr class="click" data-key="${key}">
             <td>${App.dateShort(r.date)}</td>
-            <td><b>${App.esc(u.name)}</b><small>${App.esc(u.store)}</small></td>
+            <td>${App.person(u.name, u.store)}</td>
             <td class="num">${r.noSales ? '–' : D.getTransactions(r).length}</td>
             <td class="num">${App.num(r.total)}</td>
             <td class="num"><span class="icon-group">${App.iconLink(`../spg/laporan.html?spg=${encodeURIComponent(r.userId)}&tanggal=${r.date}`, 'pencil', 'Ubah laporan')}${lockBtn}</span></td>

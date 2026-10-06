@@ -13,11 +13,11 @@
     $('table').innerHTML = `
       <thead><tr><th>Nama</th><th>Username</th><th>WhatsApp</th><th>Toko</th><th>Status</th><th></th></tr></thead>
       <tbody>${list.map(u => `<tr>
-        <td><b>${App.esc(u.name)}</b></td>
+        <td>${App.person(u.name)}</td>
         <td>${App.esc(u.username)}</td>
         <td>${App.esc(u.phone)}</td>
         <td>${App.esc(u.store)}</td>
-        <td>${u.active ? 'Aktif' : '<span class="muted">Nonaktif</span>'}</td>
+        <td>${u.active ? '<span class="pill ok">Aktif</span>' : '<span class="pill">Nonaktif</span>'}</td>
         <td class="num">${App.iconBtn(u.active ? 'userX' : 'userCheck', u.active ? 'Nonaktifkan SPG' : 'Aktifkan SPG', `data-id="${u.id}"`, u.active ? 'danger' : 'primary')}</td>
       </tr>`).join('')}</tbody>`;
   }

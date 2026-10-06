@@ -4,6 +4,11 @@
 
   const root = document.body.dataset.root || '';
 
+  // Client logo: put the official file in assets/brand/ and set its path here, e.g. 'assets/brand/nivea-logo.svg'.
+  // Empty = show the generic app mark.
+  const BRAND_LOGO = '';
+  const logoImg = () => `<img class="brand-logo" src="${root + BRAND_LOGO}" alt="NIVEA">`;
+
   const ROLE_LABEL = { spg: 'SPG', leader: 'Team Leader', supervisor: 'Supervisor', admin: 'Admin' };
   const HOME = {
     spg: 'spg/beranda.html',
@@ -60,6 +65,11 @@
     `<button type="button" class="icon-btn${cls ? ' ' + cls : ''}" aria-label="${esc(label)}" title="${esc(label)}" ${attrs || ''}>${icon(name)}</button>`;
   const iconLink = (href, name, label, attrs, cls) =>
     `<a class="icon-btn${cls ? ' ' + cls : ''}" href="${href}" aria-label="${esc(label)}" title="${esc(label)}" ${attrs || ''}>${icon(name)}</a>`;
+  const initials = name => String(name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+  const avatar = name => `<span class="avatar" aria-hidden="true">${esc(initials(name))}</span>`;
+  // Name with avatar and an optional second line
+  const person = (name, sub) => `<div class="person">${avatar(name)}<div><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div></div>`;
+  const rankBadge = n => `<span class="rank-badge${n <= 3 ? ' r' + n : ''}">${n}</span>`;
   const levelIcon = (lv, cls) => icon(lv.icon, { color: lv.iconColor, cls });
   const levelBadge = lv => `<span class="lvl">${levelIcon(lv)}${lv.name}</span>`;
 
@@ -110,7 +120,7 @@
     top.className = 'topbar';
     top.innerHTML = `
       <div class="topbar-inner">
-        <a class="brand" href="${root + HOME[user.role]}">Laporan SPG</a>
+        <a class="brand" href="${root + HOME[user.role]}">${BRAND_LOGO ? logoImg() : `<span class="brand-mark">${icon('chart')}</span>`}<span>Laporan SPG <small>NIVEA</small></span></a>
         <div class="user">
           <span class="name">${esc(user.name)} · ${ROLE_LABEL[user.role]}</span>
           <button class="logout icon-btn" type="button" aria-label="Keluar" title="Keluar">${icon('logout')}</button>
@@ -344,8 +354,9 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, init, teamId, toast, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, levelIcon, levelBadge,
+    root, HOME, ROLE_LABEL, init, teamId, toast, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, levelIcon, levelBadge,
     esc, num, rp, rpK, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
+    BRAND_LOGO, logoImg,
   };
 })();

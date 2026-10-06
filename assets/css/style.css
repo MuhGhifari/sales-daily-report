@@ -1,4 +1,4 @@
-/* Laporan SPG — minimal styles. One accent (NIVEA blue), white surfaces, thin dividers. */
+/* Laporan SPG — clean, professional styles. NIVEA blue accent, white cards on a light grey page. */
 :root {
   --blue: #00136F;
   --blue-soft: #EEF1F8;
@@ -9,6 +9,9 @@
   --ok: #15803D;
   --warn: #B45309;
   --bad: #B91C1C;
+  --page: #F3F5F9;
+  --card-line: #E8EBF0;
+  --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 1px 3px rgba(16, 24, 40, .04);
 }
 
 * { box-sizing: border-box; }
@@ -19,7 +22,7 @@ body {
   font-size: 15px;
   line-height: 1.5;
   color: var(--ink);
-  background: #fff;
+  background: var(--page);
 }
 a { color: var(--blue); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -77,8 +80,10 @@ section { margin-bottom: 36px; }
 .rows > *:first-child { border-top: 1px solid var(--line); }
 .rows > a:hover { text-decoration: none; background: var(--soft); }
 .rows .grow { flex: 1; min-width: 0; }
-.rows .grow b, .rows .grow span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rows .grow span { color: var(--muted); font-size: 13px; }
+.rows .grow > b, .rows .grow > span, .person b, .person small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rows .grow > span, .person small { color: var(--muted); font-size: 13px; }
+.person small { font-size: 12px; }
+.rows .status { margin-top: 4px; }
 .rows .val { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .rows .val span { display: block; font-size: 13px; color: var(--muted); }
 .rows .me { background: var(--blue-soft); margin: 0 -12px; padding-left: 12px; padding-right: 12px; }
@@ -231,3 +236,96 @@ tr.detail td { background: var(--soft); white-space: normal; padding: 12px; }
 @media (prefers-reduced-motion: reduce) {
   .ring .arc, .bar > span { transition: none; }
 }
+
+/* =====================================================================
+   Surfaces: cards, colored header, tiles, avatars, status labels
+   ===================================================================== */
+/* Header in brand blue */
+.topbar { background: var(--blue); border-bottom: 0; }
+.topbar .brand { color: #fff; display: inline-flex; align-items: center; gap: 10px; }
+.brand-mark { width: 28px; height: 28px; border-radius: 8px; background: #fff; color: var(--blue); display: grid; place-items: center; }
+.brand-mark .icon { width: 16px; height: 16px; }
+.topbar .user .name { color: rgba(255, 255, 255, .8); }
+.topbar .icon-btn { color: rgba(255, 255, 255, .85); }
+.topbar .icon-btn:hover { background: rgba(255, 255, 255, .14); color: #fff; }
+.subnav { box-shadow: 0 1px 0 var(--card-line); border-bottom: 0; }
+
+/* Cards: every page section sits on a white card */
+main > section, .card { background: #fff; border: 1px solid var(--card-line); border-radius: 14px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
+main > section > h2, .card > h2 { color: var(--ink); text-transform: none; letter-spacing: 0; font-size: 15px; margin-bottom: 12px; }
+section.flat { background: none; border: 0; box-shadow: none; padding: 0; }
+.rows-card { padding-top: 4px; padding-bottom: 4px; }
+main > section .rows > *:first-child, main > section.rows > *:first-child, .card .rows > *:first-child { border-top: 0; }
+main > section .rows > *:last-child, main > section.rows > *:last-child, .card .rows > *:last-child { border-bottom: 0; }
+main > section.rows > .me, main > section .rows > .me { margin: 0 -20px; padding-left: 20px; padding-right: 20px; }
+.progress:first-of-type { border-top: 0; padding-top: 4px; }
+.progress:last-child { border-bottom: 0; padding-bottom: 4px; }
+main > section table tr:last-child td { border-bottom: 0; }
+
+/* Stat tiles with an icon badge */
+.stats { gap: 16px; margin-bottom: 20px; }
+.stat { background: #fff; border: 1px solid var(--card-line); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow); display: flex; gap: 14px; align-items: flex-start; }
+.stat .badge { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--blue-soft); color: var(--blue); flex: none; }
+.stat .badge .icon { width: 20px; height: 20px; }
+.stat .badge.green { background: #E7F6EC; color: var(--ok); }
+.stat .badge.amber { background: #FEF3E2; color: var(--warn); }
+.stat .badge.orange { background: #FDECE5; color: #D9622B; }
+.stat > div:last-child { min-width: 0; }
+
+/* Avatars (initials) */
+.person { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.person > div { min-width: 0; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--blue-soft); color: var(--blue); display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; letter-spacing: .02em; }
+.rank-badge { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: var(--soft); color: var(--muted); flex: none; }
+.rank-badge.r1 { background: #FBF1CF; color: #8A6D00; }
+.rank-badge.r2 { background: #EEF0F3; color: #5B6472; }
+.rank-badge.r3 { background: #F8E7DA; color: #8A4B1F; }
+
+/* Status labels */
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; white-space: nowrap; background: var(--soft); color: var(--muted); }
+.pill.ok { background: #E7F6EC; color: var(--ok); }
+.pill.warn { background: #FEF3E2; color: var(--warn); }
+.pill.bad { background: #FDECEC; color: var(--bad); }
+.pill.info { background: var(--blue-soft); color: var(--blue); }
+.pill .icon { width: 13px; height: 13px; }
+
+/* Segmented tabs */
+.tabs { gap: 2px; background: #E9EDF4; border-radius: 10px; padding: 3px; width: max-content; max-width: 100%; overflow-x: auto; }
+.tabs button { border: 0; padding: 7px 14px; border-radius: 8px; color: var(--muted); }
+.tabs button.on { background: #fff; color: var(--ink); box-shadow: var(--shadow); border-bottom: 0; }
+
+/* Bottom navigation: active item gets a soft pill */
+.bottomnav { box-shadow: 0 -1px 0 var(--card-line); border-top: 0; }
+.bottomnav a .icon { padding: 3px 14px; width: 52px; height: 28px; border-radius: 99px; box-sizing: border-box; }
+.bottomnav a.on .icon { background: var(--blue-soft); }
+
+/* SPG home */
+.today { padding: 24px 20px; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.tile { background: #fff; border: 1px solid var(--card-line); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); color: inherit; display: block; }
+.tile:hover { text-decoration: none; }
+a.tile:hover { border-color: #C9D2E6; }
+.tile .badge { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--blue-soft); color: var(--blue); margin-bottom: 10px; }
+.tile .badge.orange { background: #FDECE5; color: #D9622B; }
+.tile .badge .icon { width: 18px; height: 18px; }
+.tile .v { font-size: 22px; font-weight: 700; line-height: 1.2; }
+.tile .l { color: var(--muted); font-size: 13px; }
+
+/* Forms on cards */
+.entry { background: #fff; border-color: var(--card-line); border-radius: 14px; box-shadow: var(--shadow); padding: 20px; margin-bottom: 20px; }
+form.card .btn { margin-top: 4px; }
+
+/* Login */
+body.login { background: linear-gradient(180deg, var(--blue) 0 260px, var(--page) 260px); }
+.login-box { padding-top: 56px; }
+.login-box .head { color: #fff; text-align: center; margin-bottom: 24px; }
+.login-box .head .brand-mark { width: 52px; height: 52px; border-radius: 14px; margin: 0 auto 12px; }
+.login-box .head .brand-mark .icon { width: 26px; height: 26px; }
+.login-box .head .brand { color: #fff; margin: 0; }
+.login-box .head .sub { color: rgba(255, 255, 255, .8); }
+.login-box form { margin: 0 0 20px; }
+
+/* Client logo (assets/brand/nivea-logo.svg|png), shown on a white tile when present */
+.brand-logo { height: 28px; width: auto; max-width: 120px; background: #fff; border-radius: 8px; padding: 4px 8px; box-sizing: border-box; object-fit: contain; }
+.brand small { font-weight: 600; font-size: 11px; letter-spacing: .08em; opacity: .75; margin-left: 4px; }
+.login-box .head .brand-logo { height: 52px; max-width: 180px; border-radius: 14px; padding: 8px 14px; display: block; margin: 0 auto 12px; }

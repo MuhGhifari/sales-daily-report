@@ -11,9 +11,9 @@
 
   function shiftStatus(id, working) {
     const sh = D.getShift(id, D.TODAY);
-    if (sh) return sh.end ? `<span class="muted">Selesai ${sh.end}</span>` : `<span class="ok">Aktif sejak ${sh.start}</span>`;
-    if (D.getReport(id, D.TODAY)) return 'Sudah lapor';
-    return working ? '<span class="bad">Belum mulai</span>' : '<span class="muted">Libur</span>';
+    if (sh) return sh.end ? `<span class="pill">Selesai ${sh.end}</span>` : `<span class="pill ok">Aktif sejak ${sh.start}</span>`;
+    if (D.getReport(id, D.TODAY)) return '<span class="pill">Sudah lapor</span>';
+    return working ? '<span class="pill bad">Belum mulai</span>' : '<span class="pill">Libur</span>';
   }
 
   function render() {
@@ -27,9 +27,9 @@
       pace = diff >= 0 ? `<span class="ok">${App.pct1(diff)} di atas laju</span>` : `<span class="warn">${App.pct1(-diff)} di bawah laju</span>`;
     }
     $('stats').innerHTML = `
-      <div class="stat"><div class="l">Penjualan</div><div class="v">${App.rpShort(s.actual)}</div><div class="s">dari ${App.rpShort(s.target)}</div></div>
-      <div class="stat"><div class="l">Pencapaian</div><div class="v">${App.pct1(s.pct)}</div><div class="s">${pace}</div></div>
-      <div class="stat"><div class="l">Mulai shift hari ini</div><div class="v">${s.working ? `${s.reported}/${s.size}` : '-'}</div><div class="s">${s.working ? '' : 'Hari libur'}</div></div>`;
+      <div class="stat"><span class="badge">${App.icon('chart')}</span><div><div class="l">Penjualan</div><div class="v">${App.rpShort(s.actual)}</div><div class="s">dari ${App.rpShort(s.target)}</div></div></div>
+      <div class="stat"><span class="badge ${s.pct >= (s.expected || 0) ? 'green' : 'amber'}">${App.icon('target')}</span><div><div class="l">Pencapaian</div><div class="v">${App.pct1(s.pct)}</div><div class="s">${pace}</div></div></div>
+      <div class="stat"><span class="badge">${App.icon('userCheck')}</span><div><div class="l">Mulai shift hari ini</div><div class="v">${s.working ? `${s.reported}/${s.size}` : '-'}</div><div class="s">${s.working ? '' : 'Hari libur'}</div></div></div>`;
 
     const [cf, ct] = D.chartRange(period, D.TODAY);
     App.trendChart($('trend'), D.dailySeries(s.lb.map(r => r.user.id), [teamId], cf, ct));
@@ -39,7 +39,7 @@
       const text = encodeURIComponent(`Halo ${u.name.split(' ')[0]}, jangan lupa mulai shift dan catat setiap penjualan hari ini ya. Terima kasih.`);
       const wa = u.phone ? `https://wa.me/62${u.phone.replace(/\D/g, '').replace(/^0/, '')}?text=${text}` : '';
       return `<div>
-        <div class="grow"><b>${App.esc(u.name)}</b><span>${App.esc(u.store)}</span></div>
+        <div class="grow">${App.person(u.name, u.store)}</div>
         ${wa ? App.iconLink(wa, 'message', 'Ingatkan via WhatsApp', 'target="_blank" rel="noopener"', 'primary') : ''}
       </div>`;
     }).join('');
@@ -48,8 +48,8 @@
       <thead><tr><th>#</th><th>SPG</th><th class="num">Penjualan</th><th class="num">Target</th><th class="num">%</th><th>Shift hari ini</th></tr></thead>
       <tbody>${s.lb.map(r => `
         <tr class="click" data-id="${r.user.id}">
-          <td class="muted">${r.rank}</td>
-          <td>${App.esc(r.user.name)}<small>${App.esc(r.user.store)}</small></td>
+          <td>${App.rankBadge(r.rank)}</td>
+          <td>${App.person(r.user.name, r.user.store)}</td>
           <td class="num">${App.num(r.actual)}</td>
           <td class="num">${App.num(Math.round(r.target / 1000) * 1000)}</td>
           <td class="num"><b>${App.pct(r.pct)}</b></td>

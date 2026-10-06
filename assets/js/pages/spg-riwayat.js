@@ -24,17 +24,17 @@
       let status, value = '';
       if (r) {
         const t = D.dailyTarget(user.id, d);
-        status = D.isLocked(user.id, d) ? `<span title="Terkunci" aria-label="Terkunci">${App.icon('lock')}</span>` : `<span class="ok" title="Terkirim" aria-label="Terkirim">${App.icon('check')}</span>`;
+        status = D.isLocked(user.id, d) ? `<span class="pill">${App.icon('lock')} Terkunci</span>` : `<span class="pill ok">${App.icon('check')} Terkirim</span>`;
         value = `<b>${App.rp(r.total)}</b>${t ? `<span>${App.pct(r.total / t * 100)} dari target</span>` : ''}`;
       } else if (!working) {
-        status = 'Libur';
+        status = '<span class="pill">Libur</span>';
       } else {
-        status = d === D.TODAY ? '<span class="warn">Belum dikirim</span>' : '<span class="bad">Tidak lapor</span>';
+        status = d === D.TODAY ? '<span class="pill warn">Belum ada</span>' : '<span class="pill bad">Tidak lapor</span>';
       }
       const clickable = r || (working && !D.isLocked(user.id, d));
       const tag = clickable ? 'a' : 'div';
       return `<${tag} ${clickable ? `href="laporan.html?tanggal=${d}"` : ''}>
-        <div class="grow"><b>${App.dateShort(d)}</b><span>${status}</span></div>
+        <div class="grow"><b>${App.dateShort(d)}</b><div class="status">${status}</div></div>
         <div class="val">${value}</div>
       </${tag}>`;
     }).join('');

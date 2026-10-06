@@ -46,13 +46,15 @@
   const me = lb.find(r => r.user.id === user.id);
   const st = D.streak(user.id, today);
   $('rank').innerHTML = `
-    <a href="peringkat.html">
-      <div class="grow"><b>Peringkat tim</b><span>Bulan ini, berdasarkan % target</span></div>
-      <div class="val"><b>#${me ? me.rank : '-'}</b> <span>dari ${lb.length}</span></div>
+    <a class="tile" href="peringkat.html">
+      <span class="badge">${App.icon('trophy')}</span>
+      <div class="v">#${me ? me.rank : '-'} <span class="small muted">/ ${lb.length}</span></div>
+      <div class="l">Peringkat bulan ini</div>
     </a>
-    <div>
-      <div class="grow"><b>Streak</b><span>Hari berturut-turut capai 100%</span></div>
-      <div class="val"><b>${st} hari</b></div>
+    <div class="tile">
+      <span class="badge orange">${App.icon('flame')}</span>
+      <div class="v">${st} hari</div>
+      <div class="l">Streak capai 100%</div>
     </div>`;
 
   /* ----- Week & month ----- */
