@@ -46,6 +46,7 @@
     userX: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5M22 8l-5 5"/>',
     userCheck: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/>',
     minus: '<path d="M5 12h14"/>',
+    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
     camera: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
     plus: '<path d="M5 12h14M12 5v14"/>',
     left: '<path d="m15 18-6-6 6-6"/>',
@@ -299,6 +300,63 @@
   }
   const enhanceSelects = (scope) => (scope || document).querySelectorAll('select').forEach(combobox);
 
+  /* ---------- Table search + pagination ----------
+   * Call after every (re)render of a table: App.tableTools(tableEl, { placeholder, pageSize }).
+   * Controls are created once per table and keep their search text and page across re-renders.
+   * Rows with class "detail" belong to the row above them and follow its visibility. */
+  function tableTools(table, opts) {
+    if (!table) return;
+    opts = opts || {};
+    const size = opts.pageSize || 10;
+    const minRows = opts.minRows == null ? 6 : opts.minRows; // smaller tables get no controls
+    let st = table._tt;
+    if (!st) {
+      const anchor = table.closest('.table-wrap') || table;
+      st = table._tt = { q: '', page: 1 };
+      st.bar = document.createElement('div');
+      st.bar.className = 'tt-bar';
+      const ph = opts.placeholder || 'Cari...';
+      st.bar.innerHTML = `<label class="tt-search">${icon('search')}<input type="search" class="input" placeholder="${esc(ph)}" aria-label="${esc(ph)}" autocomplete="off"></label>`;
+      st.pager = document.createElement('div');
+      st.pager.className = 'tt-pager';
+      anchor.before(st.bar);
+      anchor.after(st.pager);
+      st.input = st.bar.querySelector('input');
+      st.input.addEventListener('input', () => { st.q = st.input.value; st.page = 1; apply(); });
+      st.pager.addEventListener('click', e => {
+        const b = e.target.closest('[data-pg]');
+        if (b && !b.disabled) { st.page += +b.dataset.pg; apply(); }
+      });
+    }
+    function apply() {
+      const body = table.tBodies[0];
+      if (!body) return;
+      const old = body.querySelector('tr.tt-none');
+      if (old) old.remove();
+      const rows = [...body.rows].filter(r => !r.classList.contains('detail') && !r.querySelector('td.empty'));
+      const needle = st.q.trim().toLowerCase();
+      const match = rows.filter(r => !needle || r.textContent.toLowerCase().includes(needle));
+      const pages = Math.max(1, Math.ceil(match.length / size));
+      st.page = Math.min(Math.max(1, st.page), pages);
+      const from = (st.page - 1) * size;
+      const shown = new Set(match.slice(from, from + size));
+      rows.forEach(r => {
+        const on = shown.has(r);
+        r.classList.toggle('tt-hide', !on);
+        for (let n = r.nextElementSibling; n && n.classList.contains('detail'); n = n.nextElementSibling) n.classList.toggle('tt-hide', !on);
+      });
+      if (rows.length && !match.length) {
+        const cols = (table.tHead && table.tHead.rows[0] && table.tHead.rows[0].cells.length) || 1;
+        body.insertAdjacentHTML('beforeend', `<tr class="tt-none"><td colspan="${cols}" class="empty">Tidak ditemukan</td></tr>`);
+      }
+      st.bar.hidden = rows.length < minRows && !needle;
+      st.pager.hidden = match.length <= size;
+      st.pager.innerHTML = `<span class="small muted">${from + 1}–${Math.min(from + size, match.length)} dari ${match.length}</span>
+        <span class="icon-group">${iconBtn('left', 'Halaman sebelumnya', `data-pg="-1"${st.page <= 1 ? ' disabled' : ''}`)}<span class="small tt-page">${st.page} / ${pages}</span>${iconBtn('right', 'Halaman berikutnya', `data-pg="1"${st.page >= pages ? ' disabled' : ''}`)}</span>`;
+    }
+    apply();
+  }
+
   function toast(msg) {
     let el = document.querySelector('.toast');
     if (!el) { el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); document.body.append(el); }
@@ -404,7 +462,7 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, init, teamId, toast, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
+    root, HOME, ROLE_LABEL, init, teamId, toast, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
     esc, num, rp, rpK, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
     BRAND_LOGO, logoImg,

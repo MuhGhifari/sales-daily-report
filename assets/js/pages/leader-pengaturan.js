@@ -26,6 +26,7 @@
         <td class="num">${App.iconBtn('trash', 'Hapus hari libur', `data-del="${i}"`, 'danger')}</td>
       </tr>`).join('')}</tbody>`
       : '<tbody><tr><td class="empty">Belum ada hari libur.</td></tr></tbody>';
+    App.tableTools($('holidays'), { placeholder: 'Cari hari libur...' });
   }
 
   $('days').addEventListener('click', e => {

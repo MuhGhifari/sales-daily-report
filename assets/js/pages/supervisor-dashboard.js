@@ -35,6 +35,7 @@
         <td class="num"><b>${App.pct1(t.pct)}</b></td>
         <td class="num"><span class="pill ${t.reported === t.size ? 'ok' : 'warn'}">${t.reported}/${t.size}</span></td>
       </tr>`).join('')}</tbody>`;
+    App.tableTools($('teams'), { placeholder: 'Cari tim atau leader...' });
     $('podium').innerHTML = App.podium(a.topSpgs, null, r => 'Tim ' + D.team(r.user.teamId).name);
     $('teams').querySelectorAll('tr.click').forEach(tr => tr.addEventListener('click', () => {
       location.href = '../leader/dashboard.html?tim=' + tr.dataset.id;

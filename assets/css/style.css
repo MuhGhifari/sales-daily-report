@@ -415,3 +415,14 @@ body.login { background: #fff; }
 .login-box .head .sub { color: var(--muted); }
 .login-box form.card { border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
 .login-box .demo.card { margin-top: 8px; }
+
+/* Table search + pagination */
+.tt-bar { margin-bottom: 12px; }
+.tt-search { position: relative; display: block; max-width: 320px; }
+.tt-search .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--muted); pointer-events: none; }
+.tt-search input { padding-left: 38px; }
+.tt-pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
+.tt-pager .icon-group { align-items: center; }
+.tt-page { min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
+.tt-hide { display: none !important; }
+.icon-btn:disabled { opacity: .35; cursor: default; background: none; }

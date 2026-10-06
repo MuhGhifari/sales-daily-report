@@ -30,6 +30,7 @@
       </tr>`;
     }).join('') || '<tr><td colspan="5" class="empty">Belum ada SPG aktif di tim ini.</td></tr>';
     $('rows').querySelectorAll('tr[data-id]').forEach(updatePlaceholders);
+    App.tableTools($('rows').closest('table'), { placeholder: 'Cari SPG atau toko...' });
   }
 
   function updatePlaceholders(tr) {

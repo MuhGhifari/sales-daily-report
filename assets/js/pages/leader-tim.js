@@ -20,6 +20,7 @@
         <td>${u.active ? '<span class="pill ok">Aktif</span>' : '<span class="pill">Nonaktif</span>'}</td>
         <td class="num"><span class="icon-group">${App.iconBtn('camera', 'Ganti foto ' + u.name, `data-photo="${u.id}"`)}${App.iconBtn(u.active ? 'userX' : 'userCheck', u.active ? 'Nonaktifkan SPG' : 'Aktifkan SPG', `data-id="${u.id}"`, u.active ? 'danger' : 'primary')}</span></td>
       </tr>`).join('')}</tbody>`;
+    App.tableTools($('table'), { placeholder: 'Cari nama, username, toko...' });
   }
 
   $('table').addEventListener('click', async e => {

@@ -20,6 +20,8 @@
     return sh ? `<p class="small muted" style="margin:0 0 8px">Shift ${sh.start}–${sh.end || 'sekarang'}</p>` : '';
   }
 
+  const TT = { placeholder: 'Cari SPG, tanggal, toko...' };
+
   function render() {
     const ids = $('spg').value ? [$('spg').value] : spgs.map(u => u.id);
     let from = $('from').value || D.DATA_START, to = $('to').value || D.TODAY;
@@ -29,7 +31,7 @@
     const total = list.reduce((a, r) => a + r.total, 0);
     $('summary').innerHTML = `<b>${list.length}</b> laporan · Total <b>${App.rp(total)}</b>`;
 
-    if (!list.length) { $('table').innerHTML = '<tbody><tr><td class="empty">Tidak ada laporan pada filter ini.</td></tr></tbody>'; return; }
+    if (!list.length) { $('table').innerHTML = '<tbody><tr><td class="empty">Tidak ada laporan pada filter ini.</td></tr></tbody>'; App.tableTools($('table'), TT); return; }
 
     $('table').innerHTML = `
       <thead><tr><th>Tanggal</th><th>SPG</th><th class="num">Transaksi</th><th class="num">Total (Rp)</th><th></th></tr></thead>
@@ -55,6 +57,7 @@
             </table>`}
           </td></tr>`;
       }).join('')}</tbody>`;
+    App.tableTools($('table'), TT);
   }
 
   $('table').addEventListener('click', e => {

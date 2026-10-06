@@ -18,6 +18,7 @@
         <td>${p.active ? '<span class="pill ok">Aktif</span>' : '<span class="pill">Nonaktif</span>'}</td>
         <td class="num">${App.iconBtn('pencil', 'Ubah produk', `data-id="${p.id}"`)}</td>
       </tr>`).join('')}</tbody>`;
+    App.tableTools($('table'), { placeholder: 'Cari produk atau SKU...' });
   }
 
   let image = '';
