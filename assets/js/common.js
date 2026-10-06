@@ -257,7 +257,15 @@
   /* ---------- Sales trend chart: one bar per day + dashed daily-target line ---------- */
   function trendChart(el, series) {
     if (!series.length) { el.innerHTML = '<p class="empty">Belum ada data.</p>'; return; }
-    const W = 640, H = 200, L = 36, R = 8, T = 10, B = 24;
+    // Draw at the real width so labels stay readable on phones; redraw when the width changes.
+    if (!el._chartResize) {
+      let t;
+      el._chartResize = () => { clearTimeout(t); t = setTimeout(() => { if (el.clientWidth !== el._chartW) trendChart(el, el._series); }, 150); };
+      window.addEventListener('resize', el._chartResize);
+    }
+    el._series = series;
+    const W = el._chartW = Math.max(280, Math.round(el.clientWidth || 640));
+    const H = W < 500 ? 180 : 220, L = 40, R = 4, T = 10, B = 24;
     const max = Math.max(...series.map(p => Math.max(p.actual, p.target))) * 1.1 || 1;
     const step = niceStep(max / 3);
     const top = Math.ceil(max / step) * step;
@@ -266,7 +274,7 @@
     const bw = Math.max(2, Math.min(28, slot - 2)); // 2px gap between bars
     const unit = top >= 1e9 ? [1e9, ' M'] : [1e6, ' jt'];
     const tick = v => (v / unit[0]).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + (v ? unit[1] : '');
-    const every = Math.ceil(series.length / 8);
+    const every = Math.ceil(series.length / Math.max(4, Math.floor(W / 70)));
 
     let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik penjualan harian">`;
     for (let v = 0; v <= top; v += step) {

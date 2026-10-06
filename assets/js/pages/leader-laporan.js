@@ -20,6 +20,7 @@
     let from = $('from').value || D.DATA_START, to = $('to').value || D.TODAY;
     if (from > to) [from, to] = [to, from];
     const list = D.listReports({ userIds: ids, from, to });
+    App.trendChart($('trend'), D.dailySeries(ids, [teamId], from, to));
     const total = list.reduce((a, r) => a + r.total, 0);
     $('summary').innerHTML = `<b>${list.length}</b> laporan · Total <b>${App.rp(total)}</b>`;
 

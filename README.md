@@ -34,3 +34,7 @@ The passwords are hardcoded in `assets/js/data.js` and visible to anyone — dem
 | `admin/produk.html` — product catalog & prices | Admin |
 
 See [`PLAN.md`](PLAN.md) for the product plan and [`IMPLEMENTATION.md`](IMPLEMENTATION.md) for how it's built.
+
+## Publishing changes
+
+After editing any page, run `python3 tools/bump-version.py` before committing. It stamps a new version on every page and in `assets/version.json`; pages that a browser still has cached detect the newer version and reload themselves, so nobody sees a mix of old and new pages.

@@ -39,6 +39,7 @@
       </${tag}>`;
     }).join('');
 
+    App.trendChart($('trend'), D.dailySeries([user.id], [user.teamId], mk + '-01', end));
     $('summary').textContent = `${sent} dari ${workDays} hari kerja dilaporkan · Total ${App.rp(total)}`;
   }
 
