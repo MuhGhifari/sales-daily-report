@@ -44,15 +44,17 @@ Money is stored as whole Rupiah (`BIGINT UNSIGNED`). All tables have `created_at
 
 | Table | Columns | Indexes / notes |
 |-------|---------|-----------------|
-| **users** | `id, phone (unique, 62…), name, role (enum spg/leader/supervisor/admin), area_id, team_id, store, photo_path, password, must_change_password, active, last_login_at` | `phone` unique; `team_id`, `area_id` |
+| **users** | `id, phone (unique, 62…), name, role (enum spg/leader/supervisor/admin), area_id, team_id, photo_path, password, must_change_password, active, last_login_at` | `phone` unique; `team_id`, `area_id` |
 | **areas** | `id, name, supervisor_id` | |
 | **teams** | `id, name, area_id, leader_id` | `area_id` |
 | **team_settings** | `team_id (PK), working_days (json, e.g. [1,2,3,4,5,6]), edit_days (default 2), reminder_time` | |
 | **holidays** | `id, team_id (null = all teams), date, name, is_working_day` | unique `(team_id, date)` |
-| **products** | `id, name, sku (unique, nullable), price, photo_path, active` | never deleted, only deactivated |
+| **products** | `id, name, sku (unique, nullable), price, photo_path, active, created_by, updated_by` | shared catalog; never deleted, only deactivated |
+| **stores** | `id, name, chain, city, address, area_id, active, created_by, updated_by` | shared list of stores; never deleted, only deactivated |
 | **targets** | `id, user_id, month (char 7, '2026-10'), monthly, weekly (null), daily (null), set_by` | unique `(user_id, month)` |
-| **shifts** | `id, user_id, date, started_at, ended_at (null)` | unique `(user_id, date)` |
-| **sales** | `id, client_id (uuid, unique), user_id, date, sold_at (datetime), product_id, qty, price, subtotal, created_by, deleted_at (soft delete)` | `(user_id, date)`, `(date)`, `product_id`; `client_id` makes offline resend safe |
+| **shifts** | `id, user_id, date, store_id, started_at, ended_at (null)` | unique `(user_id, date)`; `store_id` = current store |
+| **shift_store_visits** | `id, shift_id, store_id, started_at` | one row per start / **switch** of store within a shift |
+| **sales** | `id, client_id (uuid, unique), user_id, date, sold_at (datetime), store_id, product_id, qty, price, subtotal, created_by, deleted_at (soft delete)` | `(user_id, date)`, `(date)`, `product_id`; `client_id` makes offline resend safe |
 | **day_reports** | `id, user_id, date, no_sales, unlocked_by, unlocked_at` | unique `(user_id, date)`; only for the flags, totals come from `sales` |
 | **sessions**, **personal_access_tokens**, **jobs**, **failed_jobs** | standard Laravel | database session driver, so sessions can be revoked per user |
 | **activity_log** | `id, user_id, action, subject_type, subject_id, changes (json), ip` | audit of edits, unlocks, target changes, deactivations |
@@ -87,7 +89,8 @@ All under `/api`, JSON, session cookie + CSRF (Sanctum SPA mode). Validation thr
 | `POST /login`, `POST /logout` | all | phone + password, "ingat saya" 30 days |
 | `GET /me`, `POST /me/password`, `POST /me/photo` | all | profile, change password, upload photo |
 | `GET /bootstrap` | all | everything a page needs for the user's scope (same shape as today's data) |
-| `POST /shifts/start`, `POST /shifts/end` | SPG | today's shift (server time) |
+| `POST /shifts/start {store_id}`, `POST /shifts/switch-store {store_id}`, `POST /shifts/end` | SPG | today's shift at any active store; switch store mid-shift |
+| `GET/POST/PATCH /stores` | admin, supervisor, leader (SPG: read) | store list; edit rules as products |
 | `GET /sales?user=&team=&from=&to=` | owner / leader / supervisor | sales list (report details) |
 | `POST /sales`, `DELETE /sales/{id}` | SPG (own), leader, supervisor | add / remove a sale |
 | `POST /day-reports/{user}/{date}/unlock` / `lock` | leader, supervisor | open a locked day for the SPG |
@@ -95,8 +98,8 @@ All under `/api`, JSON, session cookie + CSRF (Sanctum SPA mode). Validation thr
 | `GET /dashboard/area/{area}?period=` | supervisor | team comparison, top SPGs |
 | `GET/PUT /teams/{team}/targets?month=` | leader, supervisor | read / save targets |
 | `GET/PUT /teams/{team}/settings`, `/holidays` | leader, supervisor | working days, edit window, holidays |
-| `GET/POST/PATCH /users` (+ `/reset-password`, `/deactivate`) | leader (team SPGs), supervisor, admin | manage people |
-| `GET/POST/PATCH /products`, `POST /products/{id}/photo`, `POST /products/import`, `GET /products/export` | admin | catalog, photos, Excel/CSV import & export |
+| `GET/POST/PATCH /users` (+ `/reset-password`, `/deactivate`) | **SPGs**: leader (own team), supervisor (area). **Leaders & Supervisors**: admin only | manage people |
+| `GET/POST/PATCH /products`, `POST /products/{id}/photo`, `POST /products/import`, `GET /products/export` | admin, supervisor, leader (leader edits own only; import/export: admin, supervisor) | catalog, photos, Excel/CSV import & export |
 | `GET /reports/export?team=&from=&to=` | leader, supervisor | Excel/CSV download |
 
 ---
@@ -107,13 +110,29 @@ All under `/api`, JSON, session cookie + CSRF (Sanctum SPA mode). Validation thr
 2. **Sessions** are httpOnly, Secure, SameSite=Lax cookies stored in the `sessions` table; "Ingat saya" keeps them for 30 days. JavaScript never sees the session, so a script injected into the page can't steal it.
 3. **CSRF** protection on every write (Sanctum SPA).
 4. **Rate limit**: 5 failed logins per phone + IP per minute, then a short lockout (`RateLimiter`). Every login is written to `activity_log`.
-5. **First login / reset**: users get a temporary password and must change it (`must_change_password`). A Leader can reset their SPGs; Admin can reset anyone.
+5. **First login / reset**: users get a temporary password and must change it (`must_change_password`). A Team Leader resets their team's SPGs, a Supervisor any SPG in the area; Admin resets Supervisors and Team Leaders.
 6. **Deactivate / reset** deletes that user's rows in `sessions`, logging them out on every device immediately.
 7. **Roles & scope** (Policies + a `role` middleware):
    - SPG: only own shifts and sales; today needs an open shift, past days only inside the team's edit window or when unlocked.
-   - Team Leader: own team's SPGs, targets, settings, reports.
+   - Team Leader: own team's SPGs (add / deactivate / reset), targets, settings, reports; add products and stores, edit the ones they added.
    - Supervisor: all teams in their area.
-   - Admin: products, all users, all data.
+   - Admin: Supervisor and Team Leader accounts, all products and stores, all data (read).
+
+### Who can do what (agreed)
+
+| Action | SPG | Team Leader | Supervisor | Admin |
+|--------|:---:|:-----------:|:----------:|:-----:|
+| Add / deactivate / reset **SPGs** | – | own team | any team in area | – |
+| Add / deactivate / reset **Team Leaders & Supervisors** | – | – | – | yes |
+| Add **products** | – | yes | yes | yes |
+| Edit / deactivate **products** | – | the ones they added | any | any |
+| Add **stores** | – | yes | yes | yes |
+| Edit / deactivate **stores** | – | the ones they added | any | any |
+| Start / end shift, choose & switch store, record sales | own | – | – | – |
+| Targets, team settings, unlock reports | – | own team | area | – |
+
+Products and stores are **shared lists** for everyone. Every add / edit / deactivate is logged with who did it and when.
+
 8. Optional later: OTP via WhatsApp/SMS provider for login or password reset.
 
 ---
@@ -126,7 +145,11 @@ All under `/api`, JSON, session cookie + CSRF (Sanctum SPA mode). Validation thr
 
 ---
 
-## 8. Products: Excel instead of editing the Sheet
+## 8. Products and stores
+
+Products and stores are shared lists managed by Admin, Supervisors and Team Leaders (rules in section 6). Every sale stores the store of the shift at that moment, so reports, rankings and exports can be filtered and grouped **by store**. Targets stay per SPG.
+
+### 8.1 Products: Excel instead of editing the Sheet
 
 The Sheets plan lets Admin edit products in the spreadsheet. Here the equivalent is:
 - **Export** the catalog to Excel, edit it, **import** it back (matched by SKU; new rows created, prices/active updated, nothing deleted). Uses `maatwebsite/excel`.
@@ -145,7 +168,8 @@ Shared with the Sheets plan, so the work is done once:
 4. Report details and exports call the API on demand.
 5. Login page: phone + password, "Ingat saya", change-password screen; demo accounts hidden outside demo mode.
 6. Offline queue for sales (same as Plan A), sent with `client_id`; loading states and error toasts.
-7. Leader dashboard refreshes every 60 s while open (live enough; real-time push with Laravel Reverb is possible later).
+7. **Store at shift start**: "Mulai shift" opens a searchable store list (any active store, last used pre-selected); the Penjualan page shows the current store with "Ganti toko". New **Toko** page for Leader/Supervisor/Admin; product pages for Leader/Supervisor; Admin's user page adds Supervisors and Team Leaders, Leader/Supervisor pages add SPGs only. Reports and exports gain a store column and filter.
+8. Leader dashboard refreshes every 60 s while open (live enough; real-time push with Laravel Reverb is possible later).
 
 ---
 
@@ -194,7 +218,7 @@ Operations:
 | **2. Front-end adapter** | `config.js`, async `data.js` with `bootstrap`, loading/error states | Current pages run on the API |
 | **3. SPG flow** | shifts, sales add/remove, edit window & unlock rules, idempotency, offline queue | Full shift on real data |
 | **4. Dashboards & reports** | services, team/area dashboards, rankings, streaks, trend, exports | Leaders and Supervisor live |
-| **5. Management** | users, targets, settings/holidays, products + Excel import/export, photos | Admin and Leaders self-sufficient |
+| **5. Management** | users (by role), stores, targets, settings/holidays, products + Excel import/export, photos | Admin and Leaders self-sufficient |
 | **6. Ops & hardening** | server setup, HTTPS, backups, scheduler, logs, activity log, load test | Ready for pilot |
 | **7. Pilot** | 1 team for 1–2 weeks, fixes, then all teams | Go-live |
 
@@ -217,6 +241,11 @@ Operations:
 | 2 | Login | **Phone number + password** |
 | 3 | Photos | Stored on the server (`public` disk), can move to object storage |
 | 4 | Product bulk edits | Excel export / import (replaces editing in the Sheet) |
+| 4a | Who adds users | Admin: Supervisors & Team Leaders. Supervisors & Team Leaders: SPGs only |
+| 4b | Products | Admin, Supervisors and Team Leaders (Leader edits own; Supervisor/Admin edit any) |
+| 4c | Stores | Shared list managed by Admin, Supervisors and Team Leaders (same edit rules) |
+| 4d | Store per shift | SPG picks **any** store when starting a shift and **can switch** during the shift |
+| 4e | Targets | Stay **per SPG** (not per store) |
 | 5 | Hosting | **Open** (recommended: VPS in Indonesia) |
 | 6 | Data must stay in Indonesia (UU PDP / NIVEA IT policy)? | **Open** |
 | 7 | Who maintains the server after launch | **Open** |
