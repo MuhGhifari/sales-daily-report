@@ -13,36 +13,33 @@
     $('next').disabled = mk >= lastMonth;
 
     const end = D.monthEnd(mk + '-01') < D.TODAY ? D.monthEnd(mk + '-01') : D.TODAY;
-    const days = D.eachDay(mk + '-01', end).reverse();
     let workDays = 0, sent = 0, total = 0;
 
-    $('list').innerHTML = days.map(d => {
+    $('list').innerHTML = D.eachDay(mk + '-01', end).reverse().map(d => {
       const working = D.isWorkingDay(user.teamId, d);
       const r = D.getReport(user.id, d);
       if (working) workDays++;
       if (r) { sent++; total += r.total; }
 
-      let status, amount = '';
+      let status, value = '';
       if (r) {
         const t = D.dailyTarget(user.id, d);
-        const p = t ? r.total / t * 100 : 0;
-        const lv = D.level(p);
-        status = D.isLocked(user.id, d) ? `<span class="pill off">${App.icon('lock')} Terkunci</span>` : `<span class="pill ok">${App.icon('check')} Terkirim</span>`;
-        amount = `${App.rp(r.total)}<div class="small muted">${t ? `<span class="lvl">${App.levelIcon(lv)}${App.pct(p)}</span>` : r.noSales ? 'Tidak ada penjualan' : ''}</div>`;
+        status = D.isLocked(user.id, d) ? 'Terkunci' : 'Terkirim';
+        value = `<b>${App.rp(r.total)}</b>${t ? `<span>${App.pct(r.total / t * 100)} dari target</span>` : ''}`;
       } else if (!working) {
-        status = '<span class="pill off">Libur</span>';
+        status = 'Libur';
       } else {
-        status = d === D.TODAY ? '<span class="pill warn">Belum dikirim</span>' : '<span class="pill bad">Tidak lapor</span>';
+        status = d === D.TODAY ? '<span class="warn">Belum dikirim</span>' : '<span class="bad">Tidak lapor</span>';
       }
       const clickable = r || (working && !D.isLocked(user.id, d));
       const tag = clickable ? 'a' : 'div';
-      return `<${tag} class="day" ${clickable ? `href="laporan.html?tanggal=${d}"` : ''}>
-        <div class="grow"><b>${App.dateShort(d)}</b><div>${status}</div></div>
-        <div class="amt">${amount}</div>
+      return `<${tag} ${clickable ? `href="laporan.html?tanggal=${d}"` : ''}>
+        <div class="grow"><b>${App.dateShort(d)}</b><span>${status}</span></div>
+        <div class="val">${value}</div>
       </${tag}>`;
     }).join('');
 
-    $('summary').innerHTML = `<b>${sent}</b> dari ${workDays} hari kerja dilaporkan · Total <b>${App.rp(total)}</b>`;
+    $('summary').textContent = `${sent} dari ${workDays} hari kerja dilaporkan · Total ${App.rp(total)}`;
   }
 
   $('prev').addEventListener('click', () => { mk = D.addMonths(mk, -1); render(); });

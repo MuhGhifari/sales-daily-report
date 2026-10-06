@@ -3,52 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#00136F">
-<title>Pengaturan Tim · Laporan SPG</title>
-<link rel="stylesheet" href="../assets/css/style.css?v=202610021602">
+<meta name="theme-color" content="#ffffff">
+<title>Pengaturan · Laporan SPG</title>
+<link rel="stylesheet" href="../assets/css/style.css?v=202610060311">
 </head>
 <body data-root="../">
 <main>
-  <div class="toolbar">
-    <div><h1>Pengaturan Tim</h1><p class="lead" id="sub"></p></div>
-    <button type="button" class="btn" id="save">Simpan Pengaturan</button>
-  </div>
-  <div class="grid-2">
-    <div>
-      <section class="card">
-        <h2>Hari Kerja</h2>
-        <div class="chips" id="days"></div>
-        <p class="small muted" id="dayCount" style="margin:10px 0 0"></p>
-      </section>
-      <section class="card">
-        <h2>Laporan</h2>
-        <div class="field">
-          <label for="editDays">Batas SPG mengubah laporan (hari)</label>
-          <input class="input" type="number" id="editDays" min="0" max="14" step="1">
-        </div>
-        <div class="field">
-          <label for="reminder">Jam pengingat WhatsApp</label>
-          <input class="input" type="time" id="reminder">
-        </div>
-      </section>
+  <div class="page-head"><div><h1>Pengaturan</h1><p class="sub" id="sub"></p></div><button type="button" class="btn" id="save">Simpan</button></div>
+  <section>
+    <h2>Hari kerja</h2>
+    <div class="chips" id="days"></div>
+    <p class="note" id="dayCount"></p>
+  </section>
+  <section>
+    <h2>Laporan</h2>
+    <div class="form-grid">
+      <div class="field"><label for="editDays">Batas ubah laporan (hari)</label><input class="input" type="number" id="editDays" min="0" max="14" step="1"></div>
+      <div class="field"><label for="reminder">Jam pengingat</label><input class="input" type="time" id="reminder"></div>
     </div>
-    <section class="card">
-      <h2>Hari Libur</h2>
-      <div class="table-wrap"><table id="holidays"></table></div>
-      <div class="form-grid" style="margin-top:14px">
-        <div class="field"><label for="hDate">Tanggal</label><input class="input" type="date" id="hDate"></div>
-        <div class="field"><label for="hName">Keterangan</label><input class="input" id="hName" placeholder="mis. Idul Fitri"></div>
-      </div>
-      <div class="row wrap">
-        <label class="check"><input type="checkbox" id="hWork"> Tetap hari kerja (toko buka)</label>
-        <button type="button" class="btn small ghost" id="addHoliday">+ Tambah</button>
-      </div>
-      <p class="small muted" style="margin:10px 0 0">Hari libur yang bukan hari kerja tidak dihitung saat membagi target bulanan.</p>
-    </section>
-  </div>
+  </section>
+  <section>
+    <h2>Hari libur</h2>
+    <div class="table-wrap"><table id="holidays"></table></div>
+    <div class="form-grid" style="margin-top:16px">
+      <div class="field"><label for="hDate">Tanggal</label><input class="input" type="date" id="hDate"></div>
+      <div class="field"><label for="hName">Keterangan</label><input class="input" id="hName"></div>
+    </div>
+    <div class="actions">
+      <label class="check"><input type="checkbox" id="hWork"> Tetap hari kerja</label>
+      <button type="button" class="link" id="addHoliday">+ Tambah</button>
+    </div>
+  </section>
 </main>
-<script src="../assets/js/data.js?v=202610021602"></script>
-<script src="../assets/js/common.js?v=202610021602"></script>
-<script src="../assets/js/pages/leader-pengaturan.js?v=202610021602"></script>
+<script src="../assets/js/data.js?v=202610060311"></script>
+<script src="../assets/js/common.js?v=202610060311"></script>
+<script src="../assets/js/pages/leader-pengaturan.js?v=202610060311"></script>
 </body>
 </html>

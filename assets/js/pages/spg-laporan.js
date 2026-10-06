@@ -7,7 +7,7 @@
 
   const owner = isSpg ? user : D.user(App.param('spg'));
   if (!owner || !D.canView(user, owner)) {
-    document.querySelector('main').innerHTML = '<div class="card empty">Laporan tidak ditemukan.</div>';
+    document.querySelector('main').innerHTML = '<div class="empty">Laporan tidak ditemukan.</div>';
     return;
   }
 
@@ -38,12 +38,13 @@
     $('dateField').innerHTML = `<input type="date" class="input" id="date" max="${D.TODAY}" value="${date}">`;
   }
   $('date').addEventListener('change', e => e.target.value && go(e.target.value));
+  if (isSpg) App.combobox($('date'));
 
   if (!D.isWorkingDay(owner.teamId, date)) {
     $('notes-top').innerHTML = `<div class="notice">Tanggal ini hari libur tim. Laporan tetap bisa dikirim.</div>`;
   }
   if (!editable) {
-    $('notes-top').innerHTML = `<div class="notice">${App.icon('lock')} Laporan ini terkunci karena sudah lebih dari ${editDays} hari. Minta Team Leader membuka kunci jika perlu diubah.</div>`;
+    $('notes-top').innerHTML = `<div class="notice">Laporan ini terkunci karena sudah lebih dari ${editDays} hari. Minta Team Leader membuka kunci jika perlu diubah.</div>`;
   }
 
   /* ----- Product lines ----- */
@@ -61,15 +62,14 @@
     const el = document.createElement('div');
     el.className = 'line';
     el.innerHTML = `
-      <div class="line-top">
-        <select class="input" aria-label="Produk">${productOptions(item.productId)}</select>
-        <button type="button" class="del" aria-label="Hapus produk">${App.icon('x')}</button>
-      </div>
+      <select class="input" aria-label="Produk">${productOptions(item.productId)}</select>
       <div class="line-nums">
-        <div><label>Qty</label><input class="input qty" type="number" inputmode="numeric" min="0" step="1" value="${item.qty}"></div>
-        <div><label>Harga satuan (Rp)</label><input class="input price" type="number" inputmode="numeric" min="0" step="500" value="${item.price != null ? item.price : p.price}"></div>
+        <input class="input qty" type="number" inputmode="numeric" min="0" step="1" value="${item.qty}" aria-label="Qty">
+        <input class="input price" type="number" inputmode="numeric" min="0" step="500" value="${item.price != null ? item.price : p.price}" aria-label="Harga satuan (Rp)">
         <div class="line-sub"></div>
-      </div>`;
+      </div>
+      <button type="button" class="link danger del">Hapus</button>`;
+    App.combobox(el.querySelector('select'));
     el.querySelector('select').addEventListener('change', e => { el.querySelector('.price').value = D.product(e.target.value).price; recalc(); });
     el.querySelector('.del').addEventListener('click', () => { el.remove(); recalc(); });
     el.querySelectorAll('input').forEach(i => i.addEventListener('input', recalc));

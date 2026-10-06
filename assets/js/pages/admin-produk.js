@@ -14,8 +14,8 @@
         <td><b>${App.esc(p.name)}</b></td>
         <td>${App.esc(p.sku)}</td>
         <td class="num">${App.num(p.price)}</td>
-        <td>${p.active ? '<span class="pill ok">Aktif</span>' : '<span class="pill off">Nonaktif</span>'}</td>
-        <td class="num"><button class="btn small ghost" data-id="${p.id}">Ubah</button></td>
+        <td>${p.active ? 'Aktif' : '<span class="muted">Nonaktif</span>'}</td>
+        <td class="num"><button class="link" data-id="${p.id}">Ubah</button></td>
       </tr>`).join('')}</tbody>`;
   }
 

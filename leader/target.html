@@ -3,40 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#00136F">
+<meta name="theme-color" content="#ffffff">
 <title>Target · Laporan SPG</title>
-<link rel="stylesheet" href="../assets/css/style.css?v=202610021602">
+<link rel="stylesheet" href="../assets/css/style.css?v=202610060311">
 </head>
 <body data-root="../">
 <main>
-  <div class="toolbar">
-    <div><h1>Target Penjualan</h1><p class="lead" id="sub"></p></div>
-    <div class="row">
-      <button type="button" class="btn small ghost" id="prev" aria-label="Bulan sebelumnya"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
-      <b id="month" style="min-width:130px;text-align:center"></b>
-      <button type="button" class="btn small ghost" id="next" aria-label="Bulan berikutnya"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-    </div>
+  <div class="page-head">
+    <div><h1>Target</h1><p class="sub" id="sub"></p></div>
+    <div class="actions"><button type="button" class="btn ghost small" id="prev" aria-label="Bulan sebelumnya"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><b id="month"></b><button type="button" class="btn ghost small" id="next" aria-label="Bulan berikutnya"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div>
   </div>
-  <div class="card">
-    <div class="row wrap" style="margin-bottom:10px">
-      <p class="small muted" style="margin:0">Isi target bulanan. Target mingguan & harian dihitung otomatis. Isi kolom mingguan/harian hanya jika ingin mengubah manual (<span class="pill warn">kuning</span>).</p>
-      <div class="row">
-        <button type="button" class="btn small ghost" id="copyPrev">Salin bulan lalu</button>
-        <button type="button" class="btn small ghost" id="applyAll">Terapkan ke semua</button>
-      </div>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>SPG</th><th class="num">Bulanan (Rp)</th><th class="num">Mingguan (Rp)</th><th class="num">Harian (Rp)</th><th>Diatur oleh</th></tr></thead>
-        <tbody id="rows"></tbody>
-      </table>
-    </div>
-    <div style="margin-top:14px;text-align:right"><button type="button" class="btn" id="save">Simpan Target</button></div>
+  <div class="actions" style="margin-bottom:12px">
+    <button type="button" class="link" id="copyPrev">Salin bulan lalu</button>
+    <button type="button" class="link" id="applyAll">Samakan semua</button>
   </div>
-  <p class="small muted">Harian = bulanan ÷ hari kerja bulan itu. Mingguan = harian × hari kerja per minggu. Team Leader dan Supervisor sama-sama bisa mengatur target.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>SPG</th><th class="num">Bulanan</th><th class="num">Mingguan</th><th class="num">Harian</th><th>Diatur oleh</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <p class="note">Mingguan dan harian dihitung otomatis. Isi hanya jika ingin diubah manual.</p>
+  <p><button type="button" class="btn" id="save">Simpan</button></p>
 </main>
-<script src="../assets/js/data.js?v=202610021602"></script>
-<script src="../assets/js/common.js?v=202610021602"></script>
-<script src="../assets/js/pages/leader-target.js?v=202610021602"></script>
+<script src="../assets/js/data.js?v=202610060311"></script>
+<script src="../assets/js/common.js?v=202610060311"></script>
+<script src="../assets/js/pages/leader-target.js?v=202610060311"></script>
 </body>
 </html>

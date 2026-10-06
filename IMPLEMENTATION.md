@@ -56,6 +56,8 @@ Rules:
 
 ## 3. Layout (simple)
 
+Design: minimal. White page, one accent (NIVEA blue), thin dividers instead of cards, plain text tabs and links. Dropdowns are searchable (type to filter). Dashboards show a daily sales trend chart (bars) with a dashed daily-target line.
+
 Icons: one inline SVG line-icon set (Lucide, ISC license) in `assets/js/common.js` — no emoji anywhere in the UI.
 
 One layout for every page, the same on phone and desktop:

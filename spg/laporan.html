@@ -3,36 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#00136F">
+<meta name="theme-color" content="#ffffff">
 <title>Isi Laporan · Laporan SPG</title>
-<link rel="stylesheet" href="../assets/css/style.css?v=202610021602">
+<link rel="stylesheet" href="../assets/css/style.css?v=202610060311">
 </head>
 <body data-root="../">
 <main>
-  <h1 id="title">Isi Laporan</h1>
-  <p class="lead" id="sub"></p>
+  <div class="page-head"><div><h1 id="title">Isi Laporan</h1><p class="sub" id="sub"></p></div></div>
   <div id="notes-top"></div>
   <form id="form" novalidate>
-    <div class="card">
+    <div class="form-grid">
       <div class="field"><label for="date">Tanggal</label><div id="dateField"></div></div>
       <div class="field"><label for="store">Toko</label><input class="input" id="store" readonly></div>
-      <label class="check"><input type="checkbox" id="noSales"> Tidak ada penjualan</label>
     </div>
-    <h2>Produk Terjual</h2>
+    <p><label class="check"><input type="checkbox" id="noSales"> Tidak ada penjualan</label></p>
+    <div class="line-nums small muted" style="margin:16px 0 6px"><span>Qty</span><span>Harga satuan</span><span class="line-sub">Subtotal</span></div>
     <div id="lines"></div>
-    <button type="button" class="add-line" id="add">+ Tambah Produk</button>
-    <div class="field" style="margin-top:14px">
-      <label for="notes">Catatan (opsional)</label>
-      <input class="input" id="notes" maxlength="200" placeholder="mis. hujan, toko sepi, ada promo">
-    </div>
+    <p><button type="button" class="link" id="add">+ Tambah produk</button></p>
+    <div class="field"><label for="notes">Catatan</label><input class="input" id="notes" maxlength="200"></div>
     <div class="total-bar">
-      <div class="row"><span>Total Penjualan</span><b class="big" id="total">Rp 0</b></div>
+      <div class="top"><span class="muted">Total</span><b id="total">Rp 0</b></div>
       <button class="btn block" type="submit" id="submit">Kirim Laporan</button>
     </div>
   </form>
 </main>
-<script src="../assets/js/data.js?v=202610021602"></script>
-<script src="../assets/js/common.js?v=202610021602"></script>
-<script src="../assets/js/pages/spg-laporan.js?v=202610021602"></script>
+<script src="../assets/js/data.js?v=202610060311"></script>
+<script src="../assets/js/common.js?v=202610060311"></script>
+<script src="../assets/js/pages/spg-laporan.js?v=202610060311"></script>
 </body>
 </html>

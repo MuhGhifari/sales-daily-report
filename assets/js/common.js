@@ -96,17 +96,14 @@
     }
     const here = location.pathname;
     const isOn = href => here.endsWith('/' + href);
-    const t = user.teamId ? Data.team(user.teamId) : null;
-    const where = user.role === 'supervisor' ? 'Area ' + Data.area(user.areaId).name : t ? 'Tim ' + t.name : '';
-
     const top = document.createElement('header');
     top.className = 'topbar';
     top.innerHTML = `
       <div class="topbar-inner">
-        <a class="brand" href="${root + HOME[user.role]}"><span class="brand-dot">${icon('chart')}</span>Laporan SPG</a>
+        <a class="brand" href="${root + HOME[user.role]}">Laporan SPG</a>
         <div class="user">
-          <div class="who"><b>${esc(user.name)}</b><span>${ROLE_LABEL[user.role]}${where ? ' · ' + esc(where) : ''}</span></div>
-          <button class="logout" type="button" aria-label="Keluar">${icon('logout')}<span>Keluar</span></button>
+          <span class="name">${esc(user.name)} · ${ROLE_LABEL[user.role]}</span>
+          <button class="logout" type="button">Keluar</button>
         </div>
       </div>`;
     top.querySelector('.logout').addEventListener('click', () => { Data.logout(); location.href = root + 'index.html'; });
@@ -132,7 +129,7 @@
       const current = teamId(user);
       const box = document.createElement('div');
       box.className = 'team-pick';
-      box.innerHTML = `<label for="teamPick">Tim</label>
+      box.innerHTML = `<label for="teamPick">Lihat tim</label>
         <select id="teamPick" class="input">${Data.teams().map(x =>
           `<option value="${x.id}" ${x.id === current ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>`;
       box.querySelector('select').addEventListener('change', e => {
@@ -140,9 +137,89 @@
         location.search = '?tim=' + e.target.value;
       });
       document.querySelector('main').prepend(box);
+      combobox(box.querySelector('select'));
     }
     return user;
   }
+
+  /* ---------- Searchable dropdown ----------
+   * Enhances a native <select>: the select stays in the DOM (hidden) and keeps the value,
+   * so existing code reading select.value / listening to 'change' keeps working. */
+  let comboSeq = 0;
+  function combobox(select) {
+    if (!select || select._combo) return;
+    const id = 'combo-' + (++comboSeq);
+    const wrap = document.createElement('div');
+    wrap.className = 'combo';
+    wrap.innerHTML = `<input class="input combo-input" type="text" id="${id}" role="combobox" aria-expanded="false" aria-controls="${id}-list" aria-autocomplete="list" autocomplete="off" spellcheck="false">
+      <ul class="combo-list" id="${id}-list" role="listbox" hidden></ul>`;
+    const input = wrap.querySelector('input'), list = wrap.querySelector('ul');
+    const label = select.id && document.querySelector(`label[for="${select.id}"]`);
+    if (label) label.htmlFor = id; else if (select.getAttribute('aria-label')) input.setAttribute('aria-label', select.getAttribute('aria-label'));
+    select.hidden = true;
+    select.after(wrap);
+
+    let items = [], active = -1;
+    const options = () => [...select.options].map(o => ({ value: o.value, text: o.textContent.trim() }));
+    const sync = () => { const o = select.options[select.selectedIndex]; input.value = o ? o.textContent.trim() : ''; input.disabled = select.disabled; };
+    const close = () => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); sync(); };
+    function render(q) {
+      const needle = q.trim().toLowerCase();
+      items = options().filter(o => !needle || o.text.toLowerCase().includes(needle));
+      active = Math.max(0, items.findIndex(o => o.value === select.value));
+      list.innerHTML = items.length
+        ? items.map((o, i) => `<li role="option" id="${id}-${i}" data-i="${i}" aria-selected="${o.value === select.value}" class="${i === active ? 'active' : ''}">${esc(o.text)}</li>`).join('')
+        : '<li class="none">Tidak ditemukan</li>';
+      highlight();
+    }
+    function highlight() {
+      list.querySelectorAll('li[data-i]').forEach(li => li.classList.toggle('active', +li.dataset.i === active));
+      const el = list.querySelector(`li[data-i="${active}"]`);
+      if (el) { input.setAttribute('aria-activedescendant', el.id); el.scrollIntoView({ block: 'nearest' }); }
+    }
+    function open() {
+      if (select.disabled) return;
+      render('');
+      list.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      input.select();
+    }
+    function choose(i) {
+      const o = items[i];
+      if (!o) return;
+      const changed = select.value !== o.value;
+      select.value = o.value;
+      close();
+      if (changed) select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    input.addEventListener('focus', open);
+    input.addEventListener('click', () => { if (list.hidden) open(); });
+    input.addEventListener('input', () => { if (list.hidden) { list.hidden = false; input.setAttribute('aria-expanded', 'true'); } render(input.value); });
+    input.addEventListener('keydown', e => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (list.hidden) return open();
+        active = Math.min(Math.max(active + (e.key === 'ArrowDown' ? 1 : -1), 0), items.length - 1);
+        highlight();
+      } else if (e.key === 'Enter') {
+        if (!list.hidden) { e.preventDefault(); choose(active); }
+      } else if (e.key === 'Escape') {
+        close(); input.blur();
+      } else if (e.key === 'Tab') {
+        close();
+      }
+    });
+    input.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== input) close(); }, 120));
+    list.addEventListener('mousedown', e => e.preventDefault()); // keep focus in the input
+    list.addEventListener('click', e => { const li = e.target.closest('li[data-i]'); if (li) choose(+li.dataset.i); });
+    select.addEventListener('change', sync);
+    new MutationObserver(sync).observe(select, { attributes: true, attributeFilter: ['disabled'] });
+
+    select._combo = { sync };
+    sync();
+  }
+  const enhanceSelects = (scope) => (scope || document).querySelectorAll('select').forEach(combobox);
 
   function toast(msg) {
     let el = document.querySelector('.toast');
@@ -154,17 +231,15 @@
   }
 
   /* ---------- Big progress ring (SVG) ---------- */
-  function ring(p, color, centerHtml, label) {
-    const r = 92, c = 2 * Math.PI * r;
-    const lap1 = Math.min(p, 100) / 100;
-    const lap2 = Math.min(Math.max(p - 100, 0), 100) / 100;
-    const arc = (frac, extra) => frac > 0
-      ? `<circle class="arc" cx="110" cy="110" r="${r}" stroke="${color}" stroke-width="18" stroke-dasharray="${c}" stroke-dashoffset="${c}" data-off="${c * (1 - frac)}" ${extra || ''}/>`
-      : '';
+  // Single-color ring: blue until the target is reached, then green.
+  function ring(p, centerHtml, label) {
+    const r = 96, c = 2 * Math.PI * r;
+    const frac = Math.min(Math.max(p, 0), 100) / 100;
+    const color = p >= 100 ? '#15803D' : '#00136F';
     return `<div class="ring" role="img" aria-label="${esc(label || pct(p))}">
       <svg viewBox="0 0 220 220" aria-hidden="true">
-        <circle cx="110" cy="110" r="${r}" stroke="#E9EEF9" stroke-width="18" fill="none"/>
-        ${arc(lap1)}${arc(lap2, 'style="filter:brightness(.6)"')}
+        <circle cx="110" cy="110" r="${r}" stroke="#F1F3F6" stroke-width="12" fill="none"/>
+        ${frac > 0 ? `<circle class="arc" cx="110" cy="110" r="${r}" stroke="${color}" stroke-width="12" stroke-dasharray="${c}" stroke-dashoffset="${c}" data-off="${c * (1 - frac)}"/>` : ''}
       </svg>
       <div class="center">${centerHtml}</div>
     </div>`;
@@ -175,8 +250,60 @@
     }));
   }
 
-  function bar(p, color) {
-    return `<div class="bar"><span style="width:${Math.min(Math.max(p, 0), 100)}%;background:${color || ''}"></span></div>`;
+  function bar(p) {
+    return `<div class="bar${p >= 100 ? ' done' : ''}"><span style="width:${Math.min(Math.max(p, 0), 100)}%"></span></div>`;
+  }
+
+  /* ---------- Sales trend chart: one bar per day + dashed daily-target line ---------- */
+  function trendChart(el, series) {
+    if (!series.length) { el.innerHTML = '<p class="empty">Belum ada data.</p>'; return; }
+    const W = 640, H = 200, L = 36, R = 8, T = 10, B = 24;
+    const max = Math.max(...series.map(p => Math.max(p.actual, p.target))) * 1.1 || 1;
+    const step = niceStep(max / 3);
+    const top = Math.ceil(max / step) * step;
+    const y = v => T + (H - T - B) * (1 - v / top);
+    const slot = (W - L - R) / series.length;
+    const bw = Math.max(2, Math.min(28, slot - 2)); // 2px gap between bars
+    const unit = top >= 1e9 ? [1e9, ' M'] : [1e6, ' jt'];
+    const tick = v => (v / unit[0]).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + (v ? unit[1] : '');
+    const every = Math.ceil(series.length / 8);
+
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik penjualan harian">`;
+    for (let v = 0; v <= top; v += step) {
+      s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#F1F3F6"/>`;
+      s += `<text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" class="tick">${tick(v)}</text>`;
+    }
+    series.forEach((p, i) => {
+      const x = L + i * slot + (slot - bw) / 2, h = y(0) - y(p.actual), r = Math.min(4, bw / 2, h);
+      if (h > 0) s += `<path d="M${x},${y(0)} V${y(p.actual) + r} q0,-${r} ${r},-${r} H${x + bw - r} q${r},0 ${r},${r} V${y(0)} Z" fill="#00136F"/>`;
+      if (i % every === 0 || i === series.length - 1) s += `<text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle" class="tick">${+p.date.slice(8)}</text>`;
+      s += `<rect class="hit" x="${L + i * slot}" y="${T}" width="${slot}" height="${H - T - B}" fill="transparent" data-i="${i}"/>`;
+    });
+    // Target line: steps per day (targets can differ by day)
+    const path = series.map((p, i) => `${i ? 'L' : 'M'}${L + i * slot},${y(p.target)} H${L + (i + 1) * slot}`).join(' ');
+    s += `<path d="${path}" fill="none" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+    s += '</svg>';
+    el.innerHTML = `<div class="chart">${s}<div class="tip" hidden></div></div>`;
+
+    const tip = el.querySelector('.tip'), svg = el.querySelector('svg');
+    el.querySelectorAll('.hit').forEach(h => {
+      const show = () => {
+        const p = series[+h.dataset.i];
+        tip.innerHTML = `<b>${dateShort(p.date)}</b><br>${rp(p.actual)}<br><span>Target ${rpK(p.target)}</span>`;
+        tip.hidden = false;
+        const box = svg.getBoundingClientRect(), hb = h.getBoundingClientRect();
+        const left = hb.left - box.left + hb.width / 2;
+        tip.style.left = Math.min(Math.max(left, 60), box.width - 60) + 'px';
+      };
+      h.addEventListener('mouseenter', show);
+      h.addEventListener('click', show);
+    });
+    svg.addEventListener('mouseleave', () => { tip.hidden = true; });
+  }
+  function niceStep(raw) {
+    const p = Math.pow(10, Math.floor(Math.log10(raw || 1)));
+    const n = raw / p;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
   }
 
   function downloadCsv(filename, rows) {
@@ -191,7 +318,7 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, init, teamId, toast, ring, animateRings, bar, downloadCsv, icon, levelIcon, levelBadge,
+    root, HOME, ROLE_LABEL, init, teamId, toast, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, levelIcon, levelBadge,
     esc, num, rp, rpK, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
   };

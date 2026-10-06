@@ -3,33 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#00136F">
+<meta name="theme-color" content="#ffffff">
 <title>Dashboard Area · Laporan SPG</title>
-<link rel="stylesheet" href="../assets/css/style.css?v=202610021602">
+<link rel="stylesheet" href="../assets/css/style.css?v=202610060311">
 </head>
 <body data-root="../">
 <main>
-  <div class="toolbar">
-    <div><h1 id="title"></h1><p class="lead" id="sub"></p></div>
-    <div class="seg" id="tabs" role="tablist">
+  <div class="page-head">
+    <div><h1 id="title"></h1><p class="sub" id="sub"></p></div>
+    <div class="tabs" id="tabs" role="tablist">
       <button type="button" data-p="day">Hari ini</button>
       <button type="button" data-p="week">Minggu ini</button>
       <button type="button" data-p="month" class="on">Bulan ini</button>
     </div>
   </div>
-  <div class="kpis" id="kpis"></div>
-  <section class="card">
-    <h2>Peringkat Tim</h2>
-    <div class="table-wrap"><table id="teams"></table></div>
-    <p class="small muted" style="margin:8px 0 0">Klik tim untuk membuka dashboard tim tersebut.</p>
+  <div class="stats" id="stats"></div>
+  <section>
+    <h2>Tren penjualan</h2>
+    <div id="trend"></div>
+    <div class="legend"><span><i></i>Penjualan</span><span><i class="dash"></i>Target</span></div>
   </section>
-  <section class="card">
-    <h2>Top 10 SPG Area</h2>
-    <div class="table-wrap"><table id="top"></table></div>
+  <section>
+    <h2>Peringkat tim</h2>
+    <div class="table-wrap"><table id="teams"></table></div>
   </section>
 </main>
-<script src="../assets/js/data.js?v=202610021602"></script>
-<script src="../assets/js/common.js?v=202610021602"></script>
-<script src="../assets/js/pages/supervisor-dashboard.js?v=202610021602"></script>
+<script src="../assets/js/data.js?v=202610060311"></script>
+<script src="../assets/js/common.js?v=202610060311"></script>
+<script src="../assets/js/pages/supervisor-dashboard.js?v=202610060311"></script>
 </body>
 </html>

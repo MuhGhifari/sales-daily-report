@@ -7,7 +7,7 @@
   const DAYS = [[1, 'Sen'], [2, 'Sel'], [3, 'Rab'], [4, 'Kam'], [5, 'Jum'], [6, 'Sab'], [0, 'Min']];
   let s = D.getSettings(teamId);
 
-  $('sub').textContent = 'Tim ' + D.team(teamId).name + ' · berlaku untuk semua SPG di tim ini';
+  $('sub').textContent = 'Tim ' + D.team(teamId).name;
 
   function renderDays() {
     $('days').innerHTML = DAYS.map(([d, n]) =>
@@ -23,7 +23,7 @@
         <td>${App.dateMid(h.date)}</td>
         <td>${App.esc(h.name)}</td>
         <td><label class="check"><input type="checkbox" data-work="${i}" ${h.working ? 'checked' : ''}> ${h.working ? 'Ya' : 'Tidak'}</label></td>
-        <td class="num"><button type="button" class="btn small danger" data-del="${i}">Hapus</button></td>
+        <td class="num"><button type="button" class="link danger" data-del="${i}">Hapus</button></td>
       </tr>`).join('')}</tbody>`
       : '<tbody><tr><td class="empty">Belum ada hari libur.</td></tr></tbody>';
   }

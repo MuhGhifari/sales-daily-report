@@ -17,8 +17,8 @@
         <td>${App.esc(u.username)}</td>
         <td>${App.esc(u.phone)}</td>
         <td>${App.esc(u.store)}</td>
-        <td>${u.active ? '<span class="pill ok">Aktif</span>' : '<span class="pill off">Nonaktif</span>'}</td>
-        <td class="num"><button class="btn small ${u.active ? 'danger' : 'ghost'}" data-id="${u.id}">${u.active ? 'Nonaktifkan' : 'Aktifkan'}</button></td>
+        <td>${u.active ? 'Aktif' : '<span class="muted">Nonaktif</span>'}</td>
+        <td class="num"><button class="link ${u.active ? 'danger' : ''}" data-id="${u.id}">${u.active ? 'Nonaktifkan' : 'Aktifkan'}</button></td>
       </tr>`).join('')}</tbody>`;
   }
 

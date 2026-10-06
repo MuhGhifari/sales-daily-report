@@ -3,33 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#00136F">
-<title>Kelola Tim · Laporan SPG</title>
-<link rel="stylesheet" href="../assets/css/style.css?v=202610021602">
+<meta name="theme-color" content="#ffffff">
+<title>Tim · Laporan SPG</title>
+<link rel="stylesheet" href="../assets/css/style.css?v=202610060311">
 </head>
 <body data-root="../">
 <main>
-  <h1>Kelola Tim</h1>
-  <p class="lead" id="sub"></p>
-  <div class="card">
-    <div class="row" style="margin-bottom:6px"><h2 style="margin:0">Daftar SPG</h2><span class="pill info" id="count"></span></div>
-    <div class="table-wrap"><table id="table"></table></div>
-  </div>
-  <form class="card" id="form" autocomplete="off">
+  <div class="page-head"><div><h1>Tim</h1><p class="sub" id="sub"></p></div><span class="muted" id="count"></span></div>
+  <section><div class="table-wrap"><table id="table"></table></div></section>
+  <form id="form" autocomplete="off">
     <h2>Tambah SPG</h2>
-    <div class="error" id="err" hidden></div>
+    <p class="error" id="err" hidden></p>
     <div class="form-grid">
-      <div class="field"><label for="f-name">Nama lengkap</label><input class="input" id="f-name" name="name" required></div>
+      <div class="field"><label for="f-name">Nama</label><input class="input" id="f-name" name="name" required></div>
       <div class="field"><label for="f-username">Username</label><input class="input" id="f-username" name="username" autocapitalize="none" required></div>
-      <div class="field"><label for="f-phone">No. WhatsApp</label><input class="input" id="f-phone" name="phone" inputmode="tel" placeholder="08xx"></div>
-      <div class="field"><label for="f-store">Toko</label><input class="input" id="f-store" name="store" placeholder="Toko ..."></div>
+      <div class="field"><label for="f-phone">WhatsApp</label><input class="input" id="f-phone" name="phone" inputmode="tel"></div>
+      <div class="field"><label for="f-store">Toko</label><input class="input" id="f-store" name="store"></div>
     </div>
-    <button class="btn" type="submit">Tambah SPG</button>
-    <span class="small muted">&nbsp; Password awal: <b>spg123</b></span>
+    <button class="btn" type="submit">Tambah</button>
   </form>
 </main>
-<script src="../assets/js/data.js?v=202610021602"></script>
-<script src="../assets/js/common.js?v=202610021602"></script>
-<script src="../assets/js/pages/leader-tim.js?v=202610021602"></script>
+<script src="../assets/js/data.js?v=202610060311"></script>
+<script src="../assets/js/common.js?v=202610060311"></script>
+<script src="../assets/js/pages/leader-tim.js?v=202610060311"></script>
 </body>
 </html>

@@ -355,6 +355,23 @@
     return Object.values(map).sort((a, b) => b.amount - a.amount);
   }
 
+  // Daily totals for a group of SPGs: one point per working day (actual sales vs. summed daily target)
+  function dailySeries(userIds, teamIds, from, to) {
+    return eachDay(from, to)
+      .filter(d => teamIds.some(t => isWorkingDay(t, d)))
+      .map(d => ({
+        date: d,
+        actual: userIds.reduce((a, id) => { const r = getReport(id, d); return a + (r ? r.total : 0); }, 0),
+        target: userIds.reduce((a, id) => a + dailyTarget(id, d), 0),
+      }));
+  }
+  // Chart window per period: last 14 days for "today", otherwise the period itself (up to today)
+  function chartRange(period, date) {
+    if (period === 'day') return [addDays(date, -13), date];
+    const [from, to] = range(period, date);
+    return [from, to < date ? to : date];
+  }
+
   function teamSummary(teamId, period, date) {
     date = date || TODAY;
     const lb = leaderboard(teamId, period, date);
@@ -425,7 +442,7 @@
     isWorkingDay, workingDays, workingDaysInMonth,
     targetRow, dailyTarget, periodTarget, targetPreview, saveTargets,
     getReport, saveReport, setUnlocked, isLocked, canEdit, listReports,
-    progress, level, nextLevel, leaderboard, streak, teamSummary, areaSummary,
+    progress, level, nextLevel, leaderboard, streak, teamSummary, areaSummary, dailySeries, chartRange,
     addSpg, setActive, getSettings, saveSettings, saveProduct, reset,
   };
 })();

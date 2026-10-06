@@ -10,6 +10,7 @@
   const pre = App.param('spg');
   $('spg').innerHTML = `<option value="">Semua SPG</option>` + spgs.map(u =>
     `<option value="${u.id}" ${u.id === pre ? 'selected' : ''}>${App.esc(u.name)}${u.active ? '' : ' (nonaktif)'}</option>`).join('');
+  App.combobox($('spg'));
   $('from').value = D.monthStart(D.TODAY);
   $('to').value = D.TODAY;
   $('from').max = $('to').max = D.TODAY;
@@ -30,17 +31,17 @@
         const u = D.user(r.userId);
         const key = r.userId + '|' + r.date;
         const lockedByTime = r.date < D.addDays(D.TODAY, -D.getSettings(teamId).editDays);
-        const status = !lockedByTime ? '<span class="pill ok">SPG bisa ubah</span>'
-          : r.unlocked ? '<span class="pill warn">Dibuka Leader</span>' : `<span class="pill off">${App.icon('lock')} Terkunci</span>`;
+        const status = !lockedByTime ? 'SPG bisa ubah'
+          : r.unlocked ? '<span class="warn">Dibuka</span>' : '<span class="muted">Terkunci</span>';
         const lockBtn = lockedByTime
-          ? `<button class="btn small ghost" data-lock="${key}">${r.unlocked ? 'Kunci lagi' : 'Buka kunci'}</button>` : '';
+          ? ` · <button class="link" data-lock="${key}">${r.unlocked ? 'Kunci lagi' : 'Buka kunci'}</button>` : '';
         return `<tr class="click" data-key="${key}">
             <td>${App.dateShort(r.date)}</td>
             <td><b>${App.esc(u.name)}</b><small>${App.esc(u.store)}</small></td>
             <td class="num">${r.noSales ? '–' : r.items.length}</td>
             <td class="num">${App.num(r.total)}</td>
             <td>${status}</td>
-            <td class="num"><a class="btn small ghost" href="../spg/laporan.html?spg=${encodeURIComponent(r.userId)}&tanggal=${r.date}">Ubah</a> ${lockBtn}</td>
+            <td class="num"><a href="../spg/laporan.html?spg=${encodeURIComponent(r.userId)}&tanggal=${r.date}">Ubah</a>${lockBtn}</td>
           </tr>
           <tr class="detail" data-detail="${key}" hidden><td colspan="6">
             ${r.noSales ? '<i>Tidak ada penjualan.</i>' : `<table>

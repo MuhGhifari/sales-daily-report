@@ -3,51 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#00136F">
+<meta name="theme-color" content="#ffffff">
 <title>Masuk · Laporan SPG</title>
-<link rel="stylesheet" href="assets/css/style.css?v=202610021602">
+<link rel="stylesheet" href="assets/css/style.css?v=202610060311">
 </head>
-<body data-root="" class="login">
+<body data-root="">
 <div class="login-box">
-  <div class="login-head">
-    <div class="logo"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></div>
-    <h1>Laporan SPG</h1>
-    <p>NIVEA · Laporan Penjualan Harian</p>
-  </div>
-  <form class="card" id="form" autocomplete="on" style="padding:20px">
-    <div class="error" id="err" hidden></div>
-    <div class="field">
-      <label for="username">Username</label>
-      <input class="input" id="username" name="username" autocomplete="username" autocapitalize="none" required>
-    </div>
-    <div class="field">
-      <label for="password">Password</label>
-      <input class="input" id="password" name="password" type="password" autocomplete="current-password" required>
-    </div>
+  <span class="brand">Laporan SPG</span>
+  <p class="sub">NIVEA · Laporan penjualan harian</p>
+  <form id="form" autocomplete="on">
+    <p class="error" id="err" hidden></p>
+    <div class="field"><label for="username">Username</label><input class="input" id="username" name="username" autocomplete="username" autocapitalize="none" required></div>
+    <div class="field"><label for="password">Password</label><input class="input" id="password" name="password" type="password" autocomplete="current-password" required></div>
     <button class="btn block" type="submit">Masuk</button>
   </form>
-  <div class="card">
+  <div class="demo">
     <h2>Akun demo</h2>
-    <p class="small muted" style="margin-top:-4px">Klik salah satu untuk mengisi form.</p>
-    <div class="table-wrap">
-      <table class="demo-accounts">
-        <thead><tr><th>Peran</th><th>Username</th><th>Password</th></tr></thead>
-        <tbody>
-          <tr class="click" data-user="sari" data-pass="spg123"><td>SPG</td><td><b>sari</b></td><td>spg123</td></tr>
-          <tr class="click" data-user="dewi" data-pass="spg123"><td>SPG</td><td><b>dewi</b></td><td>spg123</td></tr>
-          <tr class="click" data-user="rani" data-pass="spg123"><td>SPG</td><td><b>rani</b></td><td>spg123</td></tr>
-          <tr class="click" data-user="rina" data-pass="leader123"><td>Team Leader</td><td><b>rina</b></td><td>leader123</td></tr>
-          <tr class="click" data-user="budi" data-pass="super123"><td>Supervisor</td><td><b>budi</b></td><td>super123</td></tr>
-          <tr class="click" data-user="admin" data-pass="admin123"><td>Admin</td><td><b>admin</b></td><td>admin123</td></tr>
-        </tbody>
-      </table>
+    <div class="rows">
+      <div data-user="sari" data-pass="spg123"><span>SPG</span><span class="muted">sari / spg123</span></div>
+      <div data-user="rina" data-pass="leader123"><span>Team Leader</span><span class="muted">rina / leader123</span></div>
+      <div data-user="budi" data-pass="super123"><span>Supervisor</span><span class="muted">budi / super123</span></div>
+      <div data-user="admin" data-pass="admin123"><span>Admin</span><span class="muted">admin / admin123</span></div>
     </div>
-    <p class="small muted" style="margin:10px 0 0">SPG lain di Tim Jakarta Selatan: putri, maya, indah, fitri, lina (password spg123).</p>
+    <p class="note"><a href="#" id="reset">Reset data demo</a></p>
   </div>
-  <p class="small center"><a href="#" id="reset">Reset data demo</a></p>
 </div>
-<script src="assets/js/data.js?v=202610021602"></script>
-<script src="assets/js/common.js?v=202610021602"></script>
-<script src="assets/js/pages/login.js?v=202610021602"></script>
+<script src="assets/js/data.js?v=202610060311"></script>
+<script src="assets/js/common.js?v=202610060311"></script>
+<script src="assets/js/pages/login.js?v=202610060311"></script>
 </body>
 </html>
