@@ -32,24 +32,22 @@
     if (!list.length) { $('table').innerHTML = '<tbody><tr><td class="empty">Tidak ada laporan pada filter ini.</td></tr></tbody>'; return; }
 
     $('table').innerHTML = `
-      <thead><tr><th>Tanggal</th><th>SPG</th><th class="num">Transaksi</th><th class="num">Total (Rp)</th><th>Status</th><th></th></tr></thead>
+      <thead><tr><th>Tanggal</th><th>SPG</th><th class="num">Transaksi</th><th class="num">Total (Rp)</th><th></th></tr></thead>
       <tbody>${list.map(r => {
         const u = D.user(r.userId);
         const key = r.userId + '|' + r.date;
         const lockedByTime = r.date < D.addDays(D.TODAY, -D.getSettings(teamId).editDays);
-        const status = !lockedByTime ? 'SPG bisa ubah'
-          : r.unlocked ? '<span class="warn">Dibuka</span>' : '<span class="muted">Terkunci</span>';
         const lockBtn = lockedByTime
-          ? ` · <button class="link" data-lock="${key}">${r.unlocked ? 'Kunci lagi' : 'Buka kunci'}</button>` : '';
+          ? App.iconBtn(r.unlocked ? 'unlock' : 'lock', r.unlocked ? 'Terbuka untuk SPG. Klik untuk kunci lagi' : 'Terkunci. Klik untuk buka', `data-lock="${key}"`, r.unlocked ? 'primary' : '')
+          : '';
         return `<tr class="click" data-key="${key}">
             <td>${App.dateShort(r.date)}</td>
             <td><b>${App.esc(u.name)}</b><small>${App.esc(u.store)}</small></td>
             <td class="num">${r.noSales ? '–' : D.getTransactions(r).length}</td>
             <td class="num">${App.num(r.total)}</td>
-            <td>${status}</td>
-            <td class="num"><a href="../spg/laporan.html?spg=${encodeURIComponent(r.userId)}&tanggal=${r.date}">Ubah</a>${lockBtn}</td>
+            <td class="num"><span class="icon-group">${App.iconLink(`../spg/laporan.html?spg=${encodeURIComponent(r.userId)}&tanggal=${r.date}`, 'pencil', 'Ubah laporan')}${lockBtn}</span></td>
           </tr>
-          <tr class="detail" data-detail="${key}" hidden><td colspan="6">
+          <tr class="detail" data-detail="${key}" hidden><td colspan="5">
             ${shiftLine(r)}
             ${r.noSales ? '<i>Tidak ada penjualan.</i>' : `<table>
               <thead><tr><th>Waktu</th><th>Produk</th><th class="num">Qty</th><th class="num">Harga</th><th class="num">Subtotal</th></tr></thead>

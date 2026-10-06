@@ -18,7 +18,7 @@
         <td>${App.esc(u.phone)}</td>
         <td>${App.esc(u.store)}</td>
         <td>${u.active ? 'Aktif' : '<span class="muted">Nonaktif</span>'}</td>
-        <td class="num"><button class="link ${u.active ? 'danger' : ''}" data-id="${u.id}">${u.active ? 'Nonaktifkan' : 'Aktifkan'}</button></td>
+        <td class="num">${App.iconBtn(u.active ? 'userX' : 'userCheck', u.active ? 'Nonaktifkan SPG' : 'Aktifkan SPG', `data-id="${u.id}"`, u.active ? 'danger' : 'primary')}</td>
       </tr>`).join('')}</tbody>`;
   }
 

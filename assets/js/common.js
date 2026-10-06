@@ -36,6 +36,11 @@
     lock: '<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
     unlock: '<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>',
     x: '<path d="M18 6 6 18M6 6l12 12"/>',
+    trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+    pencil: '<path d="M21.2 6.8a2.8 2.8 0 0 0-4-4L4 16v4h4Z"/><path d="m14.5 5.5 4 4"/>',
+    userX: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5M22 8l-5 5"/>',
+    userCheck: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/>',
+    minus: '<path d="M5 12h14"/>',
     plus: '<path d="M5 12h14M12 5v14"/>',
     left: '<path d="m15 18-6-6 6-6"/>',
     right: '<path d="m9 18 6-6-6-6"/>',
@@ -50,6 +55,11 @@
     const style = opts.color ? ` style="color:${opts.color}"` : '';
     return `<svg class="icon${opts.cls ? ' ' + opts.cls : ''}"${style} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name] || ''}</svg>`;
   }
+  // Icon-only button/link: the label is the tooltip and the accessible name.
+  const iconBtn = (name, label, attrs, cls) =>
+    `<button type="button" class="icon-btn${cls ? ' ' + cls : ''}" aria-label="${esc(label)}" title="${esc(label)}" ${attrs || ''}>${icon(name)}</button>`;
+  const iconLink = (href, name, label, attrs, cls) =>
+    `<a class="icon-btn${cls ? ' ' + cls : ''}" href="${href}" aria-label="${esc(label)}" title="${esc(label)}" ${attrs || ''}>${icon(name)}</a>`;
   const levelIcon = (lv, cls) => icon(lv.icon, { color: lv.iconColor, cls });
   const levelBadge = lv => `<span class="lvl">${levelIcon(lv)}${lv.name}</span>`;
 
@@ -103,9 +113,11 @@
         <a class="brand" href="${root + HOME[user.role]}">Laporan SPG</a>
         <div class="user">
           <span class="name">${esc(user.name)} · ${ROLE_LABEL[user.role]}</span>
-          <button class="logout" type="button">Keluar</button>
+          <button class="logout icon-btn" type="button" aria-label="Keluar" title="Keluar">${icon('logout')}</button>
         </div>
       </div>`;
+    // Static markup can ask for an icon with data-icon="name"
+    document.querySelectorAll('[data-icon]').forEach(el => { el.innerHTML = icon(el.dataset.icon); if (!el.title) el.title = el.getAttribute('aria-label') || ''; });
     top.querySelector('.logout').addEventListener('click', () => { Data.logout(); location.href = root + 'index.html'; });
     document.body.prepend(top);
 
@@ -332,7 +344,7 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, init, teamId, toast, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, levelIcon, levelBadge,
+    root, HOME, ROLE_LABEL, init, teamId, toast, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, levelIcon, levelBadge,
     esc, num, rp, rpK, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
   };

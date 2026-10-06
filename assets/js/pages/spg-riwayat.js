@@ -24,7 +24,7 @@
       let status, value = '';
       if (r) {
         const t = D.dailyTarget(user.id, d);
-        status = D.isLocked(user.id, d) ? 'Terkunci' : 'Terkirim';
+        status = D.isLocked(user.id, d) ? `<span title="Terkunci" aria-label="Terkunci">${App.icon('lock')}</span>` : `<span class="ok" title="Terkirim" aria-label="Terkirim">${App.icon('check')}</span>`;
         value = `<b>${App.rp(r.total)}</b>${t ? `<span>${App.pct(r.total / t * 100)} dari target</span>` : ''}`;
       } else if (!working) {
         status = 'Libur';

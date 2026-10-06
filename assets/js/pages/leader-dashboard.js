@@ -40,7 +40,7 @@
       const wa = u.phone ? `https://wa.me/62${u.phone.replace(/\D/g, '').replace(/^0/, '')}?text=${text}` : '';
       return `<div>
         <div class="grow"><b>${App.esc(u.name)}</b><span>${App.esc(u.store)}</span></div>
-        ${wa ? `<a href="${wa}" target="_blank" rel="noopener">Ingatkan via WhatsApp</a>` : ''}
+        ${wa ? App.iconLink(wa, 'message', 'Ingatkan via WhatsApp', 'target="_blank" rel="noopener"', 'primary') : ''}
       </div>`;
     }).join('');
 

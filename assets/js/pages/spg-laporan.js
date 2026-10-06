@@ -103,7 +103,7 @@
       <div>
         <div class="muted" style="width:48px">${t.time || '–'}</div>
         <div class="grow"><b>${App.esc(D.product(t.productId).name)}</b><span>${t.qty} × ${App.rp(t.price)}</span></div>
-        <div class="val">${App.rp(t.qty * t.price)}${canEdit && report.transactions ? `<span><button type="button" class="link danger" data-del="${t.id}">Hapus</button></span>` : ''}</div>
+        <div class="val">${App.rp(t.qty * t.price)}</div>${canEdit && report.transactions ? App.iconBtn('trash', 'Hapus transaksi', `data-del="${t.id}"`, 'danger') : ''}
       </div>`).join('') || (needsShift ? '' : '<p class="empty">Belum ada penjualan.</p>');
   }
 

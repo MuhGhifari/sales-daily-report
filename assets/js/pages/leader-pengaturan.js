@@ -23,7 +23,7 @@
         <td>${App.dateMid(h.date)}</td>
         <td>${App.esc(h.name)}</td>
         <td><label class="check"><input type="checkbox" data-work="${i}" ${h.working ? 'checked' : ''}> ${h.working ? 'Ya' : 'Tidak'}</label></td>
-        <td class="num"><button type="button" class="link danger" data-del="${i}">Hapus</button></td>
+        <td class="num">${App.iconBtn('trash', 'Hapus hari libur', `data-del="${i}"`, 'danger')}</td>
       </tr>`).join('')}</tbody>`
       : '<tbody><tr><td class="empty">Belum ada hari libur.</td></tr></tbody>';
   }

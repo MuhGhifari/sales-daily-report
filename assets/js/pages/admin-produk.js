@@ -15,7 +15,7 @@
         <td>${App.esc(p.sku)}</td>
         <td class="num">${App.num(p.price)}</td>
         <td>${p.active ? 'Aktif' : '<span class="muted">Nonaktif</span>'}</td>
-        <td class="num"><button class="link" data-id="${p.id}">Ubah</button></td>
+        <td class="num">${App.iconBtn('pencil', 'Ubah produk', `data-id="${p.id}"`)}</td>
       </tr>`).join('')}</tbody>`;
   }
 
