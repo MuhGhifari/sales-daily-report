@@ -38,3 +38,10 @@ See [`PLAN.md`](PLAN.md) for the product plan and [`IMPLEMENTATION.md`](IMPLEMEN
 ## Publishing changes
 
 After editing any page, run `python3 tools/bump-version.py` before committing. It stamps a new version on every page and in `assets/version.json`; pages that a browser still has cached detect the newer version and reload themselves, so nobody sees a mix of old and new pages.
+
+## Photos
+
+- **Profile photos**: SPGs tap their photo on Beranda to take or choose a new one; Team Leaders can set an SPG's photo in Kelola Tim. Demo users start with illustrated portraits in `assets/avatars/` (DiceBear "Lorelei" by Lisa Wischofsky, CC0 1.0, generated with `tools/generate-avatars.js`).
+- **Product photos**: Admin can upload a photo per product. Demo products start with simple illustrations in `assets/products/` — replace them with the official packshots from the client.
+- Uploaded photos are resized in the browser and stored with the demo data.
+- **Logo**: see `assets/brand/README.md`.

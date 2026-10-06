@@ -29,12 +29,13 @@
       <tbody>${a.teams.map((t, i) => `<tr class="click" data-id="${t.team.id}">
         <td>${App.rankBadge(i + 1)}</td>
         <td>${App.esc(t.team.name)}<small>${t.size} SPG</small></td>
-        <td>${App.esc(D.user(t.team.leaderId).name)}</td>
+        <td>${App.person(D.user(t.team.leaderId))}</td>
         <td class="num">${App.rpShort(t.actual)}</td>
         <td class="num">${App.rpShort(t.target)}</td>
         <td class="num"><b>${App.pct1(t.pct)}</b></td>
         <td class="num"><span class="pill ${t.reported === t.size ? 'ok' : 'warn'}">${t.reported}/${t.size}</span></td>
       </tr>`).join('')}</tbody>`;
+    $('podium').innerHTML = App.podium(a.topSpgs, null, r => 'Tim ' + D.team(r.user.teamId).name);
     $('teams').querySelectorAll('tr.click').forEach(tr => tr.addEventListener('click', () => {
       location.href = '../leader/dashboard.html?tim=' + tr.dataset.id;
     }));

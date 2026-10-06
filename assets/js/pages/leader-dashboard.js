@@ -39,30 +39,35 @@
       const text = encodeURIComponent(`Halo ${u.name.split(' ')[0]}, jangan lupa mulai shift dan catat setiap penjualan hari ini ya. Terima kasih.`);
       const wa = u.phone ? `https://wa.me/62${u.phone.replace(/\D/g, '').replace(/^0/, '')}?text=${text}` : '';
       return `<div>
-        <div class="grow">${App.person(u.name, u.store)}</div>
+        <div class="grow">${App.person(u, u.store)}</div>
         ${wa ? App.iconLink(wa, 'message', 'Ingatkan via WhatsApp', 'target="_blank" rel="noopener"', 'primary') : ''}
       </div>`;
     }).join('');
 
-    $('spgs').innerHTML = `
-      <thead><tr><th>#</th><th>SPG</th><th class="num">Penjualan</th><th class="num">Target</th><th class="num">%</th><th>Shift hari ini</th></tr></thead>
-      <tbody>${s.lb.map(r => `
-        <tr class="click" data-id="${r.user.id}">
-          <td>${App.rankBadge(r.rank)}</td>
-          <td>${App.person(r.user.name, r.user.store)}</td>
-          <td class="num">${App.num(r.actual)}</td>
-          <td class="num">${App.num(Math.round(r.target / 1000) * 1000)}</td>
-          <td class="num"><b>${App.pct(r.pct)}</b></td>
-          <td>${shiftStatus(r.user.id, s.working)}</td>
-        </tr>`).join('')}</tbody>`;
-    $('spgs').querySelectorAll('tr.click').forEach(tr => tr.addEventListener('click', () => {
-      location.href = 'laporan.html?spg=' + encodeURIComponent(tr.dataset.id);
+    $('podium').innerHTML = App.podium(s.lb);
+    $('spgs').innerHTML = s.lb.map(r => `
+      <div class="rank-row click" data-id="${r.user.id}">
+        ${App.rankBadge(r.rank)}
+        <div>
+          ${App.person(r.user, `${App.rpShort(r.actual)} dari ${App.rpShort(r.target)}`)}
+          ${App.bar(r.pct)}
+        </div>
+        <div class="right"><b>${App.pct(r.pct)}</b>${shiftStatus(r.user.id, s.working)}</div>
+      </div>`).join('');
+    $('spgs').querySelectorAll('.rank-row').forEach(el => el.addEventListener('click', () => {
+      location.href = 'laporan.html?spg=' + encodeURIComponent(el.dataset.id);
     }));
 
-    $('products').innerHTML = s.products.length ? `
-      <thead><tr><th>Produk</th><th class="num">Qty</th><th class="num">Penjualan</th></tr></thead>
-      <tbody>${s.products.map(p => `<tr><td>${App.esc(p.product.name)}</td><td class="num">${App.num(p.qty)}</td><td class="num">${App.num(p.amount)}</td></tr>`).join('')}</tbody>`
-      : '<tbody><tr><td class="empty">Belum ada penjualan.</td></tr></tbody>';
+    const maxAmount = Math.max(1, ...s.products.map(p => p.amount));
+    $('products').innerHTML = s.products.map(p => `
+      <div class="pcard">
+        ${App.productImg(p.product, 'lg')}
+        <div>
+          <b>${App.esc(p.product.name)}</b>
+          <div class="small">${App.num(p.qty)} terjual · ${App.rpShort(p.amount)}</div>
+          ${App.bar(p.amount / maxAmount * 100)}
+        </div>
+      </div>`).join('') || '<p class="empty">Belum ada penjualan.</p>';
   }
 
   $('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { period = b.dataset.p; render(); } });

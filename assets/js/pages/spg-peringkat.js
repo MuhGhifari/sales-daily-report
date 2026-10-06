@@ -9,14 +9,16 @@
   function render(period) {
     document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.p === period));
     const lb = D.leaderboard(user.teamId, period, D.TODAY);
-    $('list').innerHTML = lb.map(r => {
+    $('podium').innerHTML = App.podium(lb, user.id);
+    $('list').innerHTML = lb.slice(3).map(r => {
       const isMe = r.user.id === user.id;
       return `<div class="${isMe ? 'me' : ''}">
         ${App.rankBadge(r.rank)}
-        <div class="grow">${App.person(r.user.name + (isMe ? ' (kamu)' : ''), r.user.store)}</div>
+        <div class="grow">${App.person(r.user, r.user.store, r.user.name + (isMe ? ' (kamu)' : ''))}</div>
         <div class="val"><b>${App.pct(r.pct)}</b></div>
       </div>`;
-    }).join('') || '<p class="empty">Belum ada data.</p>';
+    }).join('');
+    $('list').hidden = lb.length <= 3;
   }
 
   $('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) render(b.dataset.p); });

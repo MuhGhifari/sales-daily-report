@@ -46,6 +46,7 @@
     userX: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5M22 8l-5 5"/>',
     userCheck: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/>',
     minus: '<path d="M5 12h14"/>',
+    camera: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
     plus: '<path d="M5 12h14M12 5v14"/>',
     left: '<path d="m15 18-6-6 6-6"/>',
     right: '<path d="m9 18 6-6-6-6"/>',
@@ -66,9 +67,58 @@
   const iconLink = (href, name, label, attrs, cls) =>
     `<a class="icon-btn${cls ? ' ' + cls : ''}" href="${href}" aria-label="${esc(label)}" title="${esc(label)}" ${attrs || ''}>${icon(name)}</a>`;
   const initials = name => String(name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
-  const avatar = name => `<span class="avatar" aria-hidden="true">${esc(initials(name))}</span>`;
+  // Images are stored as a site-relative path or as an uploaded data URL
+  const imgSrc = v => (/^(data:|https?:)/.test(v) ? v : root + v);
+  // Avatar: the user's photo, or initials when there is none. Accepts a user object or a name.
+  function avatar(u, cls) {
+    const name = typeof u === 'string' ? u : u && u.name;
+    const photo = u && typeof u === 'object' && u.photo;
+    return photo
+      ? `<img class="avatar${cls ? ' ' + cls : ''}" src="${esc(imgSrc(photo))}" alt="" loading="lazy">`
+      : `<span class="avatar${cls ? ' ' + cls : ''}" aria-hidden="true">${esc(initials(name))}</span>`;
+  }
   // Name with avatar and an optional second line
-  const person = (name, sub) => `<div class="person">${avatar(name)}<div><b>${esc(name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div></div>`;
+  const person = (u, sub, label) => `<div class="person">${avatar(u)}<div><b>${esc(label || (typeof u === 'string' ? u : u.name))}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div></div>`;
+  const productSrc = p => imgSrc((p && p.image) || 'assets/products/placeholder.svg');
+  const productImg = (p, cls) => `<img class="pimg${cls ? ' ' + cls : ''}" src="${esc(productSrc(p))}" alt="" loading="lazy">`;
+
+  // Let the user pick a photo (camera or gallery), then crop/resize it in the browser.
+  // mode 'cover' = square crop (profile photos), 'contain' = fit on white (product photos).
+  function pickImage(mode, size) {
+    return new Promise(resolve => {
+      const input = Object.assign(document.createElement('input'), { type: 'file', accept: 'image/*' });
+      input.addEventListener('change', () => {
+        const file = input.files && input.files[0];
+        if (!file) return resolve(null);
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = c.height = size;
+          const g = c.getContext('2d');
+          g.fillStyle = '#fff'; g.fillRect(0, 0, size, size);
+          const k = mode === 'cover' ? Math.max(size / img.width, size / img.height) : Math.min(size / img.width, size / img.height);
+          const w = img.width * k, h = img.height * k;
+          g.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+          URL.revokeObjectURL(img.src);
+          resolve(c.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = () => resolve(null);
+        img.src = URL.createObjectURL(file);
+      });
+      input.click();
+    });
+  }
+  // Top-3 podium with faces (order 2-1-3). rows: [{ user, pct, rank }], sub: optional line under the name
+  function podium(rows, meId, sub) {
+    const top = rows.slice(0, 3);
+    return [top[1], top[0], top[2]].filter(Boolean).map(r => `
+      <div class="p p${r.rank}${r.user.id === meId ? ' me' : ''}">
+        <div class="face">${avatar(r.user)}${rankBadge(r.rank)}</div>
+        <div class="n">${esc(r.user.name.split(' ')[0])}</div>
+        <div class="s">${esc(sub ? sub(r) : r.user.store || '')}</div>
+        <div class="v">${pct(r.pct)}</div>
+      </div>`).join('');
+  }
   const rankBadge = n => `<span class="rank-badge${n <= 3 ? ' r' + n : ''}">${n}</span>`;
   const levelIcon = (lv, cls) => icon(lv.icon, { color: lv.iconColor, cls });
   const levelBadge = lv => `<span class="lvl">${levelIcon(lv)}${lv.name}</span>`;
@@ -183,7 +233,7 @@
 
     let items = [], active = -1;
     const ph = select.dataset.placeholder; // optional: empty value shows as a placeholder and is not listed
-    const options = () => [...select.options].filter(o => !(ph && o.value === '')).map(o => ({ value: o.value, text: o.textContent.trim() }));
+    const options = () => [...select.options].filter(o => !(ph && o.value === '')).map(o => ({ value: o.value, text: o.textContent.trim(), img: o.dataset.img }));
     const sync = () => {
       const o = select.options[select.selectedIndex];
       input.value = o && !(ph && o.value === '') ? o.textContent.trim() : '';
@@ -196,7 +246,7 @@
       items = options().filter(o => !needle || o.text.toLowerCase().includes(needle));
       active = Math.max(0, items.findIndex(o => o.value === select.value));
       list.innerHTML = items.length
-        ? items.map((o, i) => `<li role="option" id="${id}-${i}" data-i="${i}" aria-selected="${o.value === select.value}" class="${i === active ? 'active' : ''}">${esc(o.text)}</li>`).join('')
+        ? items.map((o, i) => `<li role="option" id="${id}-${i}" data-i="${i}" aria-selected="${o.value === select.value}" class="${i === active ? 'active' : ''}">${o.img ? `<img src="${esc(o.img)}" alt="">` : ''}<span>${esc(o.text)}</span></li>`).join('')
         : '<li class="none">Tidak ditemukan</li>';
       highlight();
     }
@@ -354,7 +404,7 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, init, teamId, toast, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, levelIcon, levelBadge,
+    root, HOME, ROLE_LABEL, init, teamId, toast, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
     esc, num, rp, rpK, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
     BRAND_LOGO, logoImg,

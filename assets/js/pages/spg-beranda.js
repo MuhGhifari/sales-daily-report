@@ -7,6 +7,17 @@
   $('hello').textContent = 'Halo, ' + user.name.split(' ')[0];
   $('sub').textContent = App.dateLong(today);
 
+  // Profile photo: tap to take or choose a new one
+  const showPhoto = () => { $('photoBtn').innerHTML = App.avatar(D.user(user.id), 'lg') + `<span class="cam">${App.icon('camera')}</span>`; };
+  showPhoto();
+  $('photoBtn').addEventListener('click', async () => {
+    const photo = await App.pickImage('cover', 192);
+    if (!photo) return;
+    D.setUserPhoto(user.id, photo);
+    showPhoto();
+    App.toast('Foto profil diperbarui.');
+  });
+
   // Message left by the report page after a submit
   try {
     const msg = sessionStorage.getItem('lspg-celebrate');

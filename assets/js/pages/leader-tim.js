@@ -13,16 +13,22 @@
     $('table').innerHTML = `
       <thead><tr><th>Nama</th><th>Username</th><th>WhatsApp</th><th>Toko</th><th>Status</th><th></th></tr></thead>
       <tbody>${list.map(u => `<tr>
-        <td>${App.person(u.name)}</td>
+        <td>${App.person(u)}</td>
         <td>${App.esc(u.username)}</td>
         <td>${App.esc(u.phone)}</td>
         <td>${App.esc(u.store)}</td>
         <td>${u.active ? '<span class="pill ok">Aktif</span>' : '<span class="pill">Nonaktif</span>'}</td>
-        <td class="num">${App.iconBtn(u.active ? 'userX' : 'userCheck', u.active ? 'Nonaktifkan SPG' : 'Aktifkan SPG', `data-id="${u.id}"`, u.active ? 'danger' : 'primary')}</td>
+        <td class="num"><span class="icon-group">${App.iconBtn('camera', 'Ganti foto ' + u.name, `data-photo="${u.id}"`)}${App.iconBtn(u.active ? 'userX' : 'userCheck', u.active ? 'Nonaktifkan SPG' : 'Aktifkan SPG', `data-id="${u.id}"`, u.active ? 'danger' : 'primary')}</span></td>
       </tr>`).join('')}</tbody>`;
   }
 
-  $('table').addEventListener('click', e => {
+  $('table').addEventListener('click', async e => {
+    const ph = e.target.closest('button[data-photo]');
+    if (ph) {
+      const photo = await App.pickImage('cover', 192);
+      if (photo) { D.setUserPhoto(ph.dataset.photo, photo); App.toast('Foto diperbarui.'); render(); }
+      return;
+    }
     const b = e.target.closest('button[data-id]');
     if (!b) return;
     const u = D.user(b.dataset.id);

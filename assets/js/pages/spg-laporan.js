@@ -22,7 +22,7 @@
   /* ----- Product entry ----- */
   const products = D.products();
   $('product').innerHTML = '<option value=""></option>' +
-    products.map(p => `<option value="${p.id}">${App.esc(p.name)}</option>`).join('');
+    products.map(p => `<option value="${p.id}" data-img="${App.esc(App.productSrc(p))}">${App.esc(p.name)}</option>`).join('');
   App.combobox($('product'));
 
   const qty = () => Math.max(1, Math.floor(+$('qty').value || 1));
@@ -30,6 +30,8 @@
   $('product').addEventListener('change', () => {
     const p = D.product($('product').value);
     $('price').value = p ? p.price : '';
+    $('preview').innerHTML = p ? App.productImg(p, 'lg') : '';
+    $('preview').hidden = !p;
     updateSubtotal();
   });
   $('minus').addEventListener('click', () => { $('qty').value = Math.max(1, qty() - 1); updateSubtotal(); });
@@ -101,8 +103,8 @@
     $('count').textContent = report && report.noSales ? 'Tidak ada penjualan' : `${tx.length} transaksi`;
     $('list').innerHTML = tx.map(t => `
       <div>
-        <div class="muted" style="width:48px">${t.time || '–'}</div>
-        <div class="grow"><b>${App.esc(D.product(t.productId).name)}</b><span>${t.qty} × ${App.rp(t.price)}</span></div>
+        ${App.productImg(D.product(t.productId))}
+        <div class="grow"><b>${App.esc(D.product(t.productId).name)}</b><span>${t.time ? t.time + ' · ' : ''}${t.qty} × ${App.rp(t.price)}</span></div>
         <div class="val">${App.rp(t.qty * t.price)}</div>${canEdit && report.transactions ? App.iconBtn('trash', 'Hapus transaksi', `data-del="${t.id}"`, 'danger') : ''}
       </div>`).join('') || (needsShift ? '' : '<p class="empty">Belum ada penjualan.</p>');
   }

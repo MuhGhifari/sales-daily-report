@@ -42,7 +42,7 @@
           : '';
         return `<tr class="click" data-key="${key}">
             <td>${App.dateShort(r.date)}</td>
-            <td>${App.person(u.name, u.store)}</td>
+            <td>${App.person(u, u.store)}</td>
             <td class="num">${r.noSales ? '–' : D.getTransactions(r).length}</td>
             <td class="num">${App.num(r.total)}</td>
             <td class="num"><span class="icon-group">${App.iconLink(`../spg/laporan.html?spg=${encodeURIComponent(r.userId)}&tanggal=${r.date}`, 'pencil', 'Ubah laporan')}${lockBtn}</span></td>
@@ -51,7 +51,7 @@
             ${shiftLine(r)}
             ${r.noSales ? '<i>Tidak ada penjualan.</i>' : `<table>
               <thead><tr><th>Waktu</th><th>Produk</th><th class="num">Qty</th><th class="num">Harga</th><th class="num">Subtotal</th></tr></thead>
-              <tbody>${D.getTransactions(r).map(t => `<tr><td>${t.time || '–'}</td><td>${App.esc(D.product(t.productId).name)}</td><td class="num">${t.qty}</td><td class="num">${App.num(t.price)}</td><td class="num">${App.num(t.qty * t.price)}</td></tr>`).join('')}</tbody>
+              <tbody>${D.getTransactions(r).map(t => `<tr><td>${t.time || '–'}</td><td><span class="tx">${App.productImg(D.product(t.productId))}${App.esc(D.product(t.productId).name)}</span></td><td class="num">${t.qty}</td><td class="num">${App.num(t.price)}</td><td class="num">${App.num(t.qty * t.price)}</td></tr>`).join('')}</tbody>
             </table>`}
           </td></tr>`;
       }).join('')}</tbody>`;
