@@ -200,7 +200,7 @@ server/              → Laravel project
   routes/api.php
   tests/Feature      → API + permission tests per role
   resources/views    → Blade pages (layout + one view per page)
-  deploy/sync-assets.sh → copies the shared assets/ into server/public on deploy
+  public/assets      → CSS/JS/images (copy of the root assets/, refreshed by deploy/sync-assets.sh)
 ```
 
 ---
@@ -222,7 +222,7 @@ Operations:
   - nightly database + photo backup (`spatie/laravel-backup`) to off-server storage, 30 days kept.
 - Queue worker (Supervisor/systemd) for exports and image processing.
 - Error tracking/log alerts (e.g. Laravel log to email or Sentry free tier).
-- Deploys: `git pull` → `composer install --no-dev` → `php artisan migrate --force` → `sync-assets.sh` → `php artisan optimize`, or via Forge/Ploi.
+- Deploys: `git pull` → `composer install --no-dev` → `php artisan migrate --force` → `php artisan optimize`, or via Forge/Ploi.
 
 ---
 
@@ -277,7 +277,7 @@ Operations:
 - Laravel 13 project in `server/`: migrations, models, `DemoSeeder` (loads `server/database/seeders/demo-data.json`, exported from the demo by `node tools/export-demo-data.js`), `php artisan app:create-admin` for a real installation.
 - Phone login with rate limit, "Ingat saya", forced new password after reset/new account, deactivate/reset signs the user out everywhere, activity log.
 - All writes of the demo through the API with the same permission rules (`Access.php`), 27 feature tests (`php artisan test`).
-- Pages: **Blade views** (`resources/views`, one layout) at clean URLs. `PageController` checks login and role on the server (wrong role → own home page, signed out → login) and embeds the user's data (`window.APP_BOOTSTRAP`, same as `/api/bootstrap`), so a page needs no extra request. Old `.html` addresses redirect. Shared `assets/` copied in by `server/deploy/sync-assets.sh`; files are versioned by modification time (`asset_v()`).
+- Pages: **Blade views** (`resources/views`, one layout) at clean URLs. `PageController` checks login and role on the server (wrong role → own home page, signed out → login) and embeds the user's data (`window.APP_BOOTSTRAP`, same as `/api/bootstrap`), so a page needs no extra request. Old `.html` addresses redirect. CSS/JS/images in `server/public/assets` (committed; refreshed from the root `assets/` by `server/deploy/sync-assets.sh`); files are versioned by modification time (`asset_v()`).
 - `data.js` live mode: `Data.ready()` uses the embedded data (or loads `/api/bootstrap`); writes update the page at once and go through an **offline queue** (localStorage "outbox", retried in order, re-applied on top of fresh data until confirmed). Adding users, products, stores and password resets wait for the server and show its error message.
 - Photos: cropped/resized in the browser, re-encoded by the server, stored on the `public` disk (`php artisan storage:link`).
 
@@ -298,8 +298,8 @@ cp .env.example .env && php artisan key:generate
 # .env: APP_DEMO_TODAY=2026-10-22 to use the demo data as "today"
 touch database/database.sqlite && php artisan migrate --seed
 php artisan storage:link
-deploy/sync-assets.sh   # .env: APP_DEMO_ACCOUNTS=true lists the demo logins
+# .env: APP_DEMO_ACCOUNTS=true lists the demo logins
 php artisan serve        # http://localhost:8000
 ```
-Production: MySQL in `.env`, `php artisan migrate --force`, `php artisan app:create-admin 08xxxxxxxxxx`, `deploy/sync-assets.sh`, `php artisan optimize`.
+Production: MySQL in `.env`, `php artisan migrate --force`, `php artisan app:create-admin 08xxxxxxxxxx`, `php artisan optimize`.
 

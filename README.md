@@ -43,7 +43,7 @@ See [`PLAN.md`](PLAN.md) for the product plan, [`IMPLEMENTATION.md`](IMPLEMENTAT
 
 ## Laravel server
 
-`server/` holds the Laravel app that runs these pages on real data (login, shifts, sales, targets, users, products, stores, photos, offline queue). There the pages are **Blade views** (`server/resources/views`) with clean URLs (`/spg/beranda`), and they share this repository's `assets/` (CSS, JavaScript, images), copied in by `server/deploy/sync-assets.sh`. Markup changes to a page must be made in both the `.html` file (demo) and its Blade view. Setup: [`server/README.md`](server/README.md). After changing `assets/js/data.js`'s demo data, run `node tools/export-demo-data.js` so the server's demo seeder matches.
+`server/` holds the Laravel app that runs these pages on real data (login, shifts, sales, targets, users, products, stores, photos, offline queue). There the pages are **Blade views** (`server/resources/views`) with clean URLs (`/spg/beranda`), and use a committed copy of this repository's `assets/` (CSS, JavaScript, images) in `server/public/assets`; after changing `assets/`, run `server/deploy/sync-assets.sh` and commit both. Markup changes to a page must be made in both the `.html` file (demo) and its Blade view. Setup: [`server/README.md`](server/README.md). After changing `assets/js/data.js`'s demo data, run `node tools/export-demo-data.js` so the server's demo seeder matches.
 
 ## Publishing changes
 

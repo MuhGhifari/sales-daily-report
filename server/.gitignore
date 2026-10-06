@@ -26,5 +26,3 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
-# Shared CSS, JS and images, copied in from the repository root by deploy/sync-assets.sh
-/public/assets

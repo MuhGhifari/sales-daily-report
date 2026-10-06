@@ -12,7 +12,6 @@ cp .env.example .env && php artisan key:generate
 touch database/database.sqlite
 php artisan migrate --seed          # DemoSeeder: same people, stores, products and sales as the demo
 php artisan storage:link            # uploaded photos
-deploy/sync-assets.sh               # CSS/JS/images from ../assets into public/assets
 # in .env: APP_DEMO_ACCOUNTS=true to list the demo logins on the login page
 php artisan serve                   # http://localhost:8000
 ```
@@ -24,7 +23,11 @@ Demo logins are the same as the demo (e.g. SPG `0813 0000 0001` / `spg123`, Team
 1. PHP 8.3+, MySQL 8, HTTPS. Set `DB_*` in `.env`, `APP_ENV=production`, `APP_DEBUG=false`, leave `APP_DEMO_TODAY` empty.
 2. `composer install --no-dev && php artisan migrate --force && php artisan storage:link`
 3. `php artisan app:create-admin 08xxxxxxxxxx "Nama Admin"`. The Admin then adds Supervisors and Team Leaders in the app; they add SPGs.
-4. `deploy/sync-assets.sh` after every change in `assets/`, then `php artisan optimize`.
+4. `php artisan optimize`.
+
+## CSS, JavaScript and images
+
+They are in `public/assets` (committed). They are shared with the GitHub Pages demo, whose copy is the repository root's `assets/`: after changing those, run `deploy/sync-assets.sh` and commit `public/assets` too.
 
 ## Where things are
 
