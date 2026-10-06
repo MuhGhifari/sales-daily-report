@@ -6,7 +6,7 @@
 
   // Client logo: put the official file in assets/brand/ and set its path here, e.g. 'assets/brand/nivea-logo.svg'.
   // Empty = show the generic app mark.
-  const BRAND_LOGO = '';
+  const BRAND_LOGO = 'assets/brand/nivea-logo.png';
   const logoImg = () => `<img class="brand-logo" src="${root + BRAND_LOGO}" alt="NIVEA">`;
 
   const ROLE_LABEL = { spg: 'SPG', leader: 'Team Leader', supervisor: 'Supervisor', admin: 'Admin' };
@@ -170,7 +170,7 @@
     top.className = 'topbar';
     top.innerHTML = `
       <div class="topbar-inner">
-        <a class="brand" href="${root + HOME[user.role]}">${BRAND_LOGO ? logoImg() : `<span class="brand-mark">${icon('chart')}</span>`}<span>Laporan SPG <small>NIVEA</small></span></a>
+        <a class="brand" href="${root + HOME[user.role]}">${BRAND_LOGO ? logoImg() : `<span class="brand-mark">${icon('chart')}</span>`}<span>Laporan SPG</span></a>
         <div class="user">
           <span class="name">${esc(user.name)} · ${ROLE_LABEL[user.role]}</span>
           <button class="logout icon-btn" type="button" aria-label="Keluar" title="Keluar">${icon('logout')}</button>

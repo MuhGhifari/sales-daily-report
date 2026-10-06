@@ -378,3 +378,40 @@ img.avatar { object-fit: cover; padding: 0; background: var(--blue-soft); }
 .tx { display: flex; align-items: center; gap: 12px; }
 /* Sales list: let product names wrap instead of cutting them off */
 .rows.wrap .grow > b, .rows.wrap .grow > span { white-space: normal; }
+
+/* =====================================================================
+   White minimal theme (overrides the card layer above)
+   ===================================================================== */
+body { background: #fff; }
+.topbar { background: #fff; border-bottom: 1px solid var(--line); }
+.topbar .brand { color: var(--blue); }
+.topbar .user .name { color: var(--muted); }
+.topbar .icon-btn { color: var(--muted); }
+.topbar .icon-btn:hover { background: var(--soft); color: var(--ink); }
+.subnav { box-shadow: none; border-bottom: 1px solid var(--line); }
+.bottomnav { box-shadow: none; border-top: 1px solid var(--line); }
+
+/* Sections are open (no card), separated by space */
+main > section, .card { background: none; border: 0; box-shadow: none; padding: 0; border-radius: 0; margin-bottom: 36px; }
+main > section > h2, .card > h2 { color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+main > section.rows > *:first-child, main > section .rows > *:first-child { border-top: 1px solid var(--line); }
+main > section.rows > *:last-child, main > section .rows > *:last-child { border-bottom: 1px solid var(--line); }
+main > section.rows > .me, main > section .rows > .me { margin: 0 -12px; padding-left: 12px; padding-right: 12px; }
+main > section table tr:last-child td { border-bottom: 1px solid var(--line); }
+.today { padding: 8px 0 8px; }
+
+/* Tiles, podium and product cards: thin outline, no shadow */
+.stat, .tile, .podium .p, .pcard, .entry { box-shadow: none; border-color: var(--line); background: #fff; }
+.tabs button.on { box-shadow: 0 1px 2px rgba(16, 24, 40, .08); }
+
+/* Logo: round mark, no tile */
+.brand-logo { width: 32px; height: 32px; padding: 0; border-radius: 50%; background: none; }
+.login-box .head .brand-logo { width: 72px; height: 72px; padding: 0; border-radius: 50%; margin: 0 auto 14px; }
+
+/* Login on white */
+body.login { background: #fff; }
+.login-box .head { color: var(--ink); }
+.login-box .head .brand { color: var(--blue); }
+.login-box .head .sub { color: var(--muted); }
+.login-box form.card { border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+.login-box .demo.card { margin-top: 8px; }
