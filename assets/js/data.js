@@ -88,12 +88,22 @@
     const rng = mulberry32(20261022);
     const phone = () => '0812' + String(Math.floor(rng() * 1e8)).padStart(8, '0');
     const s = {
-      version: 3,
-      products: PRODUCTS.map(p => ({ ...p, active: true, image: 'assets/products/' + p.id + '.svg' })),
+      version: 4,
+      products: PRODUCTS.map(p => ({ ...p, active: true, image: 'assets/products/' + p.id + '.svg', createdBy: 'u-admin', updatedBy: 'u-admin', updatedAt: '2026-09-01' })),
+      stores: [], activity: [],
       areas: [{ id: 'a1', name: 'Jabodetabek' }],
       teams: [], users: [], targets: {}, reports: {}, settings: {}, shifts: {},
     };
     const skill = {};
+    const CITY = { t1: 'Jakarta Selatan', t2: 'Jakarta Pusat', t3: 'Jakarta Barat', t4: 'Tangerang', t5: 'Bekasi' };
+    const CHAINS = ['Supermarket', 'Hypermarket', 'Department Store', 'Minimarket', 'Drugstore'];
+    // Shared store list; each seeded SPG has a usual store (pre-selected when starting a shift)
+    function addStore(name, teamId, by) {
+      const st = { id: 'st' + (s.stores.length + 1), name: 'Toko ' + name, chain: CHAINS[Math.floor(rng() * CHAINS.length)], city: CITY[teamId],
+        address: 'Jl. ' + name + ' No. ' + (1 + Math.floor(rng() * 120)), areaId: 'a1', active: true, createdBy: by, updatedBy: by, updatedAt: '2026-09-01' };
+      s.stores.push(st);
+      return st.id;
+    }
 
     function setTargets(uid, monthly, by) {
       s.targets[uid + '|2026-09'] = { monthly, weekly: null, daily: null, setBy: by, setAt: '2026-08-28' };
@@ -111,7 +121,7 @@
     addTeam('t1', 'Jakarta Selatan', ['rina', 'Rina Agustina']);
     T1_SPGS.forEach(([username, name, store, target, k]) => {
       const id = 'u-' + username;
-      s.users.push({ id, username, password: 'spg123', name, role: 'spg', teamId: 't1', store: 'Toko ' + store, phone: phone(), active: true });
+      s.users.push({ id, username, password: 'spg123', name, role: 'spg', teamId: 't1', homeStoreId: addStore(store, 't1', 'u-rina'), phone: phone(), active: true });
       skill[id] = k;
       setTargets(id, target * 1e6, 'u-rina');
     });
@@ -123,7 +133,7 @@
         const name = NAMES[ni++];
         const username = name.split(' ')[0].toLowerCase() + ni;
         const id = 'u-' + username;
-        s.users.push({ id, username, password: 'spg123', name, role: 'spg', teamId, store: 'Toko ' + store, phone: phone(), active: true });
+        s.users.push({ id, username, password: 'spg123', name, role: 'spg', teamId, homeStoreId: addStore(store, teamId, 'u-' + leader[0]), phone: phone(), active: true });
         skill[id] = k * (0.8 + rng() * 0.4);
         setTargets(id, [35, 40, 45, 50][Math.floor(rng() * 4)] * 1e6, 'u-' + leader[0]);
       });
@@ -149,14 +159,27 @@
         const rep = buildReport(u.id, d, items, false, '', u.id, null);
         const startMin = 9 * 60 + Math.floor(rng() * 16);
         // Loginable team (t1) gets individual timestamped transactions; other teams keep daily totals only.
-        if (u.teamId === 't1') rep.transactions = splitIntoTransactions(items, rng, startMin, d === TODAY ? 13 * 60 + 40 : 20 * 60 + 50);
+        const home = u.homeStoreId;
+        const shift = { start: hhmm(startMin), end: d === TODAY ? null : hhmm(21 * 60 + Math.floor(rng() * 15)), storeId: home, visits: [{ storeId: home, from: hhmm(startMin) }] };
+        // Demo of a store switch: Sari covers Toko Pondok Indah from 12:00 today
+        if (u.id === 'u-sari' && d === TODAY) { shift.visits.push({ storeId: s.users.find(x => x.id === 'u-dewi').homeStoreId, from: '12:00' }); shift.storeId = shift.visits[1].storeId; }
+        if (u.teamId === 't1') {
+          rep.transactions = splitIntoTransactions(items, rng, startMin, d === TODAY ? 13 * 60 + 40 : 20 * 60 + 50)
+            .map(t => ({ ...t, storeId: visitAt(shift, t.time) }));
+        }
         s.reports[u.id + '|' + d] = rep;
-        s.shifts[u.id + '|' + d] = { start: hhmm(startMin), end: d === TODAY ? null : hhmm(21 * 60 + Math.floor(rng() * 15)) };
+        s.shifts[u.id + '|' + d] = shift;
       }
     });
     return s;
   }
 
+  // Store the shift was at, at a given time (last visit that started at or before it)
+  function visitAt(shift, time) {
+    let id = shift.storeId;
+    (shift.visits || []).forEach(v => { if (!time || v.from <= time) id = v.storeId; });
+    return id;
+  }
   const hhmm = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
   function splitIntoTransactions(items, rng, fromMin, toMin) {
     const tx = [];
@@ -293,12 +316,42 @@
   /* ---------- Shifts & per-sale transactions ---------- */
   const nowTime = () => { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
   const getShift = (userId, date) => (state.shifts || {})[userId + '|' + date] || null;
-  function startShift(userId) {
+  function startShift(userId, storeId) {
     state.shifts = state.shifts || {};
     const key = userId + '|' + TODAY;
-    if (!state.shifts[key]) state.shifts[key] = { start: nowTime(), end: null };
+    if (!state.shifts[key]) {
+      const t = nowTime();
+      state.shifts[key] = { start: t, end: null, storeId, visits: [{ storeId, from: t }] };
+      delete memo.lastStore;
+    }
     persist();
     return state.shifts[key];
+  }
+  // Move the open shift to another store; new sales get that store
+  function switchStore(userId, storeId) {
+    const sh = getShift(userId, TODAY);
+    if (!sh || sh.end || sh.storeId === storeId) return sh;
+    sh.storeId = storeId;
+    (sh.visits = sh.visits || []).push({ storeId, from: nowTime() });
+    delete memo.lastStore;
+    persist();
+    return sh;
+  }
+  // Store of a user's most recent shift (or their usual store)
+  function lastStoreId(userId) {
+    if (!memo.lastStore) {
+      const m = {};
+      Object.keys(state.shifts || {}).sort().forEach(k => { const [uid] = k.split('|'); const sh = state.shifts[k]; if (sh.storeId) m[uid] = sh.storeId; });
+      memo.lastStore = m;
+    }
+    const u = user(userId);
+    return memo.lastStore[userId] || (u && u.homeStoreId) || null;
+  }
+  const storeLabel = u => { const st = u && store(lastStoreId(u.id)); return st ? st.name : ''; };
+  // Store for a sale on a given date/time
+  function storeFor(userId, date, time) {
+    const sh = getShift(userId, date);
+    return sh ? visitAt(sh, time) : lastStoreId(userId);
   }
   function endShift(userId, by) {
     const sh = getShift(userId, TODAY);
@@ -310,7 +363,7 @@
     return sh;
   }
   // Transactions of a report; older/other-team reports only have daily totals per product (no time)
-  const getTransactions = r => !r ? [] : r.transactions || r.items.map((i, n) => ({ id: 'i' + n, time: '', ...i }));
+  const getTransactions = r => !r ? [] : r.transactions || r.items.map((i, n) => ({ id: 'i' + n, time: '', storeId: storeFor(r.userId, r.date, ''), ...i }));
 
   function emptyReport(userId, date, by) {
     return { userId, date, transactions: [], items: [], total: 0, noSales: false, notes: '', createdAt: TODAY, updatedAt: TODAY, updatedBy: by, unlocked: false };
@@ -332,6 +385,7 @@
     const tx = {
       id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       time: date === TODAY ? nowTime() : '', // '' = added afterwards for a past day
+      storeId: sale.storeId || storeFor(userId, date, date === TODAY ? nowTime() : ''),
       productId: sale.productId, qty: Math.max(1, Math.floor(+sale.qty || 1)), price: Math.max(0, Math.round(+sale.price || 0)), by,
     };
     r.transactions.push(tx);
@@ -447,13 +501,16 @@
   }
 
   // Daily totals for a group of SPGs: one point per working day (actual sales vs. summed daily target)
-  function dailySeries(userIds, teamIds, from, to) {
+  // With storeId: only sales made at that store, and no target (targets are per SPG, not per store)
+  function dailySeries(userIds, teamIds, from, to, storeId) {
+    const amount = r => !r ? 0 : !storeId ? r.total
+      : getTransactions(r).filter(t => t.storeId === storeId).reduce((a, t) => a + t.qty * t.price, 0);
     return eachDay(from, to)
       .filter(d => teamIds.some(t => isWorkingDay(t, d)))
       .map(d => ({
         date: d,
-        actual: userIds.reduce((a, id) => { const r = getReport(id, d); return a + (r ? r.total : 0); }, 0),
-        target: userIds.reduce((a, id) => a + dailyTarget(id, d), 0),
+        actual: userIds.reduce((a, id) => a + amount(getReport(id, d)), 0),
+        target: storeId ? 0 : userIds.reduce((a, id) => a + dailyTarget(id, d), 0),
       }));
   }
   // Chart window per period: last 14 days for "today", otherwise the period itself (up to today)
@@ -496,30 +553,112 @@
   }
 
   /* ---------- Team, settings, products ---------- */
-  function addSpg({ name, username, phone, store, teamId }) {
-    username = String(username).trim().toLowerCase();
+  /* ---------- People, products, stores (with permissions + activity log) ---------- */
+  const DEFAULT_PW = { spg: 'spg123', leader: 'leader123', supervisor: 'super123', admin: 'admin123' };
+  function log(by, action, kind, id, name) {
+    (state.activity = state.activity || []).unshift({ at: TODAY + ' ' + nowTime(), by, action, kind, id, name });
+    state.activity.length = Math.min(state.activity.length, 500);
+  }
+  // Who may manage which accounts: Admin → Supervisors & Team Leaders; Leader → own team's SPGs; Supervisor → SPGs in area
+  function canManageUser(viewer, target) {
+    if (!viewer || !target) return false;
+    if (viewer.role === 'admin') return target.role === 'leader' || target.role === 'supervisor';
+    if (target.role !== 'spg') return false;
+    if (viewer.role === 'leader') return target.teamId === viewer.teamId;
+    if (viewer.role === 'supervisor') { const t = team(target.teamId); return !!t && t.areaId === viewer.areaId; }
+    return false;
+  }
+  function addUser(data, by) {
+    const viewer = user(by);
+    const role = data.role;
+    const username = String(data.username || '').trim().toLowerCase();
+    const name = String(data.name || '').trim();
     if (!name || !username) return 'Nama dan username wajib diisi.';
     if (!/^[a-z0-9._]+$/.test(username)) return 'Username hanya boleh huruf kecil, angka, titik, atau garis bawah.';
     if (state.users.some(u => u.username === username)) return 'Username sudah dipakai.';
-    state.users.push({ id: 'u-' + username, username, password: 'spg123', name: name.trim(), role: 'spg', teamId, store: store.trim(), phone: phone.trim(), active: true });
+    const u = { id: 'u-' + username, username, password: DEFAULT_PW[role], name, role, phone: String(data.phone || '').trim(), active: true, photo: '' };
+    if (role === 'spg') {
+      const t = team(data.teamId);
+      if (!t) return 'Pilih tim.';
+      u.teamId = t.id;
+    } else if (role === 'leader') {
+      if (data.newTeam) {
+        const tid = 't' + Date.now().toString(36);
+        state.teams.push({ id: tid, name: String(data.newTeam).trim(), areaId: data.areaId || 'a1', leaderId: u.id });
+        state.settings[tid] = defaultSettings();
+        u.teamId = tid;
+      } else {
+        const t = team(data.teamId);
+        if (!t) return 'Pilih tim atau buat tim baru.';
+        u.teamId = t.id;
+        if (!t.leaderId || !(user(t.leaderId) || {}).active) t.leaderId = u.id;
+      }
+    } else if (role === 'supervisor') {
+      u.areaId = data.areaId || 'a1';
+    } else return 'Peran tidak dikenal.';
+    if (!canManageUser(viewer, u)) return 'Kamu tidak punya akses untuk menambah pengguna ini.';
+    state.users.push(u);
+    log(by, 'tambah', 'pengguna', u.id, u.name);
     persist();
     return null;
   }
+  const addSpg = (data, by) => addUser({ ...data, role: 'spg' }, by);
+  function resetPassword(userId, by) {
+    const u = user(userId);
+    if (!u || !canManageUser(user(by), u)) return null;
+    u.password = DEFAULT_PW[u.role];
+    log(by, 'reset password', 'pengguna', u.id, u.name);
+    persist();
+    return u.password;
+  }
+
+  // Products and stores are shared lists. Add: Admin, Supervisor, Team Leader.
+  // Edit/deactivate: Admin and Supervisor any item, Team Leader only items they added.
+  const canAddCatalog = viewer => !!viewer && ['admin', 'supervisor', 'leader'].includes(viewer.role);
+  const canEditCatalog = (viewer, item) => !!viewer && !!item && (viewer.role === 'admin' || viewer.role === 'supervisor' || (viewer.role === 'leader' && item.createdBy === viewer.id));
+  function saveCatalogItem(list, kind, prefix, item, by) {
+    const viewer = user(by);
+    if (item.id) {
+      const cur = list.find(x => x.id === item.id);
+      if (!canEditCatalog(viewer, cur)) return 'Kamu hanya bisa mengubah ' + kind + ' yang kamu tambahkan.';
+      Object.assign(cur, item, { updatedBy: by, updatedAt: TODAY });
+      log(by, 'ubah', kind, cur.id, cur.name);
+    } else {
+      if (!canAddCatalog(viewer)) return 'Kamu tidak punya akses untuk menambah ' + kind + '.';
+      const created = { ...item, id: prefix + Date.now().toString(36), createdBy: by, updatedBy: by, updatedAt: TODAY };
+      list.push(created);
+      log(by, 'tambah', kind, created.id, created.name);
+    }
+    persist();
+    return null;
+  }
+  const saveProduct = (p, by) => saveCatalogItem(state.products, 'produk', 'p', p, by);
+  const saveStore = (st, by) => saveCatalogItem(state.stores, 'toko', 'st', st, by);
+  const stores = includeInactive => (state.stores || []).filter(x => includeInactive || x.active);
+  const store = id => (state.stores || []).find(x => x.id === id);
+  const activity = () => (state.activity || []).slice();
+
+  // Sales per store for a group of SPGs (for dashboards)
+  function storeTotals(userIds, from, to) {
+    const map = {};
+    listReports({ userIds, from, to }).forEach(r => getTransactions(r).forEach(t => {
+      const m = map[t.storeId] || (map[t.storeId] = { store: store(t.storeId), amount: 0, tx: 0, spgs: new Set() });
+      m.amount += t.qty * t.price; m.tx++; m.spgs.add(r.userId);
+    }));
+    return Object.values(map).filter(m => m.store).map(m => ({ ...m, spgs: m.spgs.size })).sort((a, b) => b.amount - a.amount);
+  }
+
   function setActive(userId, value) { const u = user(userId); if (u) { u.active = !!value; persist(); } }
   const getSettings = teamId => JSON.parse(JSON.stringify(state.settings[teamId]));
   function saveSettings(teamId, s) { state.settings[teamId] = s; memo = {}; persist(); }
-  function saveProduct(p) {
-    if (p.id) Object.assign(product(p.id), p);
-    else state.products.push({ ...p, id: 'p' + (Date.now() % 1e9) });
-    persist();
-  }
+
   function reset() { lsDel(STORE_KEY); lsDel(USER_KEY); }
 
   // Load saved demo data, or generate it on first visit (runs last so all helpers above are defined)
   (function load() {
     const raw = lsGet(STORE_KEY);
     if (raw) {
-      try { const s = JSON.parse(raw); if (s && s.version === 3) { state = s; return; } } catch (e) { /* reseed */ }
+      try { const s = JSON.parse(raw); if (s && s.version === 4) { state = s; return; } } catch (e) { /* reseed */ }
     }
     seed();
     persist();
@@ -535,7 +674,8 @@
     getReport, saveReport, setUnlocked, isLocked, canEdit, listReports,
     progress, level, nextLevel, leaderboard, streak, teamSummary, areaSummary, dailySeries, chartRange,
     addSpg, setActive, getSettings, saveSettings, saveProduct, reset,
-    getShift, startShift, endShift, getTransactions, addSale, removeSale,
+    getShift, startShift, endShift, switchStore, lastStoreId, storeLabel, storeFor, getTransactions, addSale, removeSale,
+    addUser, resetPassword, canManageUser, canAddCatalog, canEditCatalog, saveStore, stores, store, activity, storeTotals,
     allUsers, setUserPhoto,
   };
 })();

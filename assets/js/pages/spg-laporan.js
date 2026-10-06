@@ -64,7 +64,21 @@
   });
 
   /* ----- Shift controls ----- */
-  $('startShift').addEventListener('click', () => { D.startShift(owner.id); App.toast('Shift dimulai.'); render(); });
+  $('startShift').addEventListener('click', async () => {
+    const storeId = await App.pickStore({ title: 'Mulai shift', action: 'Mulai shift', current: D.lastStoreId(owner.id), note: 'Pilih toko tempat kamu bertugas hari ini. Bisa diganti selama shift.' });
+    if (!storeId) return;
+    D.startShift(owner.id, storeId);
+    App.toast('Shift dimulai di ' + D.store(storeId).name + '.');
+    render();
+  });
+  $('switchStore').addEventListener('click', async () => {
+    const sh = D.getShift(owner.id, date);
+    const storeId = await App.pickStore({ title: 'Ganti toko', action: 'Ganti', current: sh && sh.storeId, note: 'Penjualan berikutnya dicatat di toko ini.' });
+    if (!storeId || (sh && storeId === sh.storeId)) return;
+    D.switchStore(owner.id, storeId);
+    App.toast('Sekarang di ' + D.store(storeId).name + '.');
+    render();
+  });
   $('endShift').addEventListener('click', () => {
     if (!confirm('Akhiri shift sekarang?')) return;
     D.endShift(owner.id, user.id);
@@ -84,6 +98,7 @@
     const shift = D.getShift(owner.id, date);
     const report = D.getReport(owner.id, date);
     const tx = D.getTransactions(report).slice().reverse(); // newest first
+    const manyStores = new Set(tx.map(t => t.storeId)).size > 1; // show the store per sale only when the day had several
     const canEdit = D.canEdit(user, owner.id, date);
     const needsShift = isSpg && isToday && !shift;
     const canAdd = canEdit && !needsShift;
@@ -93,6 +108,10 @@
     $('shift').textContent = shiftText;
     $('shift').hidden = !shiftText;
     $('endShift').hidden = !(isSpg && isToday && shift && !shift.end);
+    const curStore = shift && D.store(shift.storeId);
+    $('storeBar').hidden = !curStore;
+    if (curStore) $('storeName').textContent = curStore.name + ' · ' + curStore.city;
+    $('switchStore').hidden = !(isSpg && isToday && shift && !shift.end);
 
     $('entry').hidden = !canAdd;
     $('locked').hidden = canEdit;
@@ -104,7 +123,7 @@
     $('list').innerHTML = tx.map(t => `
       <div>
         ${App.productImg(D.product(t.productId))}
-        <div class="grow"><b>${App.esc(D.product(t.productId).name)}</b><span>${t.time ? t.time + ' · ' : ''}${t.qty} × ${App.rp(t.price)}</span></div>
+        <div class="grow"><b>${App.esc(D.product(t.productId).name)}</b><span>${t.time ? t.time + ' · ' : ''}${t.qty} × ${App.rp(t.price)}${manyStores && D.store(t.storeId) ? ' · ' + App.esc(D.store(t.storeId).name) : ''}</span></div>
         <div class="val">${App.rp(t.qty * t.price)}</div>${canEdit && report.transactions ? App.iconBtn('trash', 'Hapus transaksi', `data-del="${t.id}"`, 'danger') : ''}
       </div>`).join('') || (needsShift ? '' : '<p class="empty">Belum ada penjualan.</p>');
   }

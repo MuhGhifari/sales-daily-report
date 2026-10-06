@@ -39,7 +39,7 @@
       const text = encodeURIComponent(`Halo ${u.name.split(' ')[0]}, jangan lupa mulai shift dan catat setiap penjualan hari ini ya. Terima kasih.`);
       const wa = u.phone ? `https://wa.me/62${u.phone.replace(/\D/g, '').replace(/^0/, '')}?text=${text}` : '';
       return `<div>
-        <div class="grow">${App.person(u, u.store)}</div>
+        <div class="grow">${App.person(u, D.storeLabel(u))}</div>
         ${wa ? App.iconLink(wa, 'message', 'Ingatkan via WhatsApp', 'target="_blank" rel="noopener"', 'primary') : ''}
       </div>`;
     }).join('');
@@ -57,6 +57,15 @@
     $('spgs').querySelectorAll('.rank-row').forEach(el => el.addEventListener('click', () => {
       location.href = 'laporan.html?spg=' + encodeURIComponent(el.dataset.id);
     }));
+
+    const [sf, stt] = D.range(period, D.TODAY);
+    const st = D.storeTotals(s.lb.map(r => r.user.id), sf, stt < D.TODAY ? stt : D.TODAY);
+    const maxStore = Math.max(1, ...st.map(x => x.amount));
+    $('stores').innerHTML = st.map(x => `
+      <div>
+        <div class="grow"><b>${App.esc(x.store.name)}</b><span>${App.esc(x.store.city)} · ${x.tx} transaksi · ${x.spgs} SPG</span>${App.bar(x.amount / maxStore * 100)}</div>
+        <div class="val"><b>${App.rpShort(x.amount)}</b></div>
+      </div>`).join('') || '<p class="empty">Belum ada penjualan.</p>';
 
     const maxAmount = Math.max(1, ...s.products.map(p => p.amount));
     $('products').innerHTML = s.products.map(p => `
@@ -78,8 +87,9 @@
     const rows = [['Tanggal', 'Waktu', 'SPG', 'Toko', 'Produk', 'Qty', 'Harga', 'Subtotal']];
     D.listReports({ userIds: D.spgsOf(teamId, true).map(u => u.id), from, to: end }).reverse().forEach(r => {
       const u = D.user(r.userId);
-      if (r.noSales) rows.push([r.date, '', u.name, u.store, 'Tidak ada penjualan', 0, 0, 0]);
-      D.getTransactions(r).forEach(t => rows.push([r.date, t.time, u.name, u.store, D.product(t.productId).name, t.qty, t.price, t.qty * t.price]));
+      const storeName = id => (D.store(id) || {}).name || '';
+      if (r.noSales) rows.push([r.date, '', u.name, storeName(D.storeFor(u.id, r.date, '')), 'Tidak ada penjualan', 0, 0, 0]);
+      D.getTransactions(r).forEach(t => rows.push([r.date, t.time, u.name, storeName(t.storeId), D.product(t.productId).name, t.qty, t.price, t.qty * t.price]));
     });
     App.downloadCsv(`laporan-${team.name.toLowerCase().replace(/\s+/g, '-')}-${from}-sd-${end}.csv`, rows);
   });

@@ -39,7 +39,8 @@
     if (!shift) {
       action = `<p class="next">Shift belum dimulai</p><button type="button" class="btn block" id="start">Mulai shift</button>`;
     } else if (!shift.end) {
-      action = `<p class="next">${report ? nextText : 'Belum ada penjualan'} · shift sejak ${shift.start}</p>
+      const st = D.store(shift.storeId);
+      action = `<p class="next">${report ? nextText : 'Belum ada penjualan'} · ${st ? App.esc(st.name) + ', ' : ''}sejak ${shift.start}</p>
         <a class="btn block" href="laporan.html">Catat penjualan</a>`;
     } else {
       action = `<p class="next">Shift ${shift.start}–${shift.end} selesai</p><a href="laporan.html">Lihat penjualan hari ini</a>`;
@@ -49,7 +50,12 @@
       <div class="amount">${App.rp(day.actual)} <span class="muted">dari ${App.rpK(day.target)}</span></div>
       ${action}`;
     const start = $('start');
-    if (start) start.addEventListener('click', () => { D.startShift(user.id); location.href = 'laporan.html'; });
+    if (start) start.addEventListener('click', async () => {
+      const storeId = await App.pickStore({ title: 'Mulai shift', action: 'Mulai shift', current: D.lastStoreId(user.id), note: 'Pilih toko tempat kamu bertugas hari ini. Bisa diganti selama shift.' });
+      if (!storeId) return;
+      D.startShift(user.id, storeId);
+      location.href = 'laporan.html';
+    });
   }
 
   /* ----- Rank & streak ----- */

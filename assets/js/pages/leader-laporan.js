@@ -11,6 +11,8 @@
   $('spg').innerHTML = `<option value="">Semua SPG</option>` + spgs.map(u =>
     `<option value="${u.id}" ${u.id === pre ? 'selected' : ''}>${App.esc(u.name)}${u.active ? '' : ' (nonaktif)'}</option>`).join('');
   App.combobox($('spg'));
+  $('store').innerHTML = '<option value="">Semua toko</option>' + D.stores(true).map(s => `<option value="${s.id}">${App.esc(s.name)}</option>`).join('');
+  App.combobox($('store'));
   $('from').value = D.monthStart(D.TODAY);
   $('to').value = D.TODAY;
   $('from').max = $('to').max = D.TODAY;
@@ -26,8 +28,11 @@
     const ids = $('spg').value ? [$('spg').value] : spgs.map(u => u.id);
     let from = $('from').value || D.DATA_START, to = $('to').value || D.TODAY;
     if (from > to) [from, to] = [to, from];
-    const list = D.listReports({ userIds: ids, from, to });
-    App.trendChart($('trend'), D.dailySeries(ids, [teamId], from, to));
+    const storeId = $('store').value;
+    const storeName = id => (D.store(id) || {}).name || '';
+    const storesOf = r => [...new Set(D.getTransactions(r).map(t => t.storeId))];
+    const list = D.listReports({ userIds: ids, from, to }).filter(r => !storeId || storesOf(r).includes(storeId));
+    App.trendChart($('trend'), D.dailySeries(ids, [teamId], from, to, storeId || null));
     const total = list.reduce((a, r) => a + r.total, 0);
     $('summary').innerHTML = `<b>${list.length}</b> laporan · Total <b>${App.rp(total)}</b>`;
 
@@ -44,7 +49,7 @@
           : '';
         return `<tr class="click" data-key="${key}">
             <td>${App.dateShort(r.date)}</td>
-            <td>${App.person(u, u.store)}</td>
+            <td>${App.person(u, storesOf(r).map(storeName).join(', ') || storeName(D.storeFor(r.userId, r.date, '')))}</td>
             <td class="num">${r.noSales ? '–' : D.getTransactions(r).length}</td>
             <td class="num">${App.num(r.total)}</td>
             <td class="num"><span class="icon-group">${App.iconLink(`../spg/laporan.html?spg=${encodeURIComponent(r.userId)}&tanggal=${r.date}`, 'pencil', 'Ubah laporan')}${lockBtn}</span></td>
@@ -52,8 +57,8 @@
           <tr class="detail" data-detail="${key}" hidden><td colspan="5">
             ${shiftLine(r)}
             ${r.noSales ? '<i>Tidak ada penjualan.</i>' : `<table>
-              <thead><tr><th>Waktu</th><th>Produk</th><th class="num">Qty</th><th class="num">Harga</th><th class="num">Subtotal</th></tr></thead>
-              <tbody>${D.getTransactions(r).map(t => `<tr><td>${t.time || '–'}</td><td><span class="tx">${App.productImg(D.product(t.productId))}${App.esc(D.product(t.productId).name)}</span></td><td class="num">${t.qty}</td><td class="num">${App.num(t.price)}</td><td class="num">${App.num(t.qty * t.price)}</td></tr>`).join('')}</tbody>
+              <thead><tr><th>Waktu</th><th>Toko</th><th>Produk</th><th class="num">Qty</th><th class="num">Harga</th><th class="num">Subtotal</th></tr></thead>
+              <tbody>${D.getTransactions(r).map(t => `<tr><td>${t.time || '–'}</td><td>${App.esc(storeName(t.storeId))}</td><td><span class="tx">${App.productImg(D.product(t.productId))}${App.esc(D.product(t.productId).name)}</span></td><td class="num">${t.qty}</td><td class="num">${App.num(t.price)}</td><td class="num">${App.num(t.qty * t.price)}</td></tr>`).join('')}</tbody>
             </table>`}
           </td></tr>`;
       }).join('')}</tbody>`;
@@ -74,6 +79,6 @@
     const tr = e.target.closest('tr.click');
     if (tr) { const d = $('table').querySelector(`[data-detail="${tr.dataset.key}"]`); d.hidden = !d.hidden; }
   });
-  ['spg', 'from', 'to'].forEach(id => $(id).addEventListener('change', render));
+  ['spg', 'store', 'from', 'to'].forEach(id => $(id).addEventListener('change', render));
   render();
 })();

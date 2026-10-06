@@ -11,14 +11,14 @@
     const list = D.spgsOf(teamId, true).sort((a, b) => (b.active - a.active) || a.name.localeCompare(b.name));
     $('count').textContent = `${list.filter(u => u.active).length} aktif`;
     $('table').innerHTML = `
-      <thead><tr><th>Nama</th><th>Username</th><th>WhatsApp</th><th>Toko</th><th>Status</th><th></th></tr></thead>
+      <thead><tr><th>Nama</th><th>Username</th><th>WhatsApp</th><th>Toko terakhir</th><th>Status</th><th></th></tr></thead>
       <tbody>${list.map(u => `<tr>
         <td>${App.person(u)}</td>
         <td>${App.esc(u.username)}</td>
         <td>${App.esc(u.phone)}</td>
-        <td>${App.esc(u.store)}</td>
+        <td>${App.esc(D.storeLabel(u) || '-')}</td>
         <td>${u.active ? '<span class="pill ok">Aktif</span>' : '<span class="pill">Nonaktif</span>'}</td>
-        <td class="num"><span class="icon-group">${App.iconBtn('camera', 'Ganti foto ' + u.name, `data-photo="${u.id}"`)}${App.iconBtn(u.active ? 'userX' : 'userCheck', u.active ? 'Nonaktifkan SPG' : 'Aktifkan SPG', `data-id="${u.id}"`, u.active ? 'danger' : 'primary')}</span></td>
+        <td class="num"><span class="icon-group">${App.iconBtn('camera', 'Ganti foto ' + u.name, `data-photo="${u.id}"`)}${App.iconBtn('key', 'Reset password ' + u.name, `data-reset="${u.id}"`)}${App.iconBtn(u.active ? 'userX' : 'userCheck', u.active ? 'Nonaktifkan SPG' : 'Aktifkan SPG', `data-id="${u.id}"`, u.active ? 'danger' : 'primary')}</span></td>
       </tr>`).join('')}</tbody>`;
     App.tableTools($('table'), { placeholder: 'Cari nama, username, toko...' });
   }
@@ -28,6 +28,14 @@
     if (ph) {
       const photo = await App.pickImage('cover', 192);
       if (photo) { D.setUserPhoto(ph.dataset.photo, photo); App.toast('Foto diperbarui.'); render(); }
+      return;
+    }
+    const rs = e.target.closest('button[data-reset]');
+    if (rs) {
+      const t = D.user(rs.dataset.reset);
+      if (!confirm(`Reset password ${t.name}?`)) return;
+      const pw = D.resetPassword(t.id, user.id);
+      App.toast(pw ? `Password ${t.name} direset ke: ${pw}` : 'Tidak bisa reset password.');
       return;
     }
     const b = e.target.closest('button[data-id]');
@@ -45,7 +53,7 @@
   $('form').addEventListener('submit', e => {
     e.preventDefault();
     const f = e.target;
-    const error = D.addSpg({ name: f.name.value, username: f.username.value, phone: f.phone.value, store: f.store.value, teamId });
+    const error = D.addSpg({ name: f.name.value, username: f.username.value, phone: f.phone.value, teamId }, user.id);
     if (error) { $('err').textContent = error; $('err').hidden = false; return; }
     $('err').hidden = true;
     App.toast(`${f.name.value} ditambahkan. Password awal: spg123`);

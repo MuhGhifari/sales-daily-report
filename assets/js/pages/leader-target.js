@@ -22,7 +22,7 @@
       const t = D.targetRow(u.id, mk) || {};
       const setBy = t.setBy ? `${App.esc(D.user(t.setBy).name.split(' ')[0])}, ${App.dateMid(t.setAt)}` : '–';
       return `<tr data-id="${u.id}">
-        <td><b>${App.esc(u.name)}</b><small>${App.esc(u.store)}</small></td>
+        <td><b>${App.esc(u.name)}</b><small>${App.esc(D.storeLabel(u))}</small></td>
         <td class="num"><input class="input t-input monthly" inputmode="numeric" value="${fmtInput(t.monthly)}" placeholder="0" aria-label="Target bulanan ${App.esc(u.name)}"></td>
         <td class="num"><input class="input t-input weekly ${t.weekly ? 'override' : ''}" inputmode="numeric" value="${fmtInput(t.weekly)}" aria-label="Target mingguan ${App.esc(u.name)}"></td>
         <td class="num"><input class="input t-input daily ${t.daily ? 'override' : ''}" inputmode="numeric" value="${fmtInput(t.daily)}" aria-label="Target harian ${App.esc(u.name)}"></td>

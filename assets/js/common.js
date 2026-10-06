@@ -14,13 +14,14 @@
     spg: 'spg/beranda.html',
     leader: 'leader/dashboard.html',
     supervisor: 'supervisor/dashboard.html',
-    admin: 'admin/produk.html',
+    admin: 'admin/pengguna.html',
   };
   const NAV = {
     spg: [['spg/beranda.html', 'home', 'Beranda'], ['spg/laporan.html', 'edit', 'Penjualan'], ['spg/peringkat.html', 'trophy', 'Peringkat'], ['spg/riwayat.html', 'calendar', 'Riwayat']],
-    leader: [['leader/dashboard.html', 'grid', 'Dashboard'], ['leader/laporan.html', 'file', 'Laporan'], ['leader/target.html', 'target', 'Target'], ['leader/tim.html', 'users', 'Tim'], ['leader/pengaturan.html', 'settings', 'Pengaturan']],
-    supervisor: [['supervisor/dashboard.html', 'map', 'Area'], ['leader/dashboard.html', 'grid', 'Tim'], ['leader/laporan.html', 'file', 'Laporan'], ['leader/target.html', 'target', 'Target'], ['leader/tim.html', 'users', 'Anggota'], ['leader/pengaturan.html', 'settings', 'Pengaturan']],
-    admin: [['admin/produk.html', 'box', 'Produk']],
+    // [href, icon, label, optional folder that also marks the item active]
+    leader: [['leader/dashboard.html', 'grid', 'Dashboard'], ['leader/laporan.html', 'file', 'Laporan'], ['leader/target.html', 'target', 'Target'], ['leader/tim.html', 'users', 'Tim'], ['katalog/produk.html', 'box', 'Katalog', 'katalog/'], ['leader/pengaturan.html', 'settings', 'Pengaturan']],
+    supervisor: [['supervisor/dashboard.html', 'map', 'Area'], ['leader/laporan.html', 'file', 'Laporan'], ['leader/target.html', 'target', 'Target'], ['leader/tim.html', 'users', 'SPG'], ['katalog/produk.html', 'box', 'Katalog', 'katalog/'], ['leader/pengaturan.html', 'settings', 'Pengaturan']],
+    admin: [['admin/pengguna.html', 'users', 'Pengguna'], ['katalog/produk.html', 'box', 'Katalog', 'katalog/']],
   };
 
   /* ---------- Icons (Lucide, ISC license — inline SVG, inherit text color) ---------- */
@@ -46,6 +47,8 @@
     userX: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5M22 8l-5 5"/>',
     userCheck: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/>',
     minus: '<path d="M5 12h14"/>',
+    key: '<path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>',
+    store: '<path d="M2 7 4.4 2.7A2 2 0 0 1 6.1 2h11.8a2 2 0 0 1 1.7.9L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20v3a2 2 0 0 1-2 2 2.7 2.7 0 0 1-2-1 2.7 2.7 0 0 1-2 1 2.7 2.7 0 0 1-2-1 2.7 2.7 0 0 1-2 1 2.7 2.7 0 0 1-2-1 2.7 2.7 0 0 1-2 1 2 2 0 0 1-2-2Z"/>',
     grid: '<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
     file: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h8M8 17h5"/>',
     users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
@@ -123,7 +126,7 @@
       <div class="p p${r.rank}${r.user.id === meId ? ' me' : ''}">
         <div class="face">${avatar(r.user)}${rankBadge(r.rank)}</div>
         <div class="n">${esc(r.user.name.split(' ')[0])}</div>
-        <div class="s">${esc(sub ? sub(r) : r.user.store || '')}</div>
+        <div class="s">${esc(sub ? sub(r) : Data.storeLabel(r.user))}</div>
         <div class="v">${pct(r.pct)}</div>
       </div>`).join('');
   }
@@ -173,14 +176,14 @@
       return null;
     }
     const here = location.pathname;
-    const isOn = href => here.endsWith('/' + href);
+    const isOn = (href, folder) => here.endsWith('/' + href) || (!!folder && here.includes('/' + folder));
     const top = document.createElement('header');
     top.className = 'topbar';
     top.innerHTML = `
       <div class="topbar-inner">
         <a class="brand" href="${root + HOME[user.role]}">${BRAND_LOGO ? logoImg() : `<span class="brand-mark">${icon('chart')}</span>`}<span>Laporan SPG</span></a>
-        ${user.role === 'spg' ? '' : `<nav class="mainnav" id="mainnav" aria-label="Menu utama">${NAV[user.role].map(([href, ic, label]) =>
-          `<a href="${root + href}" class="${isOn(href) ? 'on' : ''}" ${isOn(href) ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></a>`).join('')}</nav>`}
+        ${user.role === 'spg' ? '' : `<nav class="mainnav" id="mainnav" aria-label="Menu utama">${NAV[user.role].map(([href, ic, label, folder]) =>
+          `<a href="${root + href}" class="${isOn(href, folder) ? 'on' : ''}" ${isOn(href, folder) ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></a>`).join('')}</nav>`}
         <div class="user">
           ${avatar(user, 'sm')}
           <span class="name"><b>${esc(user.name)}</b><small>${ROLE_LABEL[user.role]}</small></span>
@@ -382,6 +385,43 @@
     return dlg._modal;
   }
 
+  /* ---------- Store picker (start shift / switch store) ----------
+   * Resolves with the chosen store id, or null when cancelled. */
+  function pickStore(opts) {
+    opts = opts || {};
+    return new Promise(resolve => {
+      const dlg = document.createElement('dialog');
+      dlg.className = 'modal';
+      dlg.setAttribute('aria-labelledby', 'pickStoreTitle');
+      const list = Data.stores();
+      dlg.innerHTML = `<form method="dialog" id="pickStoreForm">
+        <div class="modal-head"><h3 id="pickStoreTitle">${esc(opts.title || 'Pilih toko')}</h3><button type="button" class="icon-btn" data-close aria-label="Tutup">${icon('x')}</button></div>
+        <div class="modal-body">
+          <div class="field"><label for="pickStoreSel">Toko</label>
+            <select id="pickStoreSel" data-placeholder="Cari toko...">${'<option value=""></option>' + list.map(st =>
+              `<option value="${st.id}" ${st.id === opts.current ? 'selected' : ''}>${esc(st.name)} · ${esc(st.city)}</option>`).join('')}</select>
+          </div>
+          ${opts.note ? `<p class="note" style="margin:0">${esc(opts.note)}</p>` : ''}
+        </div>
+        <div class="modal-foot"><button type="button" class="btn ghost" data-close>Batal</button><button class="btn" type="submit">${esc(opts.action || 'Pilih')}</button></div>
+      </form>`;
+      document.body.append(dlg);
+      let result = null;
+      dlg.querySelector('form').addEventListener('submit', e => {
+        e.preventDefault();
+        const v = dlg.querySelector('select').value;
+        if (!v) { toast('Pilih toko dulu.'); return; }
+        result = v;
+        dlg.close();
+      });
+      dlg.addEventListener('close', () => { dlg.remove(); resolve(result); });
+      modal(dlg);
+      combobox(dlg.querySelector('select'));
+      dlg.showModal();
+      if (!opts.current) dlg.querySelector('.combo-input').focus();
+    });
+  }
+
   function toast(msg) {
     let el = document.querySelector('.toast');
     if (!el) { el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); document.body.append(el); }
@@ -450,7 +490,7 @@
     });
     // Target line: steps per day (targets can differ by day)
     const path = series.map((p, i) => `${i ? 'L' : 'M'}${L + i * slot},${y(p.target)} H${L + (i + 1) * slot}`).join(' ');
-    s += `<path d="${path}" fill="none" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+    if (series.some(p => p.target > 0)) s += `<path d="${path}" fill="none" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="4 4"/>`;
     s += '</svg>';
     el.innerHTML = `<div class="chart">${s}<div class="tip" hidden></div></div>`;
 
@@ -458,7 +498,7 @@
     el.querySelectorAll('.hit').forEach(h => {
       const show = () => {
         const p = series[+h.dataset.i];
-        tip.innerHTML = `<b>${dateShort(p.date)}</b><br>${rp(p.actual)}<br><span>Target ${rpK(p.target)}</span>`;
+        tip.innerHTML = `<b>${dateShort(p.date)}</b><br>${rp(p.actual)}${p.target > 0 ? `<br><span>Target ${rpK(p.target)}</span>` : ''}`;
         tip.hidden = false;
         const box = svg.getBoundingClientRect(), hb = h.getBoundingClientRect();
         const left = hb.left - box.left + hb.width / 2;
@@ -487,7 +527,7 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, init, teamId, toast, modal, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
+    root, HOME, ROLE_LABEL, init, teamId, toast, modal, pickStore, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
     esc, num, rp, rpK, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
     BRAND_LOGO, logoImg,

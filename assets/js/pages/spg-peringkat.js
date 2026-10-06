@@ -14,7 +14,7 @@
       const isMe = r.user.id === user.id;
       return `<div class="${isMe ? 'me' : ''}">
         ${App.rankBadge(r.rank)}
-        <div class="grow">${App.person(r.user, r.user.store, r.user.name + (isMe ? ' (kamu)' : ''))}</div>
+        <div class="grow">${App.person(r.user, D.storeLabel(r.user), r.user.name + (isMe ? ' (kamu)' : ''))}</div>
         <div class="val"><b>${App.pct(r.pct)}</b></div>
       </div>`;
     }).join('');

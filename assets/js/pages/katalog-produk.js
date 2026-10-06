@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const user = App.init({ roles: ['admin'] });
+  const user = App.init({ roles: ['admin', 'supervisor', 'leader'] });
   if (!user) return;
   const D = Data, $ = id => document.getElementById(id);
   const form = $('form');
@@ -9,17 +9,21 @@
     const list = D.products(true);
     $('count').textContent = `${list.filter(p => p.active).length} aktif dari ${list.length}`;
     $('table').innerHTML = `
-      <thead><tr><th></th><th>Produk</th><th>SKU</th><th class="num">Harga (Rp)</th><th>Status</th><th></th></tr></thead>
+      <thead><tr><th></th><th>Produk</th><th>SKU</th><th class="num">Harga (Rp)</th><th>Status</th><th>Ditambahkan oleh</th><th></th></tr></thead>
       <tbody>${list.map(p => `<tr>
         <td style="width:52px">${App.productImg(p)}</td>
         <td><b>${App.esc(p.name)}</b></td>
         <td>${App.esc(p.sku)}</td>
         <td class="num">${App.num(p.price)}</td>
         <td>${p.active ? '<span class="pill ok">Aktif</span>' : '<span class="pill">Nonaktif</span>'}</td>
-        <td class="num">${App.iconBtn('pencil', 'Ubah produk', `data-id="${p.id}"`)}</td>
+        <td><small>${App.esc(byName(p.createdBy))}</small>${p.updatedBy && p.updatedBy !== p.createdBy ? `<small class="muted">diubah ${App.esc(byName(p.updatedBy))}</small>` : ''}</td>
+        <td class="num">${D.canEditCatalog(user, p) ? App.iconBtn('pencil', 'Ubah produk', `data-id="${p.id}"`) : ''}</td>
       </tr>`).join('')}</tbody>`;
     App.tableTools($('table'), { placeholder: 'Cari produk atau SKU...' });
   }
+
+  const byName = id => { const u = D.user(id); return u ? u.name : '-'; };
+  $('openAdd').hidden = !D.canAddCatalog(user);
 
   let image = '';
   const showImage = () => { $('imgPreview').innerHTML = App.productImg({ image }, 'lg'); };
@@ -52,7 +56,8 @@
     e.preventDefault();
     const price = Math.round(+form.price.value);
     if (!form.name.value.trim() || !(price > 0)) { App.toast('Isi nama produk dan harga yang benar.'); return; }
-    D.saveProduct({ id: form.id.value || undefined, name: form.name.value.trim(), sku: form.sku.value.trim(), price, active: form.active.checked, image: image || 'assets/products/placeholder.svg' });
+    const error = D.saveProduct({ id: form.id.value || undefined, name: form.name.value.trim(), sku: form.sku.value.trim(), price, active: form.active.checked, image: image || 'assets/products/placeholder.svg' }, user.id);
+    if (error) { App.toast(error); return; }
     App.toast('Produk disimpan.');
     dlg.close();
     fill(null);
