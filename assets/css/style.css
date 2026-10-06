@@ -438,3 +438,38 @@ dialog.modal[open] { animation: modal-in .16s ease-out; }
 .modal-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 20px 20px; }
 .page-head .btn .icon { width: 16px; height: 16px; }
 @media (prefers-reduced-motion: reduce) { dialog.modal[open] { animation: none; } }
+
+/* =====================================================================
+   Navbar (Team Leader, Supervisor, Admin)
+   ===================================================================== */
+.topbar-inner { max-width: 1080px; height: 64px; }
+body.spg .topbar-inner { max-width: 520px; height: 56px; }
+main { max-width: 1080px; }
+.topbar .brand { flex: none; }
+.mainnav { display: flex; align-items: center; gap: 4px; flex: 1; margin-left: 16px; min-width: 0; }
+.mainnav a { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; color: var(--muted); font-size: 14px; font-weight: 500; white-space: nowrap; }
+.mainnav a .icon { width: 18px; height: 18px; }
+.mainnav a:hover { background: var(--soft); color: var(--ink); text-decoration: none; }
+.mainnav a.on { background: var(--blue-soft); color: var(--blue); font-weight: 600; }
+.topbar .user { gap: 10px; }
+.avatar.sm { width: 32px; height: 32px; font-size: 12px; }
+.topbar .user .name { display: flex; flex-direction: column; line-height: 1.2; color: var(--ink); }
+.topbar .user .name b { font-size: 14px; font-weight: 600; }
+.topbar .user .name small { font-size: 12px; color: var(--muted); }
+.menu-btn { display: none; }
+body.spg .topbar .user .avatar, body.spg .topbar .user .name { display: none; }
+
+@media (max-width: 900px) {
+  .menu-btn { display: inline-grid; }
+  .topbar .user .name { display: none; }
+  .mainnav { display: none; position: absolute; top: 64px; left: 0; right: 0; margin: 0; flex-direction: column; align-items: stretch; gap: 2px; padding: 8px 12px 12px; background: #fff; border-bottom: 1px solid var(--line); box-shadow: 0 12px 24px rgba(17, 24, 39, .08); }
+  .mainnav.open { display: flex; }
+  .mainnav a { padding: 12px; font-size: 15px; }
+  .topbar-inner { position: relative; }
+}
+@media (max-width: 1180px) and (min-width: 901px) {
+  .topbar .user .name { display: none; }
+  .mainnav { margin-left: 8px; gap: 2px; }
+  .mainnav a { padding: 8px 10px; gap: 6px; }
+}
+@media (max-width: 480px) { .stats { grid-template-columns: 1fr; gap: 10px; } }

@@ -18,9 +18,9 @@
   };
   const NAV = {
     spg: [['spg/beranda.html', 'home', 'Beranda'], ['spg/laporan.html', 'edit', 'Penjualan'], ['spg/peringkat.html', 'trophy', 'Peringkat'], ['spg/riwayat.html', 'calendar', 'Riwayat']],
-    leader: [['leader/dashboard.html', 'Dashboard'], ['leader/laporan.html', 'Laporan'], ['leader/target.html', 'Target'], ['leader/tim.html', 'Kelola Tim'], ['leader/pengaturan.html', 'Pengaturan']],
-    supervisor: [['supervisor/dashboard.html', 'Dashboard Area'], ['leader/dashboard.html', 'Dashboard Tim'], ['leader/laporan.html', 'Laporan'], ['leader/target.html', 'Target'], ['leader/tim.html', 'Kelola Tim'], ['leader/pengaturan.html', 'Pengaturan']],
-    admin: [['admin/produk.html', 'Produk']],
+    leader: [['leader/dashboard.html', 'grid', 'Dashboard'], ['leader/laporan.html', 'file', 'Laporan'], ['leader/target.html', 'target', 'Target'], ['leader/tim.html', 'users', 'Tim'], ['leader/pengaturan.html', 'settings', 'Pengaturan']],
+    supervisor: [['supervisor/dashboard.html', 'map', 'Area'], ['leader/dashboard.html', 'grid', 'Tim'], ['leader/laporan.html', 'file', 'Laporan'], ['leader/target.html', 'target', 'Target'], ['leader/tim.html', 'users', 'Anggota'], ['leader/pengaturan.html', 'settings', 'Pengaturan']],
+    admin: [['admin/produk.html', 'box', 'Produk']],
   };
 
   /* ---------- Icons (Lucide, ISC license — inline SVG, inherit text color) ---------- */
@@ -46,6 +46,13 @@
     userX: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5M22 8l-5 5"/>',
     userCheck: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/>',
     minus: '<path d="M5 12h14"/>',
+    grid: '<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>',
+    file: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h8M8 17h5"/>',
+    users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+    settings: '<path d="M12.2 2h-.4a2 2 0 0 0-2 2v.2a2 2 0 0 1-1 1.7l-.4.3a2 2 0 0 1-2 0l-.2-.1a2 2 0 0 0-2.7.7l-.2.4a2 2 0 0 0 .7 2.7l.2.1a2 2 0 0 1 1 1.7v.5a2 2 0 0 1-1 1.7l-.2.1a2 2 0 0 0-.7 2.7l.2.4a2 2 0 0 0 2.7.7l.2-.1a2 2 0 0 1 2 0l.4.3a2 2 0 0 1 1 1.7v.2a2 2 0 0 0 2 2h.4a2 2 0 0 0 2-2v-.2a2 2 0 0 1 1-1.7l.4-.3a2 2 0 0 1 2 0l.2.1a2 2 0 0 0 2.7-.7l.2-.4a2 2 0 0 0-.7-2.7l-.2-.1a2 2 0 0 1-1-1.7v-.5a2 2 0 0 1 1-1.7l.2-.1a2 2 0 0 0 .7-2.7l-.2-.4a2 2 0 0 0-2.7-.7l-.2.1a2 2 0 0 1-2 0l-.4-.3a2 2 0 0 1-1-1.7V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+    map: '<path d="M14.1 6.3 9.9 3.6a2 2 0 0 0-1.8 0L3.6 5.8A1 1 0 0 0 3 6.7v13a1 1 0 0 0 1.4.9l3.7-1.9a2 2 0 0 1 1.8 0l4.2 2.7a2 2 0 0 0 1.8 0l4.5-2.2a1 1 0 0 0 .6-.9v-13a1 1 0 0 0-1.4-.9l-3.7 1.9a2 2 0 0 1-1.8 0z"/><path d="M15 5.8v15M9 3.2v15"/>',
+    box: '<path d="M21 8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>',
+    menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
     search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
     camera: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
     plus: '<path d="M5 12h14M12 5v14"/>',
@@ -172,9 +179,13 @@
     top.innerHTML = `
       <div class="topbar-inner">
         <a class="brand" href="${root + HOME[user.role]}">${BRAND_LOGO ? logoImg() : `<span class="brand-mark">${icon('chart')}</span>`}<span>Laporan SPG</span></a>
+        ${user.role === 'spg' ? '' : `<nav class="mainnav" id="mainnav" aria-label="Menu utama">${NAV[user.role].map(([href, ic, label]) =>
+          `<a href="${root + href}" class="${isOn(href) ? 'on' : ''}" ${isOn(href) ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></a>`).join('')}</nav>`}
         <div class="user">
-          <span class="name">${esc(user.name)} · ${ROLE_LABEL[user.role]}</span>
+          ${avatar(user, 'sm')}
+          <span class="name"><b>${esc(user.name)}</b><small>${ROLE_LABEL[user.role]}</small></span>
           <button class="logout icon-btn" type="button" aria-label="Keluar" title="Keluar">${icon('logout')}</button>
+          ${user.role === 'spg' ? '' : `<button class="icon-btn menu-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mainnav">${icon('menu')}</button>`}
         </div>
       </div>`;
     // Static markup can ask for an icon with data-icon="name"
@@ -191,11 +202,12 @@
         `<a href="${root + href}" class="${isOn(href) ? 'on' : ''}" ${isOn(href) ? 'aria-current="page"' : ''}>${icon(ic, { cls: 'ic' })}${label}</a>`).join('');
       document.body.append(nav);
     } else {
-      const nav = document.createElement('nav');
-      nav.className = 'subnav';
-      nav.innerHTML = `<div class="subnav-inner">${items.map(([href, label]) =>
-        `<a href="${root + href}" class="${isOn(href) ? 'on' : ''}">${label}</a>`).join('')}</div>`;
-      top.after(nav);
+      // Phone: the navbar links fold into a dropdown behind the menu button
+      const btn = top.querySelector('.menu-btn'), nav = top.querySelector('.mainnav');
+      const setOpen = open => { nav.classList.toggle('open', open); btn.setAttribute('aria-expanded', open); };
+      btn.addEventListener('click', e => { e.stopPropagation(); setOpen(!nav.classList.contains('open')); });
+      document.addEventListener('click', e => { if (!nav.contains(e.target)) setOpen(false); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
     }
 
     if (opts.teamPicker && user.role === 'supervisor') {
