@@ -16,13 +16,12 @@
       .sort((a, b) => (b.active - a.active) || a.role.localeCompare(b.role) || a.name.localeCompare(b.name));
     $('count').textContent = `${list.filter(u => u.active && u.role === 'supervisor').length} Supervisor · ${list.filter(u => u.active && u.role === 'leader').length} Team Leader aktif`;
     $('table').innerHTML = `
-      <thead><tr><th>Nama</th><th>Peran</th><th>Tim / Area</th><th>Username</th><th>No. HP</th><th>Status</th><th></th></tr></thead>
+      <thead><tr><th>Nama</th><th>Peran</th><th>Tim / Area</th><th>No. HP</th><th>Status</th><th></th></tr></thead>
       <tbody>${list.map(u => `<tr>
         <td>${App.person(u)}</td>
         <td><span class="pill ${u.role === 'supervisor' ? 'info' : ''}">${ROLE[u.role]}</span></td>
         <td>${App.esc(scopeOf(u))}</td>
-        <td>${App.esc(u.username)}</td>
-        <td>${App.esc(u.phone || '')}</td>
+        <td>${App.esc(App.phoneFmt(u.phone))}</td>
         <td>${u.active ? '<span class="pill ok">Aktif</span>' : '<span class="pill">Nonaktif</span>'}</td>
         <td class="num"><span class="icon-group">
           ${App.iconBtn('camera', 'Ganti foto ' + u.name, `data-photo="${u.id}"`)}
@@ -30,7 +29,7 @@
           ${App.iconBtn(u.active ? 'userX' : 'userCheck', u.active ? 'Nonaktifkan' : 'Aktifkan', `data-active="${u.id}"`, u.active ? 'danger' : 'primary')}
         </span></td>
       </tr>`).join('')}</tbody>`;
-    App.tableTools($('table'), { placeholder: 'Cari nama, tim, area...' });
+    App.tableTools($('table'), { placeholder: 'Cari nama, nomor HP, tim...' });
   }
 
   $('table').addEventListener('click', async e => {
@@ -84,14 +83,14 @@
     e.preventDefault();
     const role = $('f-role').value, team = $('f-team').value;
     const error = D.addUser({
-      role, name: form.name.value, username: form.username.value, phone: form.phone.value,
+      role, name: form.name.value, phone: form.phone.value,
       teamId: team === '__new' ? null : team, newTeam: role === 'leader' && team === '__new' ? $('f-newteam').value.trim() || null : null,
       areaId: $('f-area').value,
     }, user.id);
     if (error || (role === 'leader' && team === '__new' && !$('f-newteam').value.trim())) {
       $('err').textContent = error || 'Isi nama tim baru.'; $('err').hidden = false; return;
     }
-    App.toast(`${form.name.value} ditambahkan sebagai ${ROLE[role]}. Password awal: ${PW[role]}`);
+    App.toast(`${form.name.value} ditambahkan sebagai ${ROLE[role]}. Login: ${App.phoneFmt(D.normalizePhone(form.phone.value))} / ${PW[role]}`);
     dlg.close();
     render();
   });

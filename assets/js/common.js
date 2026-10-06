@@ -146,6 +146,8 @@
     return rp(n);
   }
   const pct = p => Math.round(p || 0) + '%';
+  // 081300000001 → 0813 0000 0001
+  const phoneFmt = v => { const d = Data.normalizePhone(v); return d ? d.replace(/^(\d{4})(\d{4})(\d+)$/, '$1 $2 $3') : ''; };
   const pct1 = p => (p || 0).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
   const fmt = opts => { const f = new Intl.DateTimeFormat('id-ID', opts); return s => f.format(Data.parse(s)); };
   const dateLong = fmt({ weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -528,7 +530,7 @@
 
   window.App = {
     root, HOME, ROLE_LABEL, init, teamId, toast, modal, pickStore, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
-    esc, num, rp, rpK, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
+    esc, num, rp, rpK, phoneFmt, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
     BRAND_LOGO, logoImg,
   };

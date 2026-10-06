@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#ffffff">
 <title>Masuk · Laporan SPG</title>
 <link rel="icon" type="image/png" href="assets/brand/favicon.png">
-<link rel="stylesheet" href="assets/css/style.css?v=20261006050815">
-<script>/* version check */(function(v,r){try{fetch(r+"assets/version.json?t="+Date.now(),{cache:"no-store"}).then(function(x){return x.json()}).then(function(j){if(j.v&&j.v!==v){var u=new URL(location.href);if(u.searchParams.get("_v")!==j.v){u.searchParams.set("_v",j.v);location.replace(u.href)}}}).catch(function(){})}catch(e){}})("20261006050815","")</script>
+<link rel="stylesheet" href="assets/css/style.css?v=20261006051916">
+<script>/* version check */(function(v,r){try{fetch(r+"assets/version.json?t="+Date.now(),{cache:"no-store"}).then(function(x){return x.json()}).then(function(j){if(j.v&&j.v!==v){var u=new URL(location.href);if(u.searchParams.get("_v")!==j.v){u.searchParams.set("_v",j.v);location.replace(u.href)}}}).catch(function(){})}catch(e){}})("20261006051916","")</script>
 </head>
 <body data-root="" class="login">
 <div class="login-box">
@@ -18,23 +18,29 @@
   </div>
   <form id="form" class="card" autocomplete="on">
     <p class="error" id="err" hidden></p>
-    <div class="field"><label for="username">Username</label><input class="input" id="username" name="username" autocomplete="username" autocapitalize="none" required></div>
-    <div class="field"><label for="password">Password</label><input class="input" id="password" name="password" type="password" autocomplete="current-password" required></div>
+    <div class="field"><label for="phone">Nomor HP</label><input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0812 3456 7890" required></div>
+    <div class="field"><label for="password">Password</label>
+      <div class="pw">
+        <input class="input" id="password" name="password" type="password" autocomplete="current-password" required>
+        <button type="button" class="icon-btn pw-toggle" id="pwToggle" aria-label="Tampilkan password" aria-pressed="false" title="Tampilkan password"><span class="eye"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.1 12.3a1 1 0 0 1 0-.6 10.8 10.8 0 0 1 19.8 0 1 1 0 0 1 0 .6 10.8 10.8 0 0 1-19.8 0"/><circle cx="12" cy="12" r="3"/></svg></span><span class="eye-off" hidden><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.7 5.1A10.7 10.7 0 0 1 21.9 11.7a1 1 0 0 1 0 .7 10.8 10.8 0 0 1-1.4 2.4"/><path d="M14.1 14.2a3 3 0 0 1-4.2-4.2"/><path d="M17.5 17.5a10.8 10.8 0 0 1-15.4-5.2 1 1 0 0 1 0-.7 10.8 10.8 0 0 1 4.4-5.1"/><path d="m2 2 20 20"/></svg></span></button>
+      </div>
+    </div>
     <button class="btn block" type="submit">Masuk</button>
   </form>
   <div class="demo card">
     <h2>Akun demo</h2>
     <div class="rows">
-      <div data-user="sari" data-pass="spg123"><span>SPG</span><span class="muted">sari / spg123</span></div>
-      <div data-user="rina" data-pass="leader123"><span>Team Leader</span><span class="muted">rina / leader123</span></div>
-      <div data-user="budi" data-pass="super123"><span>Supervisor</span><span class="muted">budi / super123</span></div>
-      <div data-user="admin" data-pass="admin123"><span>Admin</span><span class="muted">admin / admin123</span></div>
+      <div data-user="0813 0000 0001" data-pass="spg123"><span>SPG <small class="muted">Sari</small></span><span class="muted">0813 0000 0001 / spg123</span></div>
+      <div data-user="0812 0000 0001" data-pass="leader123"><span>Team Leader <small class="muted">Rina</small></span><span class="muted">0812 0000 0001 / leader123</span></div>
+      <div data-user="0811 0000 0002" data-pass="super123"><span>Supervisor <small class="muted">Budi</small></span><span class="muted">0811 0000 0002 / super123</span></div>
+      <div data-user="0811 0000 0001" data-pass="admin123"><span>Admin</span><span class="muted">0811 0000 0001 / admin123</span></div>
     </div>
+    <p class="note">SPG lain di Tim Jakarta Selatan: 0813 0000 0002 s/d 0813 0000 0008 (password spg123).</p>
     <p class="note"><a href="#" id="reset">Reset data demo</a></p>
   </div>
 </div>
-<script src="assets/js/data.js?v=20261006050815"></script>
-<script src="assets/js/common.js?v=20261006050815"></script>
-<script src="assets/js/pages/login.js?v=20261006050815"></script>
+<script src="assets/js/data.js?v=20261006051916"></script>
+<script src="assets/js/common.js?v=20261006051916"></script>
+<script src="assets/js/pages/login.js?v=20261006051916"></script>
 </body>
 </html>

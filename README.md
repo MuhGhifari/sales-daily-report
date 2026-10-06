@@ -6,14 +6,18 @@ Prototype of a daily sales report app for SPGs, Team Leaders and Supervisors. St
 
 ## Demo accounts
 
-| Role | Username | Password | Lands on |
-|------|----------|----------|----------|
-| SPG | `sari` (also `dewi`, `rani`, `putri`, `maya`, `indah`, `fitri`, `lina`) | `spg123` | Beranda (daily % ring, level, rank, streak) |
-| Team Leader | `rina` | `leader123` | Dashboard Tim |
-| Supervisor | `budi` | `super123` | Dashboard Area |
-| Admin | `admin` | `admin123` | Pengguna (Supervisors & Team Leaders) |
+Log in with **phone number + password** (any format works: `0813 0000 0001`, `62813…`, `+62 813-…`). The eye button shows the password.
 
-Try `rani` / `spg123` to start a shift from scratch (Sari already has a shift running with sales). "Today" in the demo is **Kamis, 22 Oktober 2026**. Changes (reports, targets, settings) are saved in your browser; use **Reset data demo** on the login page to start over.
+| Role | Phone | Password | Lands on |
+|------|-------|----------|----------|
+| SPG | `0813 0000 0001` (Sari) · `0813 0000 0002`–`0008` (other SPGs of Tim Jakarta Selatan) | `spg123` | Beranda |
+| Team Leader | `0812 0000 0001` (Rina) | `leader123` | Dashboard Tim |
+| Supervisor | `0811 0000 0002` (Budi) | `super123` | Dashboard Area |
+| Admin | `0811 0000 0001` | `admin123` | Pengguna |
+
+Try `0813 0000 0004` (Rani) to start a shift from scratch; Sari already has a shift running with sales.
+
+"Today" in the demo is **Kamis, 22 Oktober 2026**. Changes (reports, targets, settings) are saved in your browser; use **Reset data demo** on the login page to start over.
 The passwords are hardcoded in `assets/js/data.js` and visible to anyone — demo only.
 
 ## Pages

@@ -86,9 +86,18 @@
 
   function seed() {
     const rng = mulberry32(20261022);
-    const phone = () => '0812' + String(Math.floor(rng() * 1e8)).padStart(8, '0');
+    // Demo accounts get easy numbers (they log in with them); everyone else a random, unique one
+    const DEMO_PHONE = {
+      admin: '081100000001', budi: '081100000002',
+      rina: '081200000001', andi: '081200000002', yuni: '081200000003', hendra: '081200000004', siti: '081200000005',
+      sari: '081300000001', dewi: '081300000002', putri: '081300000003', rani: '081300000004',
+      maya: '081300000005', indah: '081300000006', fitri: '081300000007', lina: '081300000008',
+    };
+    const used = new Set(Object.values(DEMO_PHONE));
+    const randomPhone = () => { let n; do { n = '0815' + String(Math.floor(rng() * 1e8)).padStart(8, '0'); } while (used.has(n)); used.add(n); return n; };
+    const phoneFor = username => DEMO_PHONE[username] || randomPhone();
     const s = {
-      version: 4,
+      version: 5,
       products: PRODUCTS.map(p => ({ ...p, active: true, image: 'assets/products/' + p.id + '.svg', createdBy: 'u-admin', updatedBy: 'u-admin', updatedAt: '2026-09-01' })),
       stores: [], activity: [],
       areas: [{ id: 'a1', name: 'Jabodetabek' }],
@@ -111,17 +120,17 @@
     }
     function addTeam(id, name, [username, leaderName]) {
       s.teams.push({ id, name, areaId: 'a1', leaderId: 'u-' + username });
-      s.users.push({ id: 'u-' + username, username, password: 'leader123', name: leaderName, role: 'leader', teamId: id, phone: phone(), active: true });
+      s.users.push({ id: 'u-' + username, username, password: 'leader123', name: leaderName, role: 'leader', teamId: id, phone: phoneFor(username), active: true });
       s.settings[id] = defaultSettings();
     }
 
-    s.users.push({ id: 'u-budi', username: 'budi', password: 'super123', name: 'Budi Santoso', role: 'supervisor', areaId: 'a1', phone: phone(), active: true });
-    s.users.push({ id: 'u-admin', username: 'admin', password: 'admin123', name: 'Admin', role: 'admin', phone: '', active: true });
+    s.users.push({ id: 'u-budi', username: 'budi', password: 'super123', name: 'Budi Santoso', role: 'supervisor', areaId: 'a1', phone: phoneFor('budi'), active: true });
+    s.users.push({ id: 'u-admin', username: 'admin', password: 'admin123', name: 'Admin', role: 'admin', phone: phoneFor('admin'), active: true });
 
     addTeam('t1', 'Jakarta Selatan', ['rina', 'Rina Agustina']);
     T1_SPGS.forEach(([username, name, store, target, k]) => {
       const id = 'u-' + username;
-      s.users.push({ id, username, password: 'spg123', name, role: 'spg', teamId: 't1', homeStoreId: addStore(store, 't1', 'u-rina'), phone: phone(), active: true });
+      s.users.push({ id, username, password: 'spg123', name, role: 'spg', teamId: 't1', homeStoreId: addStore(store, 't1', 'u-rina'), phone: phoneFor(username), active: true });
       skill[id] = k;
       setTargets(id, target * 1e6, 'u-rina');
     });
@@ -133,7 +142,7 @@
         const name = NAMES[ni++];
         const username = name.split(' ')[0].toLowerCase() + ni;
         const id = 'u-' + username;
-        s.users.push({ id, username, password: 'spg123', name, role: 'spg', teamId, homeStoreId: addStore(store, teamId, 'u-' + leader[0]), phone: phone(), active: true });
+        s.users.push({ id, username, password: 'spg123', name, role: 'spg', teamId, homeStoreId: addStore(store, teamId, 'u-' + leader[0]), phone: phoneFor(username), active: true });
         skill[id] = k * (0.8 + rng() * 0.4);
         setTargets(id, [35, 40, 45, 50][Math.floor(rng() * 4)] * 1e6, 'u-' + leader[0]);
       });
@@ -230,8 +239,16 @@
 
 
   /* ---------- Session (hardcoded accounts) ---------- */
-  function login(username, password) {
-    const u = state.users.find(x => x.username === String(username).trim().toLowerCase() && x.password === password && x.active);
+  // Phone numbers in any common format (0812…, 62812…, +62 812-…) compare as 0812…
+  function normalizePhone(v) {
+    let d = String(v || '').replace(/\D/g, '');
+    if (d.startsWith('62')) d = '0' + d.slice(2);
+    else if (d.startsWith('8')) d = '0' + d;
+    return d;
+  }
+  function login(phone, password) {
+    const n = normalizePhone(phone);
+    const u = n && state.users.find(x => normalizePhone(x.phone) === n && x.password === password && x.active);
     if (!u) return null;
     lsSet(USER_KEY, u.id);
     return u;
@@ -571,12 +588,12 @@
   function addUser(data, by) {
     const viewer = user(by);
     const role = data.role;
-    const username = String(data.username || '').trim().toLowerCase();
+    const phone = normalizePhone(data.phone);
     const name = String(data.name || '').trim();
-    if (!name || !username) return 'Nama dan username wajib diisi.';
-    if (!/^[a-z0-9._]+$/.test(username)) return 'Username hanya boleh huruf kecil, angka, titik, atau garis bawah.';
-    if (state.users.some(u => u.username === username)) return 'Username sudah dipakai.';
-    const u = { id: 'u-' + username, username, password: DEFAULT_PW[role], name, role, phone: String(data.phone || '').trim(), active: true, photo: '' };
+    if (!name || !phone) return 'Nama dan nomor HP wajib diisi.';
+    if (!/^08\d{8,11}$/.test(phone)) return 'Nomor HP tidak valid (contoh: 0812 3456 7890).';
+    if (state.users.some(u => normalizePhone(u.phone) === phone)) return 'Nomor HP sudah terdaftar.';
+    const u = { id: 'u' + Date.now().toString(36), username: '', password: DEFAULT_PW[role], name, role, phone, active: true, photo: '' };
     if (role === 'spg') {
       const t = team(data.teamId);
       if (!t) return 'Pilih tim.';
@@ -658,7 +675,7 @@
   (function load() {
     const raw = lsGet(STORE_KEY);
     if (raw) {
-      try { const s = JSON.parse(raw); if (s && s.version === 4) { state = s; return; } } catch (e) { /* reseed */ }
+      try { const s = JSON.parse(raw); if (s && s.version === 5) { state = s; return; } } catch (e) { /* reseed */ }
     }
     seed();
     persist();
@@ -676,6 +693,6 @@
     addSpg, setActive, getSettings, saveSettings, saveProduct, reset,
     getShift, startShift, endShift, switchStore, lastStoreId, storeLabel, storeFor, getTransactions, addSale, removeSale,
     addUser, resetPassword, canManageUser, canAddCatalog, canEditCatalog, saveStore, stores, store, activity, storeTotals,
-    allUsers, setUserPhoto,
+    allUsers, setUserPhoto, normalizePhone,
   };
 })();
