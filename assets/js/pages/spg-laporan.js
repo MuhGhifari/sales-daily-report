@@ -1,3 +1,4 @@
+/* Penjualan: record each sale as it happens during a shift. The day's report is built from these. */
 (function () {
   'use strict';
   const user = App.init({ roles: ['spg', 'leader', 'supervisor'] });
@@ -7,137 +8,105 @@
 
   const owner = isSpg ? user : D.user(App.param('spg'));
   if (!owner || !D.canView(user, owner)) {
-    document.querySelector('main').innerHTML = '<div class="empty">Laporan tidak ditemukan.</div>';
+    document.querySelector('main').innerHTML = '<p class="empty">Laporan tidak ditemukan.</p>';
     return;
   }
-
   let date = App.param('tanggal') || D.TODAY;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > D.TODAY) date = D.TODAY;
-  const report = D.getReport(owner.id, date);
-  const editable = D.canEdit(user, owner.id, date);
+  const isToday = date === D.TODAY;
   const editDays = D.getSettings(owner.teamId).editDays;
 
-  $('title').textContent = report ? 'Ubah Laporan' : 'Isi Laporan';
   $('sub').textContent = (isSpg ? '' : owner.name + ' · ') + App.dateLong(date);
-  $('store').value = owner.store || '';
+  if (!isToday && isSpg) $('back').hidden = false;
 
-  const go = d => {
-    const q = new URLSearchParams({ tanggal: d });
-    if (!isSpg) q.set('spg', owner.id);
-    location.search = '?' + q;
-  };
-
-  /* ----- Date field ----- */
-  if (isSpg) {
-    const options = [];
-    for (let i = 0; i <= editDays; i++) options.push(D.addDays(D.TODAY, -i));
-    if (!options.includes(date)) options.push(date);
-    $('dateField').innerHTML = `<select class="input" id="date">${options.map(d =>
-      `<option value="${d}" ${d === date ? 'selected' : ''}>${App.dateLong(d)}${d === D.TODAY ? ' (hari ini)' : ''}${D.isLocked(owner.id, d) ? ' (terkunci)' : ''}</option>`).join('')}</select>`;
-  } else {
-    $('dateField').innerHTML = `<input type="date" class="input" id="date" max="${D.TODAY}" value="${date}">`;
-  }
-  $('date').addEventListener('change', e => e.target.value && go(e.target.value));
-  if (isSpg) App.combobox($('date'));
-
-  if (!D.isWorkingDay(owner.teamId, date)) {
-    $('notes-top').innerHTML = `<div class="notice">Tanggal ini hari libur tim. Laporan tetap bisa dikirim.</div>`;
-  }
-  if (!editable) {
-    $('notes-top').innerHTML = `<div class="notice">Laporan ini terkunci karena sudah lebih dari ${editDays} hari. Minta Team Leader membuka kunci jika perlu diubah.</div>`;
-  }
-
-  /* ----- Product lines ----- */
+  /* ----- Product entry ----- */
   const products = D.products();
-  const linesEl = $('lines');
+  $('product').innerHTML = '<option value=""></option>' +
+    products.map(p => `<option value="${p.id}">${App.esc(p.name)}</option>`).join('');
+  App.combobox($('product'));
 
-  function productOptions(selected) {
-    const list = products.slice();
-    if (selected && !list.some(p => p.id === selected)) list.push(D.product(selected)); // keep inactive product on old reports
-    return list.map(p => `<option value="${p.id}" ${p.id === selected ? 'selected' : ''}>${App.esc(p.name)}</option>`).join('');
-  }
-
-  function addLine(item) {
-    const p = D.product(item.productId);
-    const el = document.createElement('div');
-    el.className = 'line';
-    el.innerHTML = `
-      <select class="input" aria-label="Produk">${productOptions(item.productId)}</select>
-      <div class="line-nums">
-        <input class="input qty" type="number" inputmode="numeric" min="0" step="1" value="${item.qty}" aria-label="Qty">
-        <input class="input price" type="number" inputmode="numeric" min="0" step="500" value="${item.price != null ? item.price : p.price}" aria-label="Harga satuan (Rp)">
-        <div class="line-sub"></div>
-      </div>
-      <button type="button" class="link danger del">Hapus</button>`;
-    App.combobox(el.querySelector('select'));
-    el.querySelector('select').addEventListener('change', e => { el.querySelector('.price').value = D.product(e.target.value).price; recalc(); });
-    el.querySelector('.del').addEventListener('click', () => { el.remove(); recalc(); });
-    el.querySelectorAll('input').forEach(i => i.addEventListener('input', recalc));
-    linesEl.append(el);
-    recalc();
-  }
-
-  function readItems() {
-    return [...linesEl.querySelectorAll('.line')].map(l => ({
-      productId: l.querySelector('select').value,
-      qty: Math.max(0, Math.floor(+l.querySelector('.qty').value || 0)),
-      price: Math.max(0, +l.querySelector('.price').value || 0),
-    }));
-  }
-
-  function recalc() {
-    let total = 0;
-    linesEl.querySelectorAll('.line').forEach(l => {
-      const sub = Math.max(0, Math.floor(+l.querySelector('.qty').value || 0)) * Math.max(0, +l.querySelector('.price').value || 0);
-      l.querySelector('.line-sub').textContent = App.rp(sub);
-      total += sub;
-    });
-    $('total').textContent = App.rp($('noSales').checked ? 0 : total);
-  }
-
-  const startItems = report && report.items.length ? report.items : [{ productId: products[0].id, qty: 1 }];
-  startItems.forEach(addLine);
-  $('noSales').checked = !!(report && report.noSales);
-  $('notes').value = report ? report.notes : '';
-  const syncNoSales = () => { linesEl.classList.toggle('lines-off', $('noSales').checked); $('add').disabled = $('noSales').checked; recalc(); };
-  $('noSales').addEventListener('change', syncNoSales);
-  syncNoSales();
-  $('add').addEventListener('click', () => {
-    const used = readItems().map(i => i.productId);
-    const next = products.find(p => !used.includes(p.id)) || products[0];
-    addLine({ productId: next.id, qty: 1 });
+  const qty = () => Math.max(1, Math.floor(+$('qty').value || 1));
+  const updateSubtotal = () => { $('subtotal').textContent = App.rp(qty() * Math.max(0, +$('price').value || 0)); };
+  $('product').addEventListener('change', () => {
+    const p = D.product($('product').value);
+    $('price').value = p ? p.price : '';
+    updateSubtotal();
   });
+  $('minus').addEventListener('click', () => { $('qty').value = Math.max(1, qty() - 1); updateSubtotal(); });
+  $('plus').addEventListener('click', () => { $('qty').value = qty() + 1; updateSubtotal(); });
+  ['qty', 'price'].forEach(id => $(id).addEventListener('input', updateSubtotal));
 
-  if (!editable) {
-    document.querySelectorAll('#form input, #form select:not(#date), #form button').forEach(el => { el.disabled = true; });
-    $('add').hidden = true;
-    $('submit').hidden = true;
-    document.querySelectorAll('.del').forEach(b => { b.hidden = true; });
-  }
-  $('submit').textContent = report ? 'Simpan Perubahan' : 'Kirim Laporan';
-
-  /* ----- Submit ----- */
-  $('form').addEventListener('submit', e => {
+  $('entry').addEventListener('submit', e => {
     e.preventDefault();
-    if (!editable) return;
-    const noSales = $('noSales').checked;
-    const items = readItems().filter(i => i.qty > 0);
-    if (!noSales && !items.length) { App.toast('Tambahkan minimal 1 produk, atau centang "Tidak ada penjualan".'); return; }
+    const productId = $('product').value;
+    if (!productId) { App.toast('Pilih produk dulu.'); $('product')._combo.focus(); return; }
+    const price = Math.round(+$('price').value);
+    if (!(price > 0)) { App.toast('Isi harga yang benar.'); $('price').focus(); return; }
 
-    const trackLevel = isSpg && date === D.TODAY && D.isWorkingDay(owner.teamId, date);
-    const before = trackLevel ? D.level(D.progress(owner.id, 'day', date).pct) : null;
-    D.saveReport({ userId: owner.id, date, items, noSales, notes: $('notes').value.trim() }, user.id);
-
-    if (isSpg) {
-      let msg = report ? 'Laporan diperbarui.' : 'Laporan terkirim.';
-      if (trackLevel) {
-        const after = D.level(D.progress(owner.id, 'day', date).pct);
-        if (after.min > before.min) msg = `Selamat! Kamu mencapai ${after.label} hari ini.`;
-      }
-      try { sessionStorage.setItem('lspg-celebrate', msg); } catch (err) { /* ignore */ }
-      location.href = 'beranda.html';
-    } else {
-      location.href = '../leader/laporan.html?spg=' + encodeURIComponent(owner.id);
+    const before = isSpg && isToday ? D.level(D.progress(owner.id, 'day', date).pct) : null;
+    const q = qty();
+    D.addSale(owner.id, date, { productId, qty: q, price }, user.id);
+    let msg = `Tersimpan: ${q} × ${D.product(productId).name}`;
+    if (before) {
+      const after = D.level(D.progress(owner.id, 'day', date).pct);
+      if (after.min > before.min) msg = `Tersimpan. Selamat, kamu mencapai ${after.label}!`;
     }
+    App.toast(msg);
+
+    // Ready for the next sale
+    $('product').value = '';
+    $('product').dispatchEvent(new Event('change'));
+    $('qty').value = 1;
+    updateSubtotal();
+    render();
   });
+
+  /* ----- Shift controls ----- */
+  $('startShift').addEventListener('click', () => { D.startShift(owner.id); App.toast('Shift dimulai.'); render(); });
+  $('endShift').addEventListener('click', () => {
+    if (!confirm('Akhiri shift sekarang?')) return;
+    D.endShift(owner.id, user.id);
+    App.toast('Shift selesai.');
+    render();
+  });
+
+  $('list').addEventListener('click', e => {
+    const b = e.target.closest('[data-del]');
+    if (!b || !confirm('Hapus transaksi ini?')) return;
+    D.removeSale(owner.id, date, b.dataset.del, user.id);
+    render();
+  });
+
+  /* ----- Render ----- */
+  function render() {
+    const shift = D.getShift(owner.id, date);
+    const report = D.getReport(owner.id, date);
+    const tx = D.getTransactions(report).slice().reverse(); // newest first
+    const canEdit = D.canEdit(user, owner.id, date);
+    const needsShift = isSpg && isToday && !shift;
+    const canAdd = canEdit && !needsShift;
+
+    $('startWrap').hidden = !needsShift;
+    const shiftText = shift ? (shift.end ? `Shift ${shift.start}–${shift.end}` : `Shift berjalan sejak ${shift.start}`) : '';
+    $('shift').textContent = shiftText;
+    $('shift').hidden = !shiftText;
+    $('endShift').hidden = !(isSpg && isToday && shift && !shift.end);
+
+    $('entry').hidden = !canAdd;
+    $('locked').hidden = canEdit;
+    $('locked').textContent = `Laporan ini terkunci karena sudah lebih dari ${editDays} hari.`;
+    $('late').hidden = !(canAdd && (!isToday || (shift && shift.end)));
+
+    $('total').textContent = App.rp(report ? report.total : 0);
+    $('count').textContent = report && report.noSales ? 'Tidak ada penjualan' : `${tx.length} transaksi`;
+    $('list').innerHTML = tx.map(t => `
+      <div>
+        <div class="muted" style="width:48px">${t.time || '–'}</div>
+        <div class="grow"><b>${App.esc(D.product(t.productId).name)}</b><span>${t.qty} × ${App.rp(t.price)}</span></div>
+        <div class="val">${App.rp(t.qty * t.price)}${canEdit && report.transactions ? `<span><button type="button" class="link danger" data-del="${t.id}">Hapus</button></span>` : ''}</div>
+      </div>`).join('') || (needsShift ? '' : '<p class="empty">Belum ada penjualan.</p>');
+  }
+
+  updateSubtotal();
+  render();
 })();

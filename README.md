@@ -13,7 +13,7 @@ Prototype of a daily sales report app for SPGs, Team Leaders and Supervisors. St
 | Supervisor | `budi` | `super123` | Dashboard Area |
 | Admin | `admin` | `admin123` | Produk |
 
-"Today" in the demo is **Kamis, 22 Oktober 2026**. Changes (reports, targets, settings) are saved in your browser; use **Reset data demo** on the login page to start over.
+Try `rani` / `spg123` to start a shift from scratch (Sari already has a shift running with sales). "Today" in the demo is **Kamis, 22 Oktober 2026**. Changes (reports, targets, settings) are saved in your browser; use **Reset data demo** on the login page to start over.
 The passwords are hardcoded in `assets/js/data.js` and visible to anyone — demo only.
 
 ## Pages
@@ -22,7 +22,7 @@ The passwords are hardcoded in `assets/js/data.js` and visible to anyone — dem
 |------|-----|
 | `index.html` — Masuk | everyone |
 | `spg/beranda.html` — big daily % ring, level, rank, streak, week/month progress | SPG |
-| `spg/laporan.html` — daily report per product | SPG (Leader/Supervisor can edit too) |
+| `spg/laporan.html` — Penjualan: start/end shift, record each sale as it happens | SPG (Leader/Supervisor can edit too) |
 | `spg/peringkat.html` — team leaderboard by % of target | SPG |
 | `spg/riwayat.html` — report history per month | SPG |
 | `leader/dashboard.html` — team summary, SPG ranking, missing reports, products, CSV export | Leader, Supervisor |

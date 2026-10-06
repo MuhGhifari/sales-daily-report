@@ -17,19 +17,28 @@
   const day = D.progress(user.id, 'day', today);
   const lv = D.level(day.pct);
   const report = D.getReport(user.id, today);
+  const shift = D.getShift(user.id, today);
 
-  if (!D.isWorkingDay(user.teamId, today)) {
+  if (!D.isWorkingDay(user.teamId, today) && !shift) {
     $('today').innerHTML = `<p class="muted">Hari ini libur.</p>`;
   } else {
     const next = D.nextLevel(day.pct);
-    const nextText = next
-      ? `${lv.label} · ${App.rpK(next.min / 100 * day.target - day.actual)} lagi ke ${next.name}`
-      : lv.label;
+    const nextText = next ? `${lv.label} · ${App.rpK(next.min / 100 * day.target - day.actual)} lagi ke ${next.name}` : lv.label;
+    let action;
+    if (!shift) {
+      action = `<p class="next">Shift belum dimulai</p><button type="button" class="btn block" id="start">Mulai shift</button>`;
+    } else if (!shift.end) {
+      action = `<p class="next">${report ? nextText : 'Belum ada penjualan'} · shift sejak ${shift.start}</p>
+        <a class="btn block" href="laporan.html">Catat penjualan</a>`;
+    } else {
+      action = `<p class="next">Shift ${shift.start}–${shift.end} selesai</p><a href="laporan.html">Lihat penjualan hari ini</a>`;
+    }
     $('today').innerHTML = `
       ${App.ring(day.pct, `<div class="pct">${App.pct(day.pct)}</div><div class="lbl">target hari ini</div>`, `${App.pct(day.pct)} dari target hari ini`)}
       <div class="amount">${App.rp(day.actual)} <span class="muted">dari ${App.rpK(day.target)}</span></div>
-      <div class="next">${report ? nextText : 'Laporan hari ini belum dikirim'}</div>
-      ${report ? `<a href="laporan.html">Ubah laporan hari ini</a>` : `<a class="btn block" href="laporan.html">Isi laporan hari ini</a>`}`;
+      ${action}`;
+    const start = $('start');
+    if (start) start.addEventListener('click', () => { D.startShift(user.id); location.href = 'laporan.html'; });
   }
 
   /* ----- Rank & streak ----- */

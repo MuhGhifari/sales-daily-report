@@ -176,6 +176,19 @@ tr.detail td { background: var(--soft); white-space: normal; padding: 12px; }
 .today .next { color: var(--muted); font-size: 14px; margin: 4px 0 20px; }
 .banner { background: var(--blue-soft); color: var(--blue); border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; font-weight: 600; }
 
+/* ---------- Sale entry ---------- */
+.entry { border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 32px; }
+.entry-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.entry-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.entry-foot b { color: var(--ink); }
+.stepper { display: flex; }
+.stepper input { text-align: center; border-radius: 0; border-left: 0; border-right: 0; min-width: 0; }
+.stepper button { width: 44px; flex: none; border: 1px solid var(--line); background: var(--soft); font-size: 18px; cursor: pointer; }
+.stepper button:first-child { border-radius: 8px 0 0 8px; }
+.stepper button:last-child { border-radius: 0 8px 8px 0; }
+.stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper input[type=number] { -moz-appearance: textfield; }
+
 /* ---------- Report form ---------- */
 .line { padding: 14px 0; border-bottom: 1px solid var(--line); }
 .line:first-child { border-top: 1px solid var(--line); }

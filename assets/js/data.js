@@ -88,10 +88,10 @@
     const rng = mulberry32(20261022);
     const phone = () => '0812' + String(Math.floor(rng() * 1e8)).padStart(8, '0');
     const s = {
-      version: 1,
+      version: 2,
       products: PRODUCTS.map(p => ({ ...p, active: true })),
       areas: [{ id: 'a1', name: 'Jabodetabek' }],
-      teams: [], users: [], targets: {}, reports: {}, settings: {},
+      teams: [], users: [], targets: {}, reports: {}, settings: {}, shifts: {},
     };
     const skill = {};
 
@@ -144,10 +144,31 @@
         const items = (u.id === 'u-sari' && d === TODAY)
           ? [['p1', 5], ['p2', 6], ['p3', 4], ['p4', 10]].map(([productId, qty]) => ({ productId, qty, price: price(productId) }))
           : makeItems(dailyTarget(u.id, d) * skill[u.id] * (0.7 + rng() * 0.6), rng);
-        s.reports[u.id + '|' + d] = buildReport(u.id, d, items, false, '', u.id, null);
+        const rep = buildReport(u.id, d, items, false, '', u.id, null);
+        const startMin = 9 * 60 + Math.floor(rng() * 16);
+        // Loginable team (t1) gets individual timestamped transactions; other teams keep daily totals only.
+        if (u.teamId === 't1') rep.transactions = splitIntoTransactions(items, rng, startMin, d === TODAY ? 13 * 60 + 40 : 20 * 60 + 50);
+        s.reports[u.id + '|' + d] = rep;
+        s.shifts[u.id + '|' + d] = { start: hhmm(startMin), end: d === TODAY ? null : hhmm(21 * 60 + Math.floor(rng() * 15)) };
       }
     });
     return s;
+  }
+
+  const hhmm = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+  function splitIntoTransactions(items, rng, fromMin, toMin) {
+    const tx = [];
+    items.forEach(i => {
+      let left = i.qty;
+      while (left > 0) {
+        const q = Math.min(left, 1 + Math.floor(rng() * 3));
+        tx.push({ productId: i.productId, qty: q, price: i.price });
+        left -= q;
+      }
+    });
+    const times = tx.map(() => fromMin + 10 + Math.floor(rng() * (toMin - fromMin - 10))).sort((a, b) => a - b);
+    tx.sort(() => rng() - 0.5);
+    return tx.map((t, n) => ({ id: 's' + n, time: hhmm(times[n]), ...t }));
   }
 
   function makeItems(goal, rng) {
@@ -263,6 +284,71 @@
 
   /* ---------- Reports ---------- */
   const getReport = (userId, date) => state.reports[userId + '|' + date] || null;
+
+  /* ---------- Shifts & per-sale transactions ---------- */
+  const nowTime = () => { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+  const getShift = (userId, date) => (state.shifts || {})[userId + '|' + date] || null;
+  function startShift(userId) {
+    state.shifts = state.shifts || {};
+    const key = userId + '|' + TODAY;
+    if (!state.shifts[key]) state.shifts[key] = { start: nowTime(), end: null };
+    persist();
+    return state.shifts[key];
+  }
+  function endShift(userId, by) {
+    const sh = getShift(userId, TODAY);
+    if (!sh || sh.end) return sh;
+    sh.end = nowTime();
+    // A shift with no sales still counts as a report: "no sales"
+    if (!getReport(userId, TODAY)) state.reports[userId + '|' + TODAY] = { ...emptyReport(userId, TODAY, by), noSales: true };
+    persist();
+    return sh;
+  }
+  // Transactions of a report; older/other-team reports only have daily totals per product (no time)
+  const getTransactions = r => !r ? [] : r.transactions || r.items.map((i, n) => ({ id: 'i' + n, time: '', ...i }));
+
+  function emptyReport(userId, date, by) {
+    return { userId, date, transactions: [], items: [], total: 0, noSales: false, notes: '', createdAt: TODAY, updatedAt: TODAY, updatedBy: by, unlocked: false };
+  }
+  function rebuild(r) {
+    const map = {};
+    r.transactions.forEach(t => {
+      const k = t.productId + '|' + t.price;
+      (map[k] = map[k] || { productId: t.productId, qty: 0, price: t.price }).qty += t.qty;
+    });
+    r.items = Object.values(map);
+    r.total = r.transactions.reduce((a, t) => a + t.qty * t.price, 0);
+  }
+  function addSale(userId, date, sale, by) {
+    const key = userId + '|' + date;
+    let r = state.reports[key];
+    if (!r) r = state.reports[key] = emptyReport(userId, date, by);
+    if (!r.transactions) r.transactions = getTransactions(r);
+    const tx = {
+      id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      time: date === TODAY ? nowTime() : '', // '' = added afterwards for a past day
+      productId: sale.productId, qty: Math.max(1, Math.floor(+sale.qty || 1)), price: Math.max(0, Math.round(+sale.price || 0)), by,
+    };
+    r.transactions.push(tx);
+    r.noSales = false;
+    r.updatedAt = TODAY; r.updatedBy = by;
+    rebuild(r);
+    persist();
+    return tx;
+  }
+  function removeSale(userId, date, txId, by) {
+    const key = userId + '|' + date;
+    const r = state.reports[key];
+    if (!r) return;
+    r.transactions = getTransactions(r).filter(t => t.id !== txId);
+    r.updatedAt = TODAY; r.updatedBy = by;
+    rebuild(r);
+    const sh = getShift(userId, date);
+    if (!r.transactions.length) {
+      if (sh && sh.end) r.noSales = true; else delete state.reports[key];
+    }
+    persist();
+  }
 
   function saveReport(r, by) {
     const prev = getReport(r.userId, r.date);
@@ -384,7 +470,7 @@
       expected = all ? workingDays(teamId, from, date).length / all * 100 : null;
     }
     const working = isWorkingDay(teamId, date);
-    const missing = working ? lb.filter(r => !getReport(r.user.id, date)).map(r => r.user) : [];
+    const missing = working ? lb.filter(r => !getShift(r.user.id, date) && !getReport(r.user.id, date)).map(r => r.user) : [];
     return {
       team: team(teamId), lb, from, to, actual, target, pct: target ? actual / target * 100 : 0, expected, working,
       missing, reported: lb.length - missing.length, size: lb.length,
@@ -428,7 +514,7 @@
   (function load() {
     const raw = lsGet(STORE_KEY);
     if (raw) {
-      try { const s = JSON.parse(raw); if (s && s.version === 1) { state = s; return; } } catch (e) { /* reseed */ }
+      try { const s = JSON.parse(raw); if (s && s.version === 2) { state = s; return; } } catch (e) { /* reseed */ }
     }
     seed();
     persist();
@@ -444,5 +530,6 @@
     getReport, saveReport, setUnlocked, isLocked, canEdit, listReports,
     progress, level, nextLevel, leaderboard, streak, teamSummary, areaSummary, dailySeries, chartRange,
     addSpg, setActive, getSettings, saveSettings, saveProduct, reset,
+    getShift, startShift, endShift, getTransactions, addSale, removeSale,
   };
 })();

@@ -12,7 +12,7 @@
     admin: 'admin/produk.html',
   };
   const NAV = {
-    spg: [['spg/beranda.html', 'home', 'Beranda'], ['spg/laporan.html', 'edit', 'Isi Laporan'], ['spg/peringkat.html', 'trophy', 'Peringkat'], ['spg/riwayat.html', 'calendar', 'Riwayat']],
+    spg: [['spg/beranda.html', 'home', 'Beranda'], ['spg/laporan.html', 'edit', 'Penjualan'], ['spg/peringkat.html', 'trophy', 'Peringkat'], ['spg/riwayat.html', 'calendar', 'Riwayat']],
     leader: [['leader/dashboard.html', 'Dashboard'], ['leader/laporan.html', 'Laporan'], ['leader/target.html', 'Target'], ['leader/tim.html', 'Kelola Tim'], ['leader/pengaturan.html', 'Pengaturan']],
     supervisor: [['supervisor/dashboard.html', 'Dashboard Area'], ['leader/dashboard.html', 'Dashboard Tim'], ['leader/laporan.html', 'Laporan'], ['leader/target.html', 'Target'], ['leader/tim.html', 'Kelola Tim'], ['leader/pengaturan.html', 'Pengaturan']],
     admin: [['admin/produk.html', 'Produk']],
@@ -160,8 +160,14 @@
     select.after(wrap);
 
     let items = [], active = -1;
-    const options = () => [...select.options].map(o => ({ value: o.value, text: o.textContent.trim() }));
-    const sync = () => { const o = select.options[select.selectedIndex]; input.value = o ? o.textContent.trim() : ''; input.disabled = select.disabled; };
+    const ph = select.dataset.placeholder; // optional: empty value shows as a placeholder and is not listed
+    const options = () => [...select.options].filter(o => !(ph && o.value === '')).map(o => ({ value: o.value, text: o.textContent.trim() }));
+    const sync = () => {
+      const o = select.options[select.selectedIndex];
+      input.value = o && !(ph && o.value === '') ? o.textContent.trim() : '';
+      if (ph) input.placeholder = ph;
+      input.disabled = select.disabled;
+    };
     const close = () => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); sync(); };
     function render(q) {
       const needle = q.trim().toLowerCase();
@@ -216,7 +222,7 @@
     select.addEventListener('change', sync);
     new MutationObserver(sync).observe(select, { attributes: true, attributeFilter: ['disabled'] });
 
-    select._combo = { sync };
+    select._combo = { sync, focus: () => input.focus() };
     sync();
   }
   const enhanceSelects = (scope) => (scope || document).querySelectorAll('select').forEach(combobox);

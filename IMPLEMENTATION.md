@@ -147,13 +147,15 @@ The top of the page is about **today**, shown like a game score:
 - The logged-in SPG's row is highlighted and always visible (pinned at the bottom if it's off screen).
 - Shows names and % only, not other SPGs' Rp amounts. *(Question for you: OK to show Rp too?)*
 
-### 4.3 `spg/laporan.html` — Isi Laporan
-- Date (today and the previous 2 days only), store (read-only).
-- Product rows: product dropdown, qty, unit price (pre-filled, editable), row total.
-- "+ Tambah Produk", remove row, "Tidak ada penjualan" checkbox.
-- Total at the bottom, then "Kirim Laporan".
-- Opening a date that already has a report loads it for editing. A date older than 2 days shows "Terkunci".
-- Prototype: saving goes to the browser's localStorage, so it shows up on Beranda and Riwayat.
+### 4.3 `spg/laporan.html` — Penjualan (per sale, during a shift)
+- SPGs record sales **as they happen** instead of filling in the whole day at the end.
+- **Start shift**: on Beranda (or this page) the SPG taps "Mulai shift". Sales can only be recorded during a shift today.
+- **Record a sale**: search the product (type to filter) → quantity with − / + (default 1) → price is pre-filled and editable (promo) → "Simpan". Each sale is saved as one transaction with its time.
+- Today's transactions are listed below, newest first, with a running total. A wrong entry can be removed ("Hapus").
+- **End shift**: "Akhiri shift". A shift that ends with no sales counts as "Tidak ada penjualan".
+- The day's report (total, per product, %, rank, streak) is built automatically from the transactions.
+- Forgotten sales can still be added to a day inside the edit window (2 days); older days are locked unless a leader unlocks them.
+- Leaders see shift status per SPG ("Aktif sejak 09:02", "Selesai 21:10", "Belum mulai"), each report's shift time and transactions with their times, and the CSV export has one row per transaction.
 
 ### 4.4 `spg/riwayat.html` — Riwayat
 - Month selector.

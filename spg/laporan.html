@@ -4,32 +4,54 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#ffffff">
-<title>Isi Laporan · Laporan SPG</title>
-<link rel="stylesheet" href="../assets/css/style.css?v=20261006031641">
-<script>/* version check */(function(v,r){try{fetch(r+"assets/version.json?t="+Date.now(),{cache:"no-store"}).then(function(x){return x.json()}).then(function(j){if(j.v&&j.v!==v){var u=new URL(location.href);if(u.searchParams.get("_v")!==j.v){u.searchParams.set("_v",j.v);location.replace(u.href)}}}).catch(function(){})}catch(e){}})("20261006031641","../")</script>
+<title>Penjualan · Laporan SPG</title>
+<link rel="stylesheet" href="../assets/css/style.css?v=20261006032312">
+<script>/* version check */(function(v,r){try{fetch(r+"assets/version.json?t="+Date.now(),{cache:"no-store"}).then(function(x){return x.json()}).then(function(j){if(j.v&&j.v!==v){var u=new URL(location.href);if(u.searchParams.get("_v")!==j.v){u.searchParams.set("_v",j.v);location.replace(u.href)}}}).catch(function(){})}catch(e){}})("20261006032312","../")</script>
 </head>
 <body data-root="../">
 <main>
-  <div class="page-head"><div><h1 id="title">Isi Laporan</h1><p class="sub" id="sub"></p></div></div>
-  <div id="notes-top"></div>
-  <form id="form" novalidate>
-    <div class="form-grid">
-      <div class="field"><label for="date">Tanggal</label><div id="dateField"></div></div>
-      <div class="field"><label for="store">Toko</label><input class="input" id="store" readonly></div>
+  <div class="page-head">
+    <div><h1>Penjualan</h1><p class="sub" id="sub"></p></div>
+    <a href="laporan.html" id="back" hidden>Ke hari ini</a>
+  </div>
+
+  <section id="startWrap" class="center" hidden>
+    <p class="muted">Mulai shift untuk mencatat penjualan.</p>
+    <button type="button" class="btn block" id="startShift">Mulai shift</button>
+  </section>
+
+  <p class="muted small" id="shift" hidden></p>
+  <p class="notice" id="locked" hidden></p>
+
+  <form id="entry" class="entry" autocomplete="off" hidden>
+    <p class="note" id="late" hidden style="margin:0 0 12px">Tambah penjualan yang terlewat.</p>
+    <div class="field"><label for="product">Produk</label><select id="product" data-placeholder="Cari produk..."></select></div>
+    <div class="entry-row">
+      <div class="field">
+        <label for="qty">Qty</label>
+        <div class="stepper">
+          <button type="button" id="minus" aria-label="Kurangi">-</button>
+          <input class="input" id="qty" type="number" inputmode="numeric" min="1" step="1" value="1">
+          <button type="button" id="plus" aria-label="Tambah">+</button>
+        </div>
+      </div>
+      <div class="field"><label for="price">Harga satuan</label><input class="input" id="price" type="number" inputmode="numeric" min="0" step="500"></div>
     </div>
-    <p><label class="check"><input type="checkbox" id="noSales"> Tidak ada penjualan</label></p>
-    <div class="line-nums small muted" style="margin:16px 0 6px"><span>Qty</span><span>Harga satuan</span><span class="line-sub">Subtotal</span></div>
-    <div id="lines"></div>
-    <p><button type="button" class="link" id="add">+ Tambah produk</button></p>
-    <div class="field"><label for="notes">Catatan</label><input class="input" id="notes" maxlength="200"></div>
-    <div class="total-bar">
-      <div class="top"><span class="muted">Total</span><b id="total">Rp 0</b></div>
-      <button class="btn block" type="submit" id="submit">Kirim Laporan</button>
-    </div>
+    <div class="entry-foot"><span class="muted">Subtotal <b id="subtotal">Rp 0</b></span><button class="btn" type="submit">Simpan</button></div>
   </form>
+
+  <section>
+    <div class="actions" style="justify-content:space-between;margin-bottom:8px">
+      <h2 style="margin:0">Hari ini</h2>
+      <span><b id="total">Rp 0</b> <span class="muted small" id="count"></span></span>
+    </div>
+    <div class="rows" id="list"></div>
+  </section>
+
+  <button type="button" class="btn ghost block" id="endShift" hidden>Akhiri shift</button>
 </main>
-<script src="../assets/js/data.js?v=20261006031641"></script>
-<script src="../assets/js/common.js?v=20261006031641"></script>
-<script src="../assets/js/pages/spg-laporan.js?v=20261006031641"></script>
+<script src="../assets/js/data.js?v=20261006032312"></script>
+<script src="../assets/js/common.js?v=20261006032312"></script>
+<script src="../assets/js/pages/spg-laporan.js?v=20261006032312"></script>
 </body>
 </html>

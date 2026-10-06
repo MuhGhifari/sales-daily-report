@@ -15,6 +15,11 @@
   $('to').value = D.TODAY;
   $('from').max = $('to').max = D.TODAY;
 
+  function shiftLine(r) {
+    const sh = D.getShift(r.userId, r.date);
+    return sh ? `<p class="small muted" style="margin:0 0 8px">Shift ${sh.start}–${sh.end || 'sekarang'}</p>` : '';
+  }
+
   function render() {
     const ids = $('spg').value ? [$('spg').value] : spgs.map(u => u.id);
     let from = $('from').value || D.DATA_START, to = $('to').value || D.TODAY;
@@ -27,7 +32,7 @@
     if (!list.length) { $('table').innerHTML = '<tbody><tr><td class="empty">Tidak ada laporan pada filter ini.</td></tr></tbody>'; return; }
 
     $('table').innerHTML = `
-      <thead><tr><th>Tanggal</th><th>SPG</th><th class="num">Produk</th><th class="num">Total (Rp)</th><th>Status</th><th></th></tr></thead>
+      <thead><tr><th>Tanggal</th><th>SPG</th><th class="num">Transaksi</th><th class="num">Total (Rp)</th><th>Status</th><th></th></tr></thead>
       <tbody>${list.map(r => {
         const u = D.user(r.userId);
         const key = r.userId + '|' + r.date;
@@ -39,17 +44,17 @@
         return `<tr class="click" data-key="${key}">
             <td>${App.dateShort(r.date)}</td>
             <td><b>${App.esc(u.name)}</b><small>${App.esc(u.store)}</small></td>
-            <td class="num">${r.noSales ? '–' : r.items.length}</td>
+            <td class="num">${r.noSales ? '–' : D.getTransactions(r).length}</td>
             <td class="num">${App.num(r.total)}</td>
             <td>${status}</td>
             <td class="num"><a href="../spg/laporan.html?spg=${encodeURIComponent(r.userId)}&tanggal=${r.date}">Ubah</a>${lockBtn}</td>
           </tr>
           <tr class="detail" data-detail="${key}" hidden><td colspan="6">
+            ${shiftLine(r)}
             ${r.noSales ? '<i>Tidak ada penjualan.</i>' : `<table>
-              <thead><tr><th>Produk</th><th class="num">Qty</th><th class="num">Harga</th><th class="num">Subtotal</th></tr></thead>
-              <tbody>${r.items.map(i => `<tr><td>${App.esc(D.product(i.productId).name)}</td><td class="num">${i.qty}</td><td class="num">${App.num(i.price)}</td><td class="num">${App.num(i.qty * i.price)}</td></tr>`).join('')}</tbody>
+              <thead><tr><th>Waktu</th><th>Produk</th><th class="num">Qty</th><th class="num">Harga</th><th class="num">Subtotal</th></tr></thead>
+              <tbody>${D.getTransactions(r).map(t => `<tr><td>${t.time || '–'}</td><td>${App.esc(D.product(t.productId).name)}</td><td class="num">${t.qty}</td><td class="num">${App.num(t.price)}</td><td class="num">${App.num(t.qty * t.price)}</td></tr>`).join('')}</tbody>
             </table>`}
-            ${r.notes ? `<p class="small"><b>Catatan:</b> ${App.esc(r.notes)}</p>` : ''}
           </td></tr>`;
       }).join('')}</tbody>`;
   }

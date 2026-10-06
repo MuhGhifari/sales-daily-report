@@ -19,7 +19,7 @@
     $('stats').innerHTML = `
       <div class="stat"><div class="l">Penjualan</div><div class="v">${App.rpShort(a.actual)}</div><div class="s">dari ${App.rpShort(a.target)}</div></div>
       <div class="stat"><div class="l">Pencapaian</div><div class="v">${App.pct1(a.pct)}</div><div class="s">${pace}</div></div>
-      <div class="stat"><div class="l">Lapor hari ini</div><div class="v">${a.reported}/${a.size}</div></div>`;
+      <div class="stat"><div class="l">Mulai shift hari ini</div><div class="v">${a.reported}/${a.size}</div></div>`;
 
     const [cf, ct] = D.chartRange(period, D.TODAY);
     App.trendChart($('trend'), D.dailySeries(a.teams.flatMap(t => t.lb.map(r => r.user.id)), a.teams.map(t => t.team.id), cf, ct));
