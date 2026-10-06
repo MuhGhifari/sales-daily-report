@@ -33,7 +33,7 @@ Data.ready(function () {
       }
       const clickable = r || (working && !D.isLocked(user.id, d));
       const tag = clickable ? 'a' : 'div';
-      return `<${tag} ${clickable ? `href="laporan.html?tanggal=${d}"` : ''}>
+      return `<${tag} ${clickable ? `href="${App.page('laporan.html')}?tanggal=${d}"` : ''}>
         <div class="grow"><b>${App.dateShort(d)}</b><div class="status">${status}</div></div>
         <div class="val">${value}</div>
       </${tag}>`;

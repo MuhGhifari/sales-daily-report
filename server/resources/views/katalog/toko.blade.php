@@ -1,18 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#ffffff">
-<title>Katalog Toko · Laporan SPG</title>
-<link rel="icon" type="image/png" href="../assets/brand/favicon.png">
-<link rel="stylesheet" href="../assets/css/style.css?v=20261006060600">
-<script>/* version check */(function(v,r){try{fetch(r+"assets/version.json?t="+Date.now(),{cache:"no-store"}).then(function(x){return x.json()}).then(function(j){if(j.v&&j.v!==v){var u=new URL(location.href);if(u.searchParams.get("_v")!==j.v){u.searchParams.set("_v",j.v);location.replace(u.href)}}}).catch(function(){})}catch(e){}})("20261006060600","../")</script>
-</head>
-<body data-root="../">
+@extends('layouts.app', ['title' => 'Katalog Toko', 'script' => 'katalog-toko'])
+
+@section('content')
 <main>
   <div class="page-head"><div><h1>Katalog</h1><p class="sub" id="count"></p></div><button type="button" class="btn" id="openAdd" hidden><span data-icon="plus"></span>Tambah toko</button></div>
-  <nav class="tabs subtabs" aria-label="Katalog"><a href="produk.html" class="">Produk</a><a href="toko.html" class="on">Toko</a></nav>
+  <nav class="tabs subtabs" aria-label="Katalog"><a href="{{ route('page', 'katalog/produk') }}" class="">Produk</a><a href="{{ route('page', 'katalog/toko') }}" class="on">Toko</a></nav>
   <section><div class="table-wrap"><table id="table"></table></div></section>
   <dialog class="modal" id="dlg" aria-labelledby="formTitle">
     <form id="form" autocomplete="off">
@@ -32,9 +23,4 @@
     </form>
   </dialog>
 </main>
-<script src="../assets/js/config.js?v=20261006060600"></script>
-<script src="../assets/js/data.js?v=20261006060600"></script>
-<script src="../assets/js/common.js?v=20261006060600"></script>
-<script src="../assets/js/pages/katalog-toko.js?v=20261006060600"></script>
-</body>
-</html>
+@endsection

@@ -86,6 +86,9 @@ return [
 
     'demo_today' => env('APP_DEMO_TODAY'),
 
+    // Show the demo accounts on the login page (demo servers seeded with DemoSeeder only)
+    'demo_accounts' => (bool) env('APP_DEMO_ACCOUNTS', false),
+
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),

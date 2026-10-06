@@ -4,7 +4,7 @@ Run the app on its own server: **Laravel** (PHP) API + **MySQL** database, servi
 Compared with Plan A (Google Sheets), this is faster, stricter, easier to grow, and keeps all data and code under your control. It needs a small server and someone to look after it.
 
 > Status: **v1 built** in `server/` (branch `laravel`). See section 15 for what is in v1 and what is still to do.
-> The front end (pages, design, gamification, shifts, photos) is the same files as the demo; `assets/js/config.js` switches it to the API.
+> Pages are Blade views in `server/resources/views` (same markup, design and scripts as the demo); the CSS/JS in `assets/` is shared with the GitHub Pages demo.
 
 ---
 
@@ -199,7 +199,8 @@ server/              → Laravel project
   database/migrations, database/seeders (DemoSeeder = today's demo data)
   routes/api.php
   tests/Feature      → API + permission tests per role
-  deploy/sync-frontend.sh → copies the root pages into server/public on deploy
+  resources/views    → Blade pages (layout + one view per page)
+  deploy/sync-assets.sh → copies the shared assets/ into server/public on deploy
 ```
 
 ---
@@ -221,7 +222,7 @@ Operations:
   - nightly database + photo backup (`spatie/laravel-backup`) to off-server storage, 30 days kept.
 - Queue worker (Supervisor/systemd) for exports and image processing.
 - Error tracking/log alerts (e.g. Laravel log to email or Sentry free tier).
-- Deploys: `git pull` → `composer install --no-dev` → `php artisan migrate --force` → `sync-frontend.sh` → `php artisan optimize`, or via Forge/Ploi.
+- Deploys: `git pull` → `composer install --no-dev` → `php artisan migrate --force` → `sync-assets.sh` → `php artisan optimize`, or via Forge/Ploi.
 
 ---
 
@@ -275,9 +276,9 @@ Operations:
 **In v1**
 - Laravel 13 project in `server/`: migrations, models, `DemoSeeder` (loads `server/database/seeders/demo-data.json`, exported from the demo by `node tools/export-demo-data.js`), `php artisan app:create-admin` for a real installation.
 - Phone login with rate limit, "Ingat saya", forced new password after reset/new account, deactivate/reset signs the user out everywhere, activity log.
-- All writes of the demo through the API with the same permission rules (`Access.php`), 22 feature tests (`php artisan test`).
-- Pages: same files as the demo; `server/deploy/sync-frontend.sh` copies them into `server/public` and writes the Laravel `config.js`.
-- `data.js` live mode: `Data.ready()` loads `/api/bootstrap`; writes update the page at once and go through an **offline queue** (localStorage "outbox", retried in order, re-applied on top of fresh data until confirmed). Adding users, products, stores and password resets wait for the server and show its error message.
+- All writes of the demo through the API with the same permission rules (`Access.php`), 27 feature tests (`php artisan test`).
+- Pages: **Blade views** (`resources/views`, one layout) at clean URLs. `PageController` checks login and role on the server (wrong role → own home page, signed out → login) and embeds the user's data (`window.APP_BOOTSTRAP`, same as `/api/bootstrap`), so a page needs no extra request. Old `.html` addresses redirect. Shared `assets/` copied in by `server/deploy/sync-assets.sh`; files are versioned by modification time (`asset_v()`).
+- `data.js` live mode: `Data.ready()` uses the embedded data (or loads `/api/bootstrap`); writes update the page at once and go through an **offline queue** (localStorage "outbox", retried in order, re-applied on top of fresh data until confirmed). Adding users, products, stores and password resets wait for the server and show its error message.
 - Photos: cropped/resized in the browser, re-encoded by the server, stored on the `public` disk (`php artisan storage:link`).
 
 **Different from the plan (on purpose, for v1)**
@@ -297,8 +298,8 @@ cp .env.example .env && php artisan key:generate
 # .env: APP_DEMO_TODAY=2026-10-22 to use the demo data as "today"
 touch database/database.sqlite && php artisan migrate --seed
 php artisan storage:link
-deploy/sync-frontend.sh --demo-accounts
+deploy/sync-assets.sh   # .env: APP_DEMO_ACCOUNTS=true lists the demo logins
 php artisan serve        # http://localhost:8000
 ```
-Production: MySQL in `.env`, `php artisan migrate --force`, `php artisan app:create-admin 08xxxxxxxxxx`, `deploy/sync-frontend.sh`, `php artisan optimize`.
+Production: MySQL in `.env`, `php artisan migrate --force`, `php artisan app:create-admin 08xxxxxxxxxx`, `deploy/sync-assets.sh`, `php artisan optimize`.
 

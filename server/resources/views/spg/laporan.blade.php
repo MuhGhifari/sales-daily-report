@@ -1,19 +1,10 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#ffffff">
-<title>Penjualan · Laporan SPG</title>
-<link rel="icon" type="image/png" href="../assets/brand/favicon.png">
-<link rel="stylesheet" href="../assets/css/style.css?v=20261006060600">
-<script>/* version check */(function(v,r){try{fetch(r+"assets/version.json?t="+Date.now(),{cache:"no-store"}).then(function(x){return x.json()}).then(function(j){if(j.v&&j.v!==v){var u=new URL(location.href);if(u.searchParams.get("_v")!==j.v){u.searchParams.set("_v",j.v);location.replace(u.href)}}}).catch(function(){})}catch(e){}})("20261006060600","../")</script>
-</head>
-<body data-root="../">
+@extends('layouts.app', ['title' => 'Penjualan', 'script' => 'spg-laporan'])
+
+@section('content')
 <main>
   <div class="page-head">
     <div><h1>Penjualan</h1><p class="sub" id="sub"></p></div>
-    <a href="laporan.html" id="back" class="icon-btn" aria-label="Ke hari ini" data-icon="calendar" hidden></a>
+    <a href="{{ route('page', 'spg/laporan') }}" id="back" class="icon-btn" aria-label="Ke hari ini" data-icon="calendar" hidden></a>
   </div>
 
   <section id="startWrap" class="center" hidden>
@@ -56,9 +47,4 @@
 
   <button type="button" class="btn ghost block" id="endShift" hidden>Akhiri shift</button>
 </main>
-<script src="../assets/js/config.js?v=20261006060600"></script>
-<script src="../assets/js/data.js?v=20261006060600"></script>
-<script src="../assets/js/common.js?v=20261006060600"></script>
-<script src="../assets/js/pages/spg-laporan.js?v=20261006060600"></script>
-</body>
-</html>
+@endsection

@@ -23,6 +23,10 @@
     supervisor: [['supervisor/dashboard.html', 'map', 'Area'], ['leader/laporan.html', 'file', 'Laporan'], ['leader/target.html', 'target', 'Target'], ['leader/tim.html', 'users', 'SPG'], ['katalog/produk.html', 'box', 'Katalog', 'katalog/'], ['leader/pengaturan.html', 'settings', 'Pengaturan']],
     admin: [['admin/pengguna.html', 'users', 'Pengguna'], ['katalog/produk.html', 'box', 'Katalog', 'katalog/']],
   };
+  // Server addresses (clean URLs on Laravel)
+  const page = Data.page;
+  Object.keys(HOME).forEach(r => { HOME[r] = page(HOME[r]); });
+  Object.values(NAV).forEach(items => items.forEach(item => { item[0] = page(item[0]); }));
 
   /* ---------- Icons (Lucide, ISC license — inline SVG, inherit text color) ---------- */
   const ICONS = {
@@ -175,7 +179,7 @@
     const user = Data.currentUser();
     // Not logged in, wrong role, or a new password must be chosen first (on the login page)
     if (!user || (opts.roles && !opts.roles.includes(user.role)) || Data.mustChangePassword()) {
-      location.replace(root + 'index.html');
+      location.replace(root + Data.page('index.html'));
       return null;
     }
     const here = location.pathname;
@@ -200,7 +204,7 @@
       if (Data.pendingCount() && !confirm('Ada data yang belum terkirim (offline). Keluar sekarang? Data akan dikirim saat kamu login lagi.')) return;
       e.currentTarget.disabled = true;
       await Data.logout();
-      location.href = root + 'index.html';
+      location.href = root + Data.page('index.html');
     });
     document.body.prepend(top);
 
@@ -542,7 +546,7 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, init, teamId, toast, busy, modal, pickStore, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
+    root, HOME, ROLE_LABEL, page, init, teamId, toast, busy, modal, pickStore, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
     esc, num, rp, rpK, phoneFmt, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
     BRAND_LOGO, logoImg,

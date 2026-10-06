@@ -55,7 +55,7 @@ Data.ready(function () {
         <div class="right"><b>${App.pct(r.pct)}</b>${shiftStatus(r.user.id, s.working)}</div>
       </div>`).join('');
     $('spgs').querySelectorAll('.rank-row').forEach(el => el.addEventListener('click', () => {
-      location.href = 'laporan.html?spg=' + encodeURIComponent(el.dataset.id);
+      location.href = App.page('laporan.html') + '?spg=' + encodeURIComponent(el.dataset.id);
     }));
 
     const [sf, stt] = D.range(period, D.TODAY);

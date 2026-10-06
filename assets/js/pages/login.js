@@ -5,9 +5,10 @@ Data.ready(function () {
   const existing = Data.currentUser();
 
   // After a password reset the server asks for a new password before anything else
+  const demo = $('demo'), reset = $('reset'); // demo accounts box (not on every server)
   function askNewPassword(u) {
     form.hidden = true;
-    $('demo').hidden = true;
+    if (demo) demo.hidden = true;
     $('pwName').textContent = u.name.split(' ')[0];
     pwForm.hidden = false;
     $('newPw').focus();
@@ -18,8 +19,8 @@ Data.ready(function () {
   if (App.BRAND_LOGO) $('mark').outerHTML = App.logoImg();
   if (Data.LIVE) {
     $('rememberRow').hidden = false;
-    $('reset').closest('p').hidden = true;
-    if (!Data.CONFIG.demoAccounts) $('demo').hidden = true;
+    if (reset) reset.closest('p').hidden = true;
+    if (demo && !Data.CONFIG.demoAccounts) demo.hidden = true;
   }
 
   // Show / hide password
@@ -72,7 +73,7 @@ Data.ready(function () {
     form.querySelector('button[type=submit]').focus();
   }));
 
-  $('reset').addEventListener('click', e => {
+  if (reset) reset.addEventListener('click', e => {
     e.preventDefault();
     if (!confirm('Kembalikan semua data demo ke awal? Laporan, target, dan pengaturan yang diubah akan hilang.')) return;
     Data.reset();

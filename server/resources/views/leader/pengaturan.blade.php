@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#ffffff">
-<title>Pengaturan · Laporan SPG</title>
-<link rel="icon" type="image/png" href="../assets/brand/favicon.png">
-<link rel="stylesheet" href="../assets/css/style.css?v=20261006060600">
-<script>/* version check */(function(v,r){try{fetch(r+"assets/version.json?t="+Date.now(),{cache:"no-store"}).then(function(x){return x.json()}).then(function(j){if(j.v&&j.v!==v){var u=new URL(location.href);if(u.searchParams.get("_v")!==j.v){u.searchParams.set("_v",j.v);location.replace(u.href)}}}).catch(function(){})}catch(e){}})("20261006060600","../")</script>
-</head>
-<body data-root="../">
+@extends('layouts.app', ['title' => 'Pengaturan', 'script' => 'leader-pengaturan'])
+
+@section('content')
 <main>
   <div class="page-head"><div><h1>Pengaturan</h1><p class="sub" id="sub"></p></div><button type="button" class="btn" id="save">Simpan</button></div>
   <section>
@@ -42,9 +33,4 @@
     </form>
   </dialog>
 </main>
-<script src="../assets/js/config.js?v=20261006060600"></script>
-<script src="../assets/js/data.js?v=20261006060600"></script>
-<script src="../assets/js/common.js?v=20261006060600"></script>
-<script src="../assets/js/pages/leader-pengaturan.js?v=20261006060600"></script>
-</body>
-</html>
+@endsection

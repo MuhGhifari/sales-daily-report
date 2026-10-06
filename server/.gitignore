@@ -26,11 +26,5 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
-# Pages copied in by deploy/sync-frontend.sh (the originals live in the repository root)
-/public/index.html
-/public/spg
-/public/leader
-/public/supervisor
-/public/katalog
-/public/admin
+# Shared CSS, JS and images, copied in from the repository root by deploy/sync-assets.sh
 /public/assets

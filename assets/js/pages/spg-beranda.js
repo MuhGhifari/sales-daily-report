@@ -41,9 +41,9 @@ Data.ready(function () {
     } else if (!shift.end) {
       const st = D.store(shift.storeId);
       action = `<p class="next">${report ? nextText : 'Belum ada penjualan'} · ${st ? App.esc(st.name) + ', ' : ''}sejak ${shift.start}</p>
-        <a class="btn block" href="laporan.html">Catat penjualan</a>`;
+        <a class="btn block" href="${App.page('laporan.html')}">Catat penjualan</a>`;
     } else {
-      action = `<p class="next">Shift ${shift.start}–${shift.end} selesai</p><a href="laporan.html">Lihat penjualan hari ini</a>`;
+      action = `<p class="next">Shift ${shift.start}–${shift.end} selesai</p><a href="${App.page('laporan.html')}">Lihat penjualan hari ini</a>`;
     }
     $('today').innerHTML = `
       ${App.ring(day.pct, `<div class="pct">${App.pct(day.pct)}</div><div class="lbl">target hari ini</div>`, `${App.pct(day.pct)} dari target hari ini`)}
@@ -54,7 +54,7 @@ Data.ready(function () {
       const storeId = await App.pickStore({ title: 'Mulai shift', action: 'Mulai shift', current: D.lastStoreId(user.id), note: 'Pilih toko tempat kamu bertugas hari ini. Bisa diganti selama shift.' });
       if (!storeId) return;
       D.startShift(user.id, storeId);
-      location.href = 'laporan.html';
+      location.href = App.page('laporan.html');
     });
   }
 
@@ -63,7 +63,7 @@ Data.ready(function () {
   const me = lb.find(r => r.user.id === user.id);
   const st = D.streak(user.id, today);
   $('rank').innerHTML = `
-    <a class="tile" href="peringkat.html">
+    <a class="tile" href="${App.page('peringkat.html')}">
       <span class="badge">${App.icon('trophy')}</span>
       <div class="v">#${me ? me.rank : '-'} <span class="small muted">/ ${lb.length}</span></div>
       <div class="l">Peringkat bulan ini</div>

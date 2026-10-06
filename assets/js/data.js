@@ -1,6 +1,6 @@
 /*
  * Data layer. Every page reads and writes data only through the functions exported at the bottom (window.Data).
- * Two backends, picked by window.APP_CONFIG (assets/js/config.js):
+ * Two backends, picked by window.APP_CONFIG (assets/js/config.js in the demo, the Blade layout on Laravel):
  * - demo (default): data is generated once with a fixed seed and kept in localStorage.
  * - laravel: Data.ready() loads the logged-in user's data from the server (/api/bootstrap, same shape);
  *   writes update the local copy at once and are sent to the server through a retrying queue
@@ -688,6 +688,9 @@
   const emptyState = () => ({ me: null, areas: [], teams: [], users: [], products: [], stores: [], targets: {}, reports: {}, settings: {}, shifts: {}, activity: [] });
   const notify = msg => { if (window.App && App.toast) App.toast(msg); };
   const siteRoot = () => (document.body && document.body.dataset.root) || '';
+  // Page addresses are written as in the static demo ('spg/laporan.html', 'index.html');
+  // the Laravel server uses clean URLs ('spg/laporan', '').
+  const page = p => (CONFIG.cleanUrls ? p.replace(/(^|\/)index\.html/, '$1').replace(/\.html(?=$|[?#])/, '') : p);
 
   function cookie(name) {
     const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
@@ -743,7 +746,7 @@
         retryDelay = Math.min(retryDelay * 2, 60000);
         return;
       }
-      if (res.status === 401) { location.href = siteRoot() + 'index.html'; return; } // signed out: kept until they log in again
+      if (res.status === 401) { location.href = siteRoot() + page('index.html'); return; } // signed out: kept until they log in again
       saveOutbox(outbox().filter(x => x.id !== item.id));
       if (!res.ok) notify('Tidak tersimpan: ' + res.data.message);
     }
@@ -772,6 +775,15 @@
   }
   let loading = null;
   async function loadLive() {
+    // Pages served by Laravel carry the data already (null = not logged in)
+    if ('APP_BOOTSTRAP' in window) {
+      if (window.APP_BOOTSTRAP) {
+        lsSet(CACHE_KEY, JSON.stringify(window.APP_BOOTSTRAP));
+        useServerState(window.APP_BOOTSTRAP);
+        flush();
+      } else state = emptyState();
+      return;
+    }
     const res = await api('GET', '/bootstrap');
     if (res.ok) {
       lsSet(CACHE_KEY, JSON.stringify(res.data));
@@ -928,7 +940,7 @@
   window.Data = Object.assign({
     get TODAY() { return TODAY; },
     get DATA_START() { return DATA_START; },
-    LIVE, CONFIG, LEVELS, ready,
+    LIVE, CONFIG, LEVELS, ready, page,
     lastError: () => lastError,
     mustChangePassword: () => !!(state && state.mustChangePassword),
     pendingCount: () => (LIVE ? outbox().length : 0),

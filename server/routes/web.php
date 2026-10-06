@@ -7,10 +7,22 @@ use App\Http\Controllers\Api\ShiftController;
 use App\Http\Controllers\Api\StateController;
 use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\PageController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// The pages are static files in public/ (copied there by deploy/sync-frontend.sh); "/" is the login page.
-Route::get('/', fn () => response()->file(public_path('index.html')));
+// Pages (Blade views in resources/views)
+Route::get('/', [PageController::class, 'login'])->name('login');
+Route::get('{page}', [PageController::class, 'show'])
+    ->whereIn('page', array_keys(PageController::PAGES))
+    ->middleware(['auth', 'active'])
+    ->name('page');
+// Old addresses of the static demo (e.g. spg/beranda.html, index.html)
+Route::get('{page}.html', function (Request $request, string $page) {
+    $to = isset(PageController::PAGES[$page]) ? route('page', $page) : url('/');
+
+    return redirect($to.($request->getQueryString() ? '?'.$request->getQueryString() : ''), 301);
+})->where('page', '[a-z]+(/[a-z]+)?');
 
 // JSON API on the web middleware: session cookie + CSRF (X-XSRF-TOKEN header)
 Route::prefix('api')->name('api.')->group(function () {

@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#ffffff">
-<title>Masuk · Laporan SPG</title>
-<link rel="icon" type="image/png" href="assets/brand/favicon.png">
-<link rel="stylesheet" href="assets/css/style.css?v=20261006060600">
-<script>/* version check */(function(v,r){try{fetch(r+"assets/version.json?t="+Date.now(),{cache:"no-store"}).then(function(x){return x.json()}).then(function(j){if(j.v&&j.v!==v){var u=new URL(location.href);if(u.searchParams.get("_v")!==j.v){u.searchParams.set("_v",j.v);location.replace(u.href)}}}).catch(function(){})}catch(e){}})("20261006060600","")</script>
-</head>
-<body data-root="" class="login">
+@extends('layouts.app', ['title' => 'Masuk', 'script' => 'login', 'bodyClass' => 'login'])
+
+@section('content')
 <div class="login-box">
   <div class="head">
     <span class="brand-mark" id="mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></span>
@@ -25,7 +16,7 @@
         <button type="button" class="icon-btn pw-toggle" id="pwToggle" aria-label="Tampilkan password" aria-pressed="false" title="Tampilkan password"><span class="eye"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.1 12.3a1 1 0 0 1 0-.6 10.8 10.8 0 0 1 19.8 0 1 1 0 0 1 0 .6 10.8 10.8 0 0 1-19.8 0"/><circle cx="12" cy="12" r="3"/></svg></span><span class="eye-off" hidden><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.7 5.1A10.7 10.7 0 0 1 21.9 11.7a1 1 0 0 1 0 .7 10.8 10.8 0 0 1-1.4 2.4"/><path d="M14.1 14.2a3 3 0 0 1-4.2-4.2"/><path d="M17.5 17.5a10.8 10.8 0 0 1-15.4-5.2 1 1 0 0 1 0-.7 10.8 10.8 0 0 1 4.4-5.1"/><path d="m2 2 20 20"/></svg></span></button>
       </div>
     </div>
-    <label class="check remember" id="rememberRow" hidden><input type="checkbox" name="remember" checked> Ingat saya di HP ini</label>
+    <label class="check remember" id="rememberRow"><input type="checkbox" name="remember" checked> Ingat saya di HP ini</label>
     <button class="btn block" type="submit">Masuk</button>
   </form>
   <form id="pwForm" class="card" hidden>
@@ -36,6 +27,7 @@
     <button class="btn block" type="submit">Simpan dan masuk</button>
     <p class="note"><a href="#" id="pwCancel">Keluar</a></p>
   </form>
+  @if (config('app.demo_accounts'))
   <div class="demo card" id="demo">
     <h2>Akun demo</h2>
     <div class="rows">
@@ -45,12 +37,7 @@
       <div data-user="0811 0000 0001" data-pass="admin123"><span>Admin</span><span class="muted">0811 0000 0001 / admin123</span></div>
     </div>
     <p class="note">SPG lain di Tim Jakarta Selatan: 0813 0000 0002 s/d 0813 0000 0008 (password spg123).</p>
-    <p class="note"><a href="#" id="reset">Reset data demo</a></p>
   </div>
+  @endif
 </div>
-<script src="assets/js/config.js?v=20261006060600"></script>
-<script src="assets/js/data.js?v=20261006060600"></script>
-<script src="assets/js/common.js?v=20261006060600"></script>
-<script src="assets/js/pages/login.js?v=20261006060600"></script>
-</body>
-</html>
+@endsection

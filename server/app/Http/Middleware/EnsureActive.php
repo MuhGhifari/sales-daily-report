@@ -19,10 +19,13 @@ class EnsureActive
             Auth::guard('web')->logout();
             $request->session()->invalidate();
 
-            return response()->json(['message' => 'Akun kamu tidak aktif. Hubungi atasanmu.'], 401);
+            return $request->is('api/*')
+                ? response()->json(['message' => 'Akun kamu tidak aktif. Hubungi atasanmu.'], 401)
+                : redirect()->route('login');
         }
 
-        if ($request->user()?->must_change_password && ! $request->routeIs('api.bootstrap', 'api.password', 'api.logout')) {
+        // Pages handle this themselves (they send the user to the login page to choose a password)
+        if ($request->user()?->must_change_password && $request->is('api/*') && ! $request->routeIs('api.bootstrap', 'api.password', 'api.logout')) {
             return response()->json(['message' => 'Ganti password dulu.'], 403);
         }
 
