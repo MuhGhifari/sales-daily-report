@@ -41,6 +41,10 @@ The passwords are hardcoded in `assets/js/data.js` and visible to anyone — dem
 
 See [`PLAN.md`](PLAN.md) for the product plan, [`IMPLEMENTATION.md`](IMPLEMENTATION.md) for how the prototype is built, [`IMPLEMENTATION-GOOGLE-SHEETS.md`](IMPLEMENTATION-GOOGLE-SHEETS.md) for the plan to run it on Google Sheets, and [`IMPLEMENTATION-WEB.md`](IMPLEMENTATION-WEB.md) for the Laravel + MySQL web version.
 
+## Laravel server
+
+`server/` holds the Laravel backend that runs these same pages on real data (login, shifts, sales, targets, users, products, stores, photos, offline queue). `assets/js/config.js` picks the backend: `demo` here on GitHub Pages, `laravel` on the server (written by `server/deploy/sync-frontend.sh`). Setup: [`server/README.md`](server/README.md). After changing `assets/js/data.js`'s demo data, run `node tools/export-demo-data.js` so the server's demo seeder matches.
+
 ## Publishing changes
 
 After editing any page, run `python3 tools/bump-version.py` before committing. It stamps a new version on every page and in `assets/version.json`; pages that a browser still has cached detect the newer version and reload themselves, so nobody sees a mix of old and new pages.

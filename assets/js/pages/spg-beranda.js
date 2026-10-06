@@ -1,4 +1,4 @@
-(function () {
+Data.ready(function () {
   'use strict';
   const user = App.init({ roles: ['spg'] });
   if (!user) return;
@@ -87,4 +87,4 @@
     progressRow('Bulan ini', D.progress(user.id, 'month', today));
 
   App.animateRings();
-})();
+});

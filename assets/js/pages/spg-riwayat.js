@@ -1,4 +1,4 @@
-(function () {
+Data.ready(function () {
   'use strict';
   const user = App.init({ roles: ['spg'] });
   if (!user) return;
@@ -46,4 +46,4 @@
   $('prev').addEventListener('click', () => { mk = D.addMonths(mk, -1); render(); });
   $('next').addEventListener('click', () => { mk = D.addMonths(mk, 1); render(); });
   render();
-})();
+});

@@ -1,4 +1,4 @@
-(function () {
+Data.ready(function () {
   'use strict';
   const user = App.init({ roles: ['supervisor'] });
   if (!user) return;
@@ -44,4 +44,4 @@
 
   $('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { period = b.dataset.p; render(); } });
   render();
-})();
+});

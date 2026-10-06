@@ -1,4 +1,4 @@
-(function () {
+Data.ready(function () {
   'use strict';
   const user = App.init({ roles: ['spg'] });
   if (!user) return;
@@ -23,4 +23,4 @@
 
   $('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) render(b.dataset.p); });
   render('month');
-})();
+});

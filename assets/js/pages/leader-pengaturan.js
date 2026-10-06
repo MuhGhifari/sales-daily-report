@@ -1,4 +1,4 @@
-(function () {
+Data.ready(function () {
   'use strict';
   const user = App.init({ roles: ['leader', 'supervisor'], teamPicker: true });
   if (!user) return;
@@ -76,4 +76,4 @@
 
   renderDays();
   renderHolidays();
-})();
+});

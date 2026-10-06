@@ -173,7 +173,8 @@
   /* ---------- Page chrome ---------- */
   function init(opts) {
     const user = Data.currentUser();
-    if (!user || (opts.roles && !opts.roles.includes(user.role))) {
+    // Not logged in, wrong role, or a new password must be chosen first (on the login page)
+    if (!user || (opts.roles && !opts.roles.includes(user.role)) || Data.mustChangePassword()) {
       location.replace(root + 'index.html');
       return null;
     }
@@ -195,7 +196,12 @@
       </div>`;
     // Static markup can ask for an icon with data-icon="name"
     document.querySelectorAll('[data-icon]').forEach(el => { el.innerHTML = icon(el.dataset.icon); if (!el.title) el.title = el.getAttribute('aria-label') || ''; });
-    top.querySelector('.logout').addEventListener('click', () => { Data.logout(); location.href = root + 'index.html'; });
+    top.querySelector('.logout').addEventListener('click', async e => {
+      if (Data.pendingCount() && !confirm('Ada data yang belum terkirim (offline). Keluar sekarang? Data akan dikirim saat kamu login lagi.')) return;
+      e.currentTarget.disabled = true;
+      await Data.logout();
+      location.href = root + 'index.html';
+    });
     document.body.prepend(top);
 
     const items = NAV[user.role];
@@ -433,6 +439,13 @@
     el._t = setTimeout(() => el.classList.remove('show'), 2400);
   }
 
+  // Disables the form's submit button while a save is running (it may wait for the server)
+  async function busy(form, fn) {
+    const btn = form.querySelector('[type=submit]');
+    if (btn) btn.disabled = true;
+    try { return await fn(); } finally { if (btn) btn.disabled = false; }
+  }
+
   /* ---------- Big progress ring (SVG) ---------- */
   // Single-color ring: blue until the target is reached, then green.
   function ring(p, centerHtml, label) {
@@ -529,7 +542,7 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, init, teamId, toast, modal, pickStore, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
+    root, HOME, ROLE_LABEL, init, teamId, toast, busy, modal, pickStore, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
     esc, num, rp, rpK, phoneFmt, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
     BRAND_LOGO, logoImg,

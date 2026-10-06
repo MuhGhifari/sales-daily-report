@@ -1,4 +1,4 @@
-(function () {
+Data.ready(function () {
   'use strict';
   const user = App.init({ roles: ['admin', 'supervisor', 'leader'] });
   if (!user) return;
@@ -52,11 +52,11 @@
   const dlg = App.modal($('dlg'));
   $('openAdd').addEventListener('click', () => { fill(null); dlg.open(); });
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const price = Math.round(+form.price.value);
     if (!form.name.value.trim() || !(price > 0)) { App.toast('Isi nama produk dan harga yang benar.'); return; }
-    const error = D.saveProduct({ id: form.id.value || undefined, name: form.name.value.trim(), sku: form.sku.value.trim(), price, active: form.active.checked, image: image || 'assets/products/placeholder.svg' }, user.id);
+    const error = await App.busy(form, () => D.saveProduct({ id: form.id.value || undefined, name: form.name.value.trim(), sku: form.sku.value.trim(), price, active: form.active.checked, image: image || 'assets/products/placeholder.svg' }, user.id));
     if (error) { App.toast(error); return; }
     App.toast('Produk disimpan.');
     dlg.close();
@@ -66,4 +66,4 @@
 
   fill(null);
   render();
-})();
+});

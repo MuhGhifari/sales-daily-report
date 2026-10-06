@@ -3,7 +3,8 @@
 Run the app on its own server: **Laravel** (PHP) API + **MySQL** database, serving the same pages we already built.
 Compared with Plan A (Google Sheets), this is faster, stricter, easier to grow, and keeps all data and code under your control. It needs a small server and someone to look after it.
 
-> Status: plan. No code yet. The front end (pages, design, gamification, shifts, photos) stays as it is.
+> Status: **v1 built** in `server/` (branch `laravel`). See section 15 for what is in v1 and what is still to do.
+> The front end (pages, design, gamification, shifts, photos) is the same files as the demo; `assets/js/config.js` switches it to the API.
 
 ---
 
@@ -82,10 +83,24 @@ Dashboard responses are cached for 60 seconds per team and period, and cleared w
 
 ## 5. API
 
-All under `/api`, JSON, session cookie + CSRF (Sanctum SPA mode). Validation through Form Requests; permissions through Policies.
+All under `/api`, JSON, on Laravel's **web** middleware: session cookie + CSRF (`X-XSRF-TOKEN` header from the `XSRF-TOKEN` cookie). No Sanctum needed because pages and API share one domain. Routes: `server/routes/web.php`; permission rules in one place: `app/Services/Access.php`.
 
 | Method & path | Who | Purpose |
 |---------------|-----|---------|
+| `GET /csrf` | all | sets the CSRF cookie |
+| `POST /login {phone, password, remember}`, `POST /logout` | all | phone + password, "Ingat saya" 30 days; login returns the same data as `/bootstrap` |
+| `POST /password {current, password, password_confirmation}` | all | change own password (no current password needed right after a reset) |
+| `GET /bootstrap` | all | everything a page needs for the user's scope (same shape as the demo data) |
+| `POST /shifts/start {storeId, time}`, `POST /shifts/switch {storeId, time}`, `POST /shifts/end {time}` | SPG | today's shift at any active store; switch store mid-shift |
+| `POST /sales {clientId, userId, date, productId, qty, price, storeId, time}` | SPG (own), leader, supervisor | add a sale; `clientId` (UUID from the phone) makes resending safe |
+| `DELETE /sales/{clientId}` | same | remove a sale (soft delete) |
+| `POST /day-reports/unlock {userId, date, unlocked}` | leader, supervisor | open / close a locked day for the SPG |
+| `POST /targets {rows: [{userId, mk, monthly, weekly, daily}]}` | leader, supervisor | save targets |
+| `PUT /teams/{team}/settings` | leader, supervisor | working days, edit window, reminder, holidays |
+| `POST /users`, `POST /users/{id}/active`, `POST /users/{id}/reset-password`, `POST /users/{id}/photo` | **SPGs**: leader (own team), supervisor (area). **Leaders & Supervisors**: admin only. Photo: also yourself | manage people |
+| `POST /products`, `PUT /products/{id}`, `POST /stores`, `PUT /stores/{id}` | admin, supervisor, leader (leader edits own only) | catalog; product photo sent with the product |
+
+---------------|-----|---------|
 | `POST /login`, `POST /logout` | all | phone + password, "ingat saya" 30 days |
 | `GET /me`, `POST /me/password`, `POST /me/photo` | all | profile, change password, upload photo |
 | `GET /bootstrap` | all | everything a page needs for the user's scope (same shape as today's data) |
@@ -252,3 +267,38 @@ Operations:
 | 8 | Offline sales queue from day one | **Open** (recommended: yes) |
 | 9 | Domain / subdomain | **Open** |
 | 10 | Do we still pilot on Google Sheets first, or go straight to Laravel? | **Open** |
+
+---
+
+## 15. v1 build (branch `laravel`)
+
+**In v1**
+- Laravel 13 project in `server/`: migrations, models, `DemoSeeder` (loads `server/database/seeders/demo-data.json`, exported from the demo by `node tools/export-demo-data.js`), `php artisan app:create-admin` for a real installation.
+- Phone login with rate limit, "Ingat saya", forced new password after reset/new account, deactivate/reset signs the user out everywhere, activity log.
+- All writes of the demo through the API with the same permission rules (`Access.php`), 22 feature tests (`php artisan test`).
+- Pages: same files as the demo; `server/deploy/sync-frontend.sh` copies them into `server/public` and writes the Laravel `config.js`.
+- `data.js` live mode: `Data.ready()` loads `/api/bootstrap`; writes update the page at once and go through an **offline queue** (localStorage "outbox", retried in order, re-applied on top of fresh data until confirmed). Adding users, products, stores and password resets wait for the server and show its error message.
+- Photos: cropped/resized in the browser, re-encoded by the server, stored on the `public` disk (`php artisan storage:link`).
+
+**Different from the plan (on purpose, for v1)**
+- Dashboards, rankings and streaks are still **calculated in the browser** from the scoped data (`/bootstrap` sends the previous and current month). Fine for under 50 users; `/dashboard/...` endpoints can come later if pages get slow.
+- Session auth on the web middleware instead of Sanctum (same domain, nothing extra to set up).
+
+**Not yet**
+- Excel/CSV import & export on the server (the pages' CSV download still works in the browser).
+- Scheduler jobs: 20:00 reminder list, nightly backups; queue worker not needed yet.
+- Profile page for changing your own password at any time (the API exists).
+
+**Run locally**
+```
+cd server
+composer install
+cp .env.example .env && php artisan key:generate
+# .env: APP_DEMO_TODAY=2026-10-22 to use the demo data as "today"
+touch database/database.sqlite && php artisan migrate --seed
+php artisan storage:link
+deploy/sync-frontend.sh --demo-accounts
+php artisan serve        # http://localhost:8000
+```
+Production: MySQL in `.env`, `php artisan migrate --force`, `php artisan app:create-admin 08xxxxxxxxxx`, `deploy/sync-frontend.sh`, `php artisan optimize`.
+
