@@ -426,3 +426,15 @@ body.login { background: #fff; }
 .tt-page { min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
 .tt-hide { display: none !important; }
 .icon-btn:disabled { opacity: .35; cursor: default; background: none; }
+
+/* Pop-up forms */
+dialog.modal { border: 0; padding: 0; border-radius: 16px; width: min(520px, calc(100% - 32px)); max-height: calc(100% - 32px); box-shadow: 0 20px 50px rgba(17, 24, 39, .25); color: var(--ink); }
+dialog.modal::backdrop { background: rgba(17, 24, 39, .45); }
+dialog.modal[open] { animation: modal-in .16s ease-out; }
+@keyframes modal-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+.modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 16px 0 20px; }
+.modal-head h3 { margin: 0; font-size: 17px; }
+.modal-body { padding: 16px 20px 4px; }
+.modal-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 20px 20px; }
+.page-head .btn .icon { width: 16px; height: 16px; }
+@media (prefers-reduced-motion: reduce) { dialog.modal[open] { animation: none; } }

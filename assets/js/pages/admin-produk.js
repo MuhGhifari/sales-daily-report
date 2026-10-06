@@ -36,18 +36,17 @@
     image = p ? p.image || '' : '';
     showImage();
     form.active.checked = p ? p.active : true;
-    $('formTitle').textContent = p ? 'Ubah Produk' : 'Tambah Produk';
-    $('cancel').hidden = !p;
+    $('formTitle').textContent = p ? 'Ubah produk' : 'Tambah produk';
   }
 
   $('table').addEventListener('click', e => {
     const b = e.target.closest('button[data-id]');
     if (!b) return;
     fill(D.product(b.dataset.id));
-    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    form.name.focus();
+    dlg.open();
   });
-  $('cancel').addEventListener('click', () => fill(null));
+  const dlg = App.modal($('dlg'));
+  $('openAdd').addEventListener('click', () => { fill(null); dlg.open(); });
 
   form.addEventListener('submit', e => {
     e.preventDefault();
@@ -55,6 +54,7 @@
     if (!form.name.value.trim() || !(price > 0)) { App.toast('Isi nama produk dan harga yang benar.'); return; }
     D.saveProduct({ id: form.id.value || undefined, name: form.name.value.trim(), sku: form.sku.value.trim(), price, active: form.active.checked, image: image || 'assets/products/placeholder.svg' });
     App.toast('Produk disimpan.');
+    dlg.close();
     fill(null);
     render();
   });

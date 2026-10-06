@@ -357,6 +357,19 @@
     apply();
   }
 
+  /* ---------- Pop-up form (native <dialog>) ----------
+   * Closes with [data-close] buttons, Esc, or a click on the backdrop. */
+  function modal(dlg) {
+    if (!dlg._modal) {
+      dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
+      dlg._modal = {
+        open() { dlg.showModal(); const f = dlg.querySelector('input:not([type=hidden]):not([type=checkbox]), select'); if (f) f.focus(); },
+        close() { dlg.close(); },
+      };
+    }
+    return dlg._modal;
+  }
+
   function toast(msg) {
     let el = document.querySelector('.toast');
     if (!el) { el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); document.body.append(el); }
@@ -462,7 +475,7 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, init, teamId, toast, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
+    root, HOME, ROLE_LABEL, init, teamId, toast, modal, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
     esc, num, rp, rpK, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
     BRAND_LOGO, logoImg,

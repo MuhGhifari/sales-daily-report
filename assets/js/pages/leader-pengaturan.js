@@ -46,12 +46,16 @@
     if (b) { s.holidays.splice(+b.dataset.del, 1); renderHolidays(); }
   });
 
-  $('addHoliday').addEventListener('click', () => {
+  const dlg = App.modal($('dlg'));
+  $('openAdd').addEventListener('click', () => { $('hForm').reset(); dlg.open(); });
+  $('hForm').addEventListener('submit', e => {
+    e.preventDefault();
     const date = $('hDate').value, name = $('hName').value.trim();
     if (!date || !name) { App.toast('Isi tanggal dan keterangan hari libur.'); return; }
     if (s.holidays.some(h => h.date === date)) { App.toast('Tanggal itu sudah ada di daftar.'); return; }
     s.holidays.push({ date, name, working: $('hWork').checked });
-    $('hDate').value = ''; $('hName').value = ''; $('hWork').checked = false;
+    dlg.close();
+    App.toast('Hari libur ditambahkan. Klik Simpan untuk menyimpan pengaturan.');
     renderHolidays();
   });
 

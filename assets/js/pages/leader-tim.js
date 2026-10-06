@@ -39,6 +39,9 @@
     render();
   });
 
+  const dlg = App.modal($('dlg'));
+  $('openAdd').addEventListener('click', () => { $('form').reset(); $('err').hidden = true; dlg.open(); });
+
   $('form').addEventListener('submit', e => {
     e.preventDefault();
     const f = e.target;
@@ -47,6 +50,7 @@
     $('err').hidden = true;
     App.toast(`${f.name.value} ditambahkan. Password awal: spg123`);
     f.reset();
+    dlg.close();
     render();
   });
 
