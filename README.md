@@ -33,7 +33,7 @@ The passwords are hardcoded in `assets/js/data.js` and visible to anyone — dem
 | `supervisor/dashboard.html` — team comparison, top SPGs in the area | Supervisor |
 | `admin/produk.html` — product catalog & prices | Admin |
 
-See [`PLAN.md`](PLAN.md) for the product plan and [`IMPLEMENTATION.md`](IMPLEMENTATION.md) for how it's built.
+See [`PLAN.md`](PLAN.md) for the product plan, [`IMPLEMENTATION.md`](IMPLEMENTATION.md) for how the prototype is built, and [`IMPLEMENTATION-GOOGLE-SHEETS.md`](IMPLEMENTATION-GOOGLE-SHEETS.md) for the plan to run it on Google Sheets.
 
 ## Publishing changes
 
