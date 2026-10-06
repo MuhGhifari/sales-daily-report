@@ -21,7 +21,7 @@ GUARD = ('<script>/* version check */(function(v,r){try{fetch(r+"assets/version.
 
 for path in glob.glob(os.path.join(ROOT, '**', '*.html'), recursive=True):
     rel = os.path.relpath(path, ROOT)
-    if rel.startswith(('.git', 'tools')):
+    if rel.startswith(('.git', 'tools', 'server')):
         continue
     root = '../' * rel.count(os.sep)
     html = open(path, encoding='utf-8').read()

@@ -1,4 +1,4 @@
-(function () {
+Data.ready(function () {
   'use strict';
   const user = App.init({ roles: ['supervisor'] });
   if (!user) return;
@@ -38,10 +38,10 @@
     App.tableTools($('teams'), { placeholder: 'Cari tim atau leader...' });
     $('podium').innerHTML = App.podium(a.topSpgs, null, r => 'Tim ' + D.team(r.user.teamId).name);
     $('teams').querySelectorAll('tr.click').forEach(tr => tr.addEventListener('click', () => {
-      location.href = '../leader/dashboard.html?tim=' + tr.dataset.id;
+      location.href = App.page('../leader/dashboard.html') + '?tim=' + tr.dataset.id;
     }));
   }
 
   $('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { period = b.dataset.p; render(); } });
   render();
-})();
+});

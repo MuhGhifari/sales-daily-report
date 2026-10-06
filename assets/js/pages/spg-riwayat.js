@@ -1,4 +1,4 @@
-(function () {
+Data.ready(function () {
   'use strict';
   const user = App.init({ roles: ['spg'] });
   if (!user) return;
@@ -33,7 +33,7 @@
       }
       const clickable = r || (working && !D.isLocked(user.id, d));
       const tag = clickable ? 'a' : 'div';
-      return `<${tag} ${clickable ? `href="laporan.html?tanggal=${d}"` : ''}>
+      return `<${tag} ${clickable ? `href="${App.page('laporan.html')}?tanggal=${d}"` : ''}>
         <div class="grow"><b>${App.dateShort(d)}</b><div class="status">${status}</div></div>
         <div class="val">${value}</div>
       </${tag}>`;
@@ -46,4 +46,4 @@
   $('prev').addEventListener('click', () => { mk = D.addMonths(mk, -1); render(); });
   $('next').addEventListener('click', () => { mk = D.addMonths(mk, 1); render(); });
   render();
-})();
+});

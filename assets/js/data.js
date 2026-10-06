@@ -1,16 +1,21 @@
 /*
- * Data layer for the prototype.
- * Every page reads and writes data only through the functions exported at the bottom (window.Data).
- * Data is generated once with a fixed seed and then kept in localStorage so changes persist in the demo.
- * To connect a real backend later, only this file changes.
+ * Data layer. Every page reads and writes data only through the functions exported at the bottom (window.Data).
+ * Two backends, picked by window.APP_CONFIG (assets/js/config.js):
+ * - demo (default): data is generated once with a fixed seed and kept in localStorage.
+ * - sheets: Data.ready() loads the logged-in user's data from the Google Apps Script web app ("bootstrap", same shape);
+ *   writes update the local copy at once and are sent to the server through a retrying queue
+ *   (the "outbox", kept in localStorage so nothing is lost offline). Pages wait for Data.ready().
  */
 (function () {
   'use strict';
 
+  const CONFIG = Object.assign({ backend: 'demo', url: '' }, window.APP_CONFIG || {});
+  const LIVE = CONFIG.backend === 'sheets';
   const STORE_KEY = 'lspg-data-v1';
   const USER_KEY = 'lspg-user';
-  const DATA_START = '2026-09-01';
-  const TODAY = '2026-10-22'; // demo "today"; switch to the real date when connected to live data
+  // Demo: fixed dates. Live: set from the server (today, and the first day of data sent to the page).
+  let DATA_START = '2026-09-01';
+  let TODAY = '2026-10-22';
 
   /* ---------- Date helpers (dates are 'YYYY-MM-DD' strings) ---------- */
   const pad = n => String(n).padStart(2, '0');
@@ -227,6 +232,12 @@
     };
   }
 
+  // Ids made on the phone. Live: a UUID, which the server uses to ignore a sale sent twice.
+  function newId() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+  }
+
   /* ---------- Storage ---------- */
   let state = null;
   let memo = {};
@@ -235,7 +246,8 @@
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage unavailable: keep in memory */ } }
   function lsDel(k) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } }
 
-  function persist() { lsSet(STORE_KEY, JSON.stringify(state)); }
+  // Demo: all data in localStorage. Live: the page's copy of the server data (cache for the next page)
+  function persist() { if (LIVE) saveCache(state); else lsSet(STORE_KEY, JSON.stringify(state)); }
 
 
   /* ---------- Session (hardcoded accounts) ---------- */
@@ -333,11 +345,11 @@
   /* ---------- Shifts & per-sale transactions ---------- */
   const nowTime = () => { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
   const getShift = (userId, date) => (state.shifts || {})[userId + '|' + date] || null;
-  function startShift(userId, storeId) {
+  function startShift(userId, storeId, time) {
     state.shifts = state.shifts || {};
     const key = userId + '|' + TODAY;
     if (!state.shifts[key]) {
-      const t = nowTime();
+      const t = time || nowTime();
       state.shifts[key] = { start: t, end: null, storeId, visits: [{ storeId, from: t }] };
       delete memo.lastStore;
     }
@@ -345,11 +357,11 @@
     return state.shifts[key];
   }
   // Move the open shift to another store; new sales get that store
-  function switchStore(userId, storeId) {
+  function switchStore(userId, storeId, time) {
     const sh = getShift(userId, TODAY);
     if (!sh || sh.end || sh.storeId === storeId) return sh;
     sh.storeId = storeId;
-    (sh.visits = sh.visits || []).push({ storeId, from: nowTime() });
+    (sh.visits = sh.visits || []).push({ storeId, from: time || nowTime() });
     delete memo.lastStore;
     persist();
     return sh;
@@ -370,10 +382,10 @@
     const sh = getShift(userId, date);
     return sh ? visitAt(sh, time) : lastStoreId(userId);
   }
-  function endShift(userId, by) {
+  function endShift(userId, by, time) {
     const sh = getShift(userId, TODAY);
     if (!sh || sh.end) return sh;
-    sh.end = nowTime();
+    sh.end = time || nowTime();
     // A shift with no sales still counts as a report: "no sales"
     if (!getReport(userId, TODAY)) state.reports[userId + '|' + TODAY] = { ...emptyReport(userId, TODAY, by), noSales: true };
     persist();
@@ -399,10 +411,11 @@
     let r = state.reports[key];
     if (!r) r = state.reports[key] = emptyReport(userId, date, by);
     if (!r.transactions) r.transactions = getTransactions(r);
+    const time = sale.time != null ? sale.time : date === TODAY ? nowTime() : ''; // '' = added afterwards for a past day
     const tx = {
-      id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      time: date === TODAY ? nowTime() : '', // '' = added afterwards for a past day
-      storeId: sale.storeId || storeFor(userId, date, date === TODAY ? nowTime() : ''),
+      id: sale.id || newId(),
+      time,
+      storeId: sale.storeId || storeFor(userId, date, time),
       productId: sale.productId, qty: Math.max(1, Math.floor(+sale.qty || 1)), price: Math.max(0, Math.round(+sale.price || 0)), by,
     };
     r.transactions.push(tx);
@@ -669,10 +682,283 @@
   const getSettings = teamId => JSON.parse(JSON.stringify(state.settings[teamId]));
   function saveSettings(teamId, s) { state.settings[teamId] = s; memo = {}; persist(); }
 
+  /* ---------- Live backend (Google Sheets + Apps Script, see apps-script/) ---------- */
+  const CACHE_KEY = 'lspg-live-cache';   // last data from the server: pages open at once, also offline
+  const OUTBOX_KEY = 'lspg-outbox';      // writes not yet confirmed by the server
+  const TOKEN_KEY = 'lspg-token';        // login token (localStorage with "Ingat saya", else this tab only)
+  const CACHE_FRESH_MS = 5 * 60 * 1000;  // younger cache: show it at once and refresh in the background
+  let lastError = '';
+  let writes = 0;                        // local writes since the page opened (see refreshCache)
+  const emptyState = () => ({ me: null, areas: [], teams: [], users: [], products: [], stores: [], targets: {}, reports: {}, settings: {}, shifts: {}, activity: [] });
+  const notify = msg => { if (window.App && App.toast) App.toast(msg); };
+  const siteRoot = () => (document.body && document.body.dataset.root) || '';
+  // Page addresses as written in the pages ('spg/laporan.html'); a server with clean URLs can set cleanUrls
+  const page = p => (CONFIG.cleanUrls ? p.replace(/(^|\/)index\.html/, '$1').replace(/\.html(?=$|[?#])/, '') : p);
+
+  function getToken() {
+    try { return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; }
+  }
+  const remembered = () => { try { return !!localStorage.getItem(TOKEN_KEY); } catch (e) { return false; } };
+  function setToken(token, remember) {
+    try {
+      sessionStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+      if (token) (remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, token);
+    } catch (e) { /* storage blocked */ }
+  }
+
+  /**
+   * One call to the Apps Script web app; resolves { ok, status, data }. status 0 = no connection.
+   * text/plain avoids the CORS preflight Apps Script can't answer; the real status is in the reply body.
+   */
+  async function call(action, params) {
+    let res;
+    try {
+      res = await fetch(CONFIG.url, {
+        method: 'POST', redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(Object.assign({ action, token: getToken() }, params || {})),
+      });
+    } catch (e) {
+      return { ok: false, status: 0, data: { message: 'Tidak ada koneksi internet.' } };
+    }
+    let body = null;
+    try { body = await res.json(); } catch (e) { /* Google error page instead of JSON */ }
+    if (!body) return { ok: false, status: 502, data: { message: 'Server sedang bermasalah, coba lagi.' } };
+    return body.ok ? { ok: true, status: 200, data: body.data } : { ok: false, status: body.status || 500, data: { message: body.error } };
+  }
+
+  function saveCache(s) {
+    lsSet(CACHE_KEY, JSON.stringify(Object.assign({}, s, { _at: s._at || Date.now() })));
+  }
+  function readCache() {
+    try { return JSON.parse(lsGet(CACHE_KEY) || 'null'); } catch (e) { return null; }
+  }
+  // Fresh data for the next page; skipped if this page wrote something meanwhile (the reply could predate it)
+  function refreshCache() {
+    const before = writes;
+    return call('bootstrap').then(res => {
+      if (res.ok && writes === before) saveCache(Object.assign(res.data, { _at: Date.now() }));
+      if (res.status === 401) signedOut();
+      return res;
+    });
+  }
+  function signedOut() {
+    setToken('');
+    lsDel(CACHE_KEY);
+    location.href = siteRoot() + page('index.html');
+  }
+
+  /* Outbox: queued writes are already applied to the page; they are sent in order, retried when offline. */
+  const outbox = () => { try { return JSON.parse(lsGet(OUTBOX_KEY) || '[]'); } catch (e) { return []; } };
+  const saveOutbox = list => lsSet(OUTBOX_KEY, JSON.stringify(list));
+  function enqueue(op, args, action, params) {
+    writes++;
+    const list = outbox();
+    list.push({ id: newId(), me: state.me, op, args, action, params });
+    saveOutbox(list);
+    flush();
+  }
+  let flushing = null, retryTimer = null, retryDelay = 2000;
+  function flush() {
+    if (!flushing) flushing = sendQueued().finally(() => { flushing = null; });
+    return flushing;
+  }
+  async function sendQueued() {
+    for (;;) {
+      const item = outbox()[0];
+      if (!item) { retryDelay = 2000; return; }
+      // Left on this phone by someone else who has logged out since: never send it as the current user
+      if (item.me !== state.me) { saveOutbox(outbox().filter(x => x.id !== item.id)); continue; }
+      const res = await call(item.action, item.params);
+      if (res.status === 0 || res.status >= 500 || res.status === 429) {
+        clearTimeout(retryTimer);
+        retryTimer = setTimeout(flush, retryDelay);
+        retryDelay = Math.min(retryDelay * 2, 60000);
+        return;
+      }
+      if (res.status === 401) { signedOut(); return; } // kept until they log in again
+      saveOutbox(outbox().filter(x => x.id !== item.id));
+      if (!res.ok) notify('Tidak tersimpan: ' + res.data.message);
+    }
+  }
+  if (LIVE) window.addEventListener('online', () => flush());
+
+  // Re-applies queued writes on top of server data (they may not have reached the server yet)
+  const REPLAY = {
+    startShift: (u, st, t) => startShift(u, st, t),
+    switchStore: (u, st, t) => switchStore(u, st, t),
+    endShift: (u, by, t) => endShift(u, by, t),
+    addSale: (u, d, sale, by) => { if (!getTransactions(getReport(u, d)).some(t => t.id === sale.id)) addSale(u, d, sale, by); },
+    removeSale: (u, d, id, by) => removeSale(u, d, id, by),
+    setUnlocked: (u, d, v) => setUnlocked(u, d, v),
+    saveTargets: (rows, by) => saveTargets(rows, by),
+    saveSettings: (teamId, st) => saveSettings(teamId, st),
+    setActive: (u, v) => setActive(u, v),
+    setUserPhoto: (u, photo) => setUserPhoto(u, photo),
+  };
+  function useServerState(s) {
+    state = Object.assign(emptyState(), s);
+    memo = {};
+    TODAY = s.today || TODAY;
+    DATA_START = s.from || DATA_START;
+    outbox().filter(x => x.me === s.me).forEach(x => { try { REPLAY[x.op](...x.args); } catch (e) { /* skip */ } });
+  }
+  let loading = null;
+  async function loadLive() {
+    if (!getToken()) { state = emptyState(); return; }
+    const cached = readCache();
+    // Recent data on this phone: show it now, fetch newer data for the next page in the background
+    if (cached && Date.now() - (cached._at || 0) < CACHE_FRESH_MS) {
+      useServerState(cached);
+      refreshCache();
+      flush();
+      return;
+    }
+    const res = await refreshCache();
+    if (res.ok) {
+      useServerState(res.data);
+      flush();
+      return;
+    }
+    if (res.status === 0 && cached) {
+      useServerState(cached); // offline: the last data seen on this phone
+      setTimeout(() => notify('Offline. Data tersimpan di HP dan dikirim saat online.'), 300);
+      return;
+    }
+    state = emptyState();
+  }
+  // Pages start with Data.ready(() => { ... }): immediately in the demo, after loading in live mode
+  function ready(cb) {
+    if (!LIVE) { cb(); return; }
+    if (!loading) loading = loadLive();
+    loading.then(cb);
+  }
+
+  const upsert = (list, item) => { const i = list.findIndex(x => x.id === item.id); if (i >= 0) list[i] = item; else list.push(item); };
+  // Awaited writes: change the page's data, keep the cache in step
+  const changed = () => { writes++; memo = {}; persist(); };
+  const LIVE_API = {
+    async login(phone, password, remember) {
+      lastError = '';
+      const res = await call('login', { phone: normalizePhone(phone), password });
+      if (!res.ok) { lastError = res.data.message; return null; }
+      setToken(res.data.token, !!remember);
+      saveCache(Object.assign(res.data.state, { _at: Date.now() }));
+      useServerState(res.data.state);
+      return user(state.me) || null;
+    },
+    async logout() {
+      await Promise.race([flush(), new Promise(r => setTimeout(r, 3000))]); // try to send what is still queued
+      setToken('');
+      lsDel(CACHE_KEY);
+      state = emptyState();
+    },
+    currentUser: () => (state && state.me ? user(state.me) || null : null),
+    async changePassword(current, password, confirmation) {
+      const res = await call('password.change', { current, password, confirmation });
+      if (!res.ok) return res.data.message;
+      setToken(res.data.token, remembered()); // the old token stops working
+      state.mustChangePassword = false;
+      changed();
+      return null;
+    },
+
+    // Queued writes
+    startShift(userId, storeId) {
+      const t = nowTime(), sh = startShift(userId, storeId, t);
+      enqueue('startShift', [userId, storeId, t], 'shift.start', { storeId, time: t });
+      return sh;
+    },
+    switchStore(userId, storeId) {
+      const t = nowTime(), sh = switchStore(userId, storeId, t);
+      enqueue('switchStore', [userId, storeId, t], 'shift.switchStore', { storeId, time: t });
+      return sh;
+    },
+    endShift(userId, by) {
+      const t = nowTime(), sh = endShift(userId, by, t);
+      enqueue('endShift', [userId, by, t], 'shift.end', { time: t });
+      return sh;
+    },
+    addSale(userId, date, sale, by) {
+      const tx = addSale(userId, date, sale, by);
+      const saved = { id: tx.id, time: tx.time, storeId: tx.storeId, productId: tx.productId, qty: tx.qty, price: tx.price };
+      enqueue('addSale', [userId, date, saved, by], 'sale.add',
+        { clientId: tx.id, userId, date, productId: tx.productId, qty: tx.qty, price: tx.price, storeId: tx.storeId, time: tx.time || null });
+      return tx;
+    },
+    removeSale(userId, date, txId, by) {
+      removeSale(userId, date, txId, by);
+      enqueue('removeSale', [userId, date, txId, by], 'sale.remove', { clientId: txId });
+    },
+    setUnlocked(userId, date, value) {
+      setUnlocked(userId, date, value);
+      enqueue('setUnlocked', [userId, date, !!value], 'report.unlock', { userId, date, unlocked: !!value });
+    },
+    saveTargets(rows, by) {
+      saveTargets(rows, by);
+      const n = v => (v ? Math.round(v) : null);
+      enqueue('saveTargets', [rows, by], 'targets.save', { rows: rows.map(r => ({ userId: r.userId, mk: r.mk, monthly: n(r.monthly) || 0, weekly: n(r.weekly), daily: n(r.daily) })) });
+    },
+    saveSettings(teamId, st) {
+      saveSettings(teamId, st);
+      enqueue('saveSettings', [teamId, st], 'settings.save', {
+        teamId, workingDays: st.workingDays, editDays: st.editDays, reminder: st.reminder,
+        holidays: st.holidays.map(h => ({ date: h.date, name: h.name, working: !!h.working })),
+      });
+    },
+    setActive(userId, value) {
+      setActive(userId, value);
+      enqueue('setActive', [userId, !!value], 'user.setActive', { userId, active: !!value });
+    },
+    setUserPhoto(userId, photo) {
+      setUserPhoto(userId, photo);
+      enqueue('setUserPhoto', [userId, photo], 'user.photo', { userId, photo });
+    },
+
+    // Writes that wait for the server (they return an error message, or null when saved)
+    async addUser(data) {
+      const res = await call('user.add', {
+        role: data.role, name: data.name, phone: data.phone, teamId: data.teamId || null, newTeam: data.newTeam || null, areaId: data.areaId || null,
+      });
+      if (!res.ok) return res.data.message;
+      const { user: u, team: t, settings: st } = res.data;
+      state.users.push(u);
+      if (t) upsert(state.teams, t);
+      if (t && st) state.settings[t.id] = st;
+      changed();
+      return null;
+    },
+    async resetPassword(userId) {
+      const res = await call('user.resetPassword', { userId });
+      if (!res.ok) { notify(res.data.message); return null; }
+      return res.data.password;
+    },
+    async saveProduct(p) {
+      const res = await call('product.save', { id: p.id || null, name: p.name, sku: p.sku || '', price: p.price, active: p.active !== false, image: p.image || null });
+      if (!res.ok) return res.data.message;
+      upsert(state.products, res.data.product);
+      changed();
+      return null;
+    },
+    async saveStore(st) {
+      const res = await call('store.save', { id: st.id || null, name: st.name, chain: st.chain || '', city: st.city, address: st.address || '', active: st.active !== false });
+      if (!res.ok) return res.data.message;
+      upsert(state.stores, res.data.store);
+      changed();
+      return null;
+    },
+    reset() { /* demo only */ },
+  };
+  LIVE_API.addSpg = data => LIVE_API.addUser({ ...data, role: 'spg' });
+
   function reset() { lsDel(STORE_KEY); lsDel(USER_KEY); }
+  // Full demo data (used by tools/export-demo-data.js for the Apps Script importDemoData())
+  const exportState = () => JSON.parse(JSON.stringify(state));
 
   // Load saved demo data, or generate it on first visit (runs last so all helpers above are defined)
   (function load() {
+    if (LIVE) { state = emptyState(); return; }
     const raw = lsGet(STORE_KEY);
     if (raw) {
       try { const s = JSON.parse(raw); if (s && s.version === 5) { state = s; return; } } catch (e) { /* reseed */ }
@@ -681,8 +967,16 @@
     persist();
   })();
 
-  window.Data = {
-    TODAY, DATA_START, LEVELS,
+  const areas = () => state.areas.slice();
+
+  window.Data = Object.assign({
+    get TODAY() { return TODAY; },
+    get DATA_START() { return DATA_START; },
+    LIVE, CONFIG, LEVELS, ready, page,
+    lastError: () => lastError,
+    mustChangePassword: () => !!(state && state.mustChangePassword),
+    pendingCount: () => (LIVE ? outbox().length : 0),
+    changePassword: async () => null,
     parse, addDays, addMonths, monthKey, monthStart, monthEnd, weekStart, weekEnd, eachDay, range,
     login, logout, currentUser,
     user, team, teams, area, spgsOf, products, product, canView,
@@ -693,6 +987,6 @@
     addSpg, setActive, getSettings, saveSettings, saveProduct, reset,
     getShift, startShift, endShift, switchStore, lastStoreId, storeLabel, storeFor, getTransactions, addSale, removeSale,
     addUser, resetPassword, canManageUser, canAddCatalog, canEditCatalog, saveStore, stores, store, activity, storeTotals,
-    allUsers, setUserPhoto, normalizePhone,
-  };
+    allUsers, setUserPhoto, normalizePhone, exportState, areas,
+  }, LIVE ? LIVE_API : {});
 })();

@@ -1,5 +1,5 @@
 /* Penjualan: record each sale as it happens during a shift. The day's report is built from these. */
-(function () {
+Data.ready(function () {
   'use strict';
   const user = App.init({ roles: ['spg', 'leader', 'supervisor'] });
   if (!user) return;
@@ -130,4 +130,4 @@
 
   updateSubtotal();
   render();
-})();
+});

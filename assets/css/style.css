@@ -497,3 +497,5 @@ dialog.modal .modal-body { overflow: visible; }
 .demo .rows small { margin-left: 6px; }
 .demo .rows > * { flex-wrap: wrap; row-gap: 2px; }
 .demo .rows > * > span:last-child { white-space: nowrap; }
+.login-box .remember { display: flex; margin: 4px 0 16px; font-size: 14px; }
+.login-box #pwForm .sub { margin: 0 0 16px; }

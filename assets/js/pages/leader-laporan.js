@@ -1,4 +1,4 @@
-(function () {
+Data.ready(function () {
   'use strict';
   const user = App.init({ roles: ['leader', 'supervisor'], teamPicker: true });
   if (!user) return;
@@ -52,7 +52,7 @@
             <td>${App.person(u, storesOf(r).map(storeName).join(', ') || storeName(D.storeFor(r.userId, r.date, '')))}</td>
             <td class="num">${r.noSales ? '–' : D.getTransactions(r).length}</td>
             <td class="num">${App.num(r.total)}</td>
-            <td class="num"><span class="icon-group">${App.iconLink(`../spg/laporan.html?spg=${encodeURIComponent(r.userId)}&tanggal=${r.date}`, 'pencil', 'Ubah laporan')}${lockBtn}</span></td>
+            <td class="num"><span class="icon-group">${App.iconLink(`${App.page('../spg/laporan.html')}?spg=${encodeURIComponent(r.userId)}&tanggal=${r.date}`, 'pencil', 'Ubah laporan')}${lockBtn}</span></td>
           </tr>
           <tr class="detail" data-detail="${key}" hidden><td colspan="5">
             ${shiftLine(r)}
@@ -81,4 +81,4 @@
   });
   ['spg', 'store', 'from', 'to'].forEach(id => $(id).addEventListener('change', render));
   render();
-})();
+});
