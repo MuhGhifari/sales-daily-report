@@ -50,4 +50,5 @@ After editing any page, run `python3 tools/bump-version.py` before committing. I
 - **Profile photos**: SPGs tap their photo on Beranda to take or choose a new one; Team Leaders can set an SPG's photo in Kelola Tim. Demo users start with illustrated portraits in `assets/avatars/` (DiceBear "Lorelei" by Lisa Wischofsky, CC0 1.0, generated with `tools/generate-avatars.js`).
 - **Product photos**: Admin can upload a photo per product. Demo products start with simple illustrations in `assets/products/` — replace them with the official packshots from the client.
 - Uploaded photos are resized in the browser and stored with the demo data.
-- **Logo**: see `assets/brand/README.md`.
+- **Notes photo at shift end**: SPGs still write their sales on paper. Ending a shift requires 1–4 photos of those notes (camera); the SPG, their Team Leader and Supervisor see them on the Penjualan page and in the Laporan detail.
+- **Logo**: Beiersdorf, see `assets/brand/README.md`.

@@ -1,4 +1,4 @@
-(function () {
+Data.ready(function () {
   'use strict';
   const user = App.init({ roles: ['admin'] });
   if (!user) return;
@@ -40,7 +40,7 @@
     } else if (rs) {
       const u = D.user(rs.dataset.reset);
       if (!confirm(`Reset password ${u.name}?`)) return;
-      const pw = D.resetPassword(u.id, user.id);
+      const pw = await D.resetPassword(u.id, user.id);
       App.toast(pw ? `Password ${u.name} direset ke: ${pw}` : 'Tidak bisa reset password.');
     } else if (ac) {
       const u = D.user(ac.dataset.active);
@@ -59,7 +59,7 @@
       const lead = D.user(t.leaderId);
       return `<option value="${t.id}">Tim ${App.esc(t.name)}${lead && lead.active ? ' (leader: ' + App.esc(lead.name) + ')' : ' (belum ada leader)'}</option>`;
     }).join('') + '<option value="__new">+ Tim baru</option>';
-    $('f-area').innerHTML = ['a1'].map(id => D.area(id)).map(a => `<option value="${a.id}">Area ${App.esc(a.name)}</option>`).join('');
+    $('f-area').innerHTML = D.areas().map(a => `<option value="${a.id}">Area ${App.esc(a.name)}</option>`).join('');
   }
   function syncRole() {
     const role = $('f-role').value;
@@ -79,16 +79,16 @@
     $('err').hidden = true; syncRole(); dlg.open();
   });
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const role = $('f-role').value, team = $('f-team').value;
-    const error = D.addUser({
+    const error = role === 'leader' && team === '__new' && !$('f-newteam').value.trim() ? 'Isi nama tim baru.' : await App.busy(form, () => D.addUser({
       role, name: form.name.value, phone: form.phone.value,
-      teamId: team === '__new' ? null : team, newTeam: role === 'leader' && team === '__new' ? $('f-newteam').value.trim() || null : null,
+      teamId: team === '__new' ? null : team, newTeam: role === 'leader' && team === '__new' ? $('f-newteam').value.trim() : null,
       areaId: $('f-area').value,
-    }, user.id);
-    if (error || (role === 'leader' && team === '__new' && !$('f-newteam').value.trim())) {
-      $('err').textContent = error || 'Isi nama tim baru.'; $('err').hidden = false; return;
+    }, user.id));
+    if (error) {
+      $('err').textContent = error; $('err').hidden = false; return;
     }
     App.toast(`${form.name.value} ditambahkan sebagai ${ROLE[role]}. Login: ${App.phoneFmt(D.normalizePhone(form.phone.value))} / ${PW[role]}`);
     dlg.close();
@@ -96,4 +96,4 @@
   });
 
   render();
-})();
+});

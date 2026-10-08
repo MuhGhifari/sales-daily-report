@@ -1,4 +1,4 @@
-(function () {
+Data.ready(function () {
   'use strict';
   const user = App.init({ roles: ['leader', 'supervisor'], teamPicker: true });
   if (!user) return;
@@ -33,7 +33,7 @@
     if (rs) {
       const t = D.user(rs.dataset.reset);
       if (!confirm(`Reset password ${t.name}?`)) return;
-      const pw = D.resetPassword(t.id, user.id);
+      const pw = await D.resetPassword(t.id, user.id);
       App.toast(pw ? `Password ${t.name} direset ke: ${pw}` : 'Tidak bisa reset password.');
       return;
     }
@@ -49,10 +49,10 @@
   const dlg = App.modal($('dlg'));
   $('openAdd').addEventListener('click', () => { $('form').reset(); $('err').hidden = true; dlg.open(); });
 
-  $('form').addEventListener('submit', e => {
+  $('form').addEventListener('submit', async e => {
     e.preventDefault();
     const f = e.target;
-    const error = D.addSpg({ name: f.name.value, phone: f.phone.value, teamId }, user.id);
+    const error = await App.busy(f, () => D.addSpg({ name: f.name.value, phone: f.phone.value, teamId }, user.id));
     if (error) { $('err').textContent = error; $('err').hidden = false; return; }
     $('err').hidden = true;
     App.toast(`${f.name.value} ditambahkan. Login: ${App.phoneFmt(D.normalizePhone(f.phone.value))} / spg123`);
@@ -62,4 +62,4 @@
   });
 
   render();
-})();
+});

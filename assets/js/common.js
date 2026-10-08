@@ -4,10 +4,10 @@
 
   const root = document.body.dataset.root || '';
 
-  // Client logo: put the official file in assets/brand/ and set its path here, e.g. 'assets/brand/nivea-logo.svg'.
+  // Client logo (Beiersdorf wordmark), see assets/brand/README.md. Until the file is there, only the name shows.
   // Empty = show the generic app mark.
-  const BRAND_LOGO = 'assets/brand/nivea-logo.png';
-  const logoImg = () => `<img class="brand-logo" src="${root + BRAND_LOGO}" alt="NIVEA">`;
+  const BRAND_LOGO = 'assets/brand/beiersdorf-logo.png';
+  const logoImg = () => `<img class="brand-logo" src="${root + BRAND_LOGO}" alt="Beiersdorf" onerror="this.remove()">`;
 
   const ROLE_LABEL = { spg: 'SPG', leader: 'Team Leader', supervisor: 'Supervisor', admin: 'Admin' };
   const HOME = {
@@ -23,6 +23,10 @@
     supervisor: [['supervisor/dashboard.html', 'map', 'Area'], ['leader/laporan.html', 'file', 'Laporan'], ['leader/target.html', 'target', 'Target'], ['leader/tim.html', 'users', 'SPG'], ['katalog/produk.html', 'box', 'Katalog', 'katalog/'], ['leader/pengaturan.html', 'settings', 'Pengaturan']],
     admin: [['admin/pengguna.html', 'users', 'Pengguna'], ['katalog/produk.html', 'box', 'Katalog', 'katalog/']],
   };
+  // Server addresses (clean URLs on Laravel)
+  const page = Data.page;
+  Object.keys(HOME).forEach(r => { HOME[r] = page(HOME[r]); });
+  Object.values(NAV).forEach(items => items.forEach(item => { item[0] = page(item[0]); }));
 
   /* ---------- Icons (Lucide, ISC license — inline SVG, inherit text color) ---------- */
   const ICONS = {
@@ -92,6 +96,50 @@
   const person = (u, sub, label) => `<div class="person">${avatar(u)}<div><b>${esc(label || (typeof u === 'string' ? u : u.name))}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div></div>`;
   const productSrc = p => imgSrc((p && p.image) || 'assets/products/placeholder.svg');
   const productImg = (p, cls) => `<img class="pimg${cls ? ' ' + cls : ''}" src="${esc(productSrc(p))}" alt="" loading="lazy">`;
+
+  // Photo of a document (the SPG's handwritten sales notes): opens the camera on phones, keeps the
+  // page's proportions and shrinks it to at most `maxSide` px, so it stays readable but small to send.
+  function pickPhoto(maxSide = 1280) {
+    return new Promise(resolve => {
+      const input = Object.assign(document.createElement('input'), { type: 'file', accept: 'image/*' });
+      input.setAttribute('capture', 'environment');
+      input.addEventListener('change', () => {
+        const file = input.files && input.files[0];
+        if (!file) return resolve(null);
+        const img = new Image();
+        img.onload = () => {
+          const k = Math.min(1, maxSide / Math.max(img.width, img.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+          const g = c.getContext('2d');
+          g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+          g.drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(img.src);
+          resolve(c.toDataURL('image/jpeg', 0.72));
+        };
+        img.onerror = () => resolve(null);
+        img.src = URL.createObjectURL(file);
+      });
+      input.click();
+    });
+  }
+  // Thumbnails of the notes photos of a shift; a click opens the photo large (viewPhoto)
+  const notePhotos = photos => `<div class="note-photos">${photos.map((p, i) =>
+    `<button type="button" class="note-photo" data-view-photo="${esc(imgSrc(p))}" aria-label="Lihat foto catatan ${i + 1}"><img src="${esc(imgSrc(p))}" alt="" loading="lazy"></button>`).join('')}</div>`;
+  function viewPhoto(src) {
+    const dlg = document.createElement('dialog');
+    dlg.className = 'modal photo-view';
+    dlg.innerHTML = `<div class="modal-head"><h3>Foto catatan</h3><button type="button" class="icon-btn" data-close aria-label="Tutup">${icon('x')}</button></div>
+      <div class="modal-body"><a href="${esc(src)}" target="_blank" rel="noopener"><img src="${esc(src)}" alt="Foto catatan penjualan"></a></div>`;
+    document.body.append(dlg);
+    modal(dlg);
+    dlg.addEventListener('close', () => dlg.remove());
+    dlg.showModal();
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-view-photo]');
+    if (b) viewPhoto(b.dataset.viewPhoto);
+  });
 
   // Let the user pick a photo (camera or gallery), then crop/resize it in the browser.
   // mode 'cover' = square crop (profile photos), 'contain' = fit on white (product photos).
@@ -173,8 +221,9 @@
   /* ---------- Page chrome ---------- */
   function init(opts) {
     const user = Data.currentUser();
-    if (!user || (opts.roles && !opts.roles.includes(user.role))) {
-      location.replace(root + 'index.html');
+    // Not logged in, wrong role, or a new password must be chosen first (on the login page)
+    if (!user || (opts.roles && !opts.roles.includes(user.role)) || Data.mustChangePassword()) {
+      location.replace(root + Data.page('index.html'));
       return null;
     }
     const here = location.pathname;
@@ -195,7 +244,12 @@
       </div>`;
     // Static markup can ask for an icon with data-icon="name"
     document.querySelectorAll('[data-icon]').forEach(el => { el.innerHTML = icon(el.dataset.icon); if (!el.title) el.title = el.getAttribute('aria-label') || ''; });
-    top.querySelector('.logout').addEventListener('click', () => { Data.logout(); location.href = root + 'index.html'; });
+    top.querySelector('.logout').addEventListener('click', async e => {
+      if (Data.pendingCount() && !confirm('Ada data yang belum terkirim (offline). Keluar sekarang? Data akan dikirim saat kamu login lagi.')) return;
+      e.currentTarget.disabled = true;
+      await Data.logout();
+      location.href = root + Data.page('index.html');
+    });
     document.body.prepend(top);
 
     const items = NAV[user.role];
@@ -433,6 +487,13 @@
     el._t = setTimeout(() => el.classList.remove('show'), 2400);
   }
 
+  // Disables the form's submit button while a save is running (it may wait for the server)
+  async function busy(form, fn) {
+    const btn = form.querySelector('[type=submit]');
+    if (btn) btn.disabled = true;
+    try { return await fn(); } finally { if (btn) btn.disabled = false; }
+  }
+
   /* ---------- Big progress ring (SVG) ---------- */
   // Single-color ring: blue until the target is reached, then green.
   function ring(p, centerHtml, label) {
@@ -529,7 +590,7 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, init, teamId, toast, modal, pickStore, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
+    root, HOME, ROLE_LABEL, page, init, teamId, toast, busy, modal, pickStore, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, pickPhoto, notePhotos, viewPhoto, imgSrc, levelIcon, levelBadge,
     esc, num, rp, rpK, phoneFmt, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
     BRAND_LOGO, logoImg,
