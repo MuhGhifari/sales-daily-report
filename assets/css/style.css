@@ -509,3 +509,9 @@ div.note-photo { cursor: default; }
 .photo-view { width: min(720px, calc(100vw - 32px)); }
 .photo-view img { display: block; width: 100%; max-height: 75vh; object-fit: contain; border-radius: 8px; }
 tr.detail .note-photos { max-width: 480px; }
+/* Staff header with the inline navbar: the wide Beiersdorf wordmark leaves no room for the app name too */
+@media (min-width: 901px) and (max-width: 1400px) {
+  body:not(.spg) .topbar .brand-logo + span { display: none; }
+  body:not(.spg) .topbar .brand-logo { height: 20px; }
+  body:not(.spg) .mainnav { margin-left: 12px; }
+}
