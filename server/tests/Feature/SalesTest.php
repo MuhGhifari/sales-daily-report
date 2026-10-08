@@ -48,7 +48,9 @@ class SalesTest extends TestCase
     {
         $this->actingAs($this->f['spg1a']);
         $this->postJson('/api/shifts/start', ['storeId' => $this->f['store']->id])->assertOk();
-        $this->postJson('/api/shifts/end', ['time' => '21:00'])->assertOk();
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $this->postJson('/api/shifts/end', ['time' => '21:00'])->assertStatus(422); // photo of the notes is required
+        $this->postJson('/api/shifts/end', ['time' => '21:00', 'photos' => [$this->jpeg()]])->assertOk();
         $this->assertTrue(DayReport::where('user_id', $this->f['spg1a']->id)->value('no_sales'));
         $this->getJson('/api/bootstrap')->assertJsonPath('reports.'.$this->f['spg1a']->id.'|2026-10-22.noSales', true);
     }
@@ -82,7 +84,8 @@ class SalesTest extends TestCase
         $this->postJson('/api/shifts/start', ['storeId' => $this->f['store']->id])->assertOk();
         $sale = $this->sale();
         $this->postJson('/api/sales', $sale)->assertOk();
-        $this->postJson('/api/shifts/end')->assertOk();
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $this->postJson('/api/shifts/end', ['photos' => [$this->jpeg()]])->assertOk();
         $this->deleteJson('/api/sales/'.$sale['clientId'])->assertOk();
         $this->assertSoftDeleted('sales', ['client_id' => $sale['clientId']]);
         $this->assertTrue(DayReport::where('user_id', $this->f['spg1a']->id)->value('no_sales'));
@@ -97,5 +100,25 @@ class SalesTest extends TestCase
         $this->postJson('/api/shifts/switch', ['storeId' => $other->id, 'time' => '12:00'])->assertOk();
         $this->postJson('/api/sales', $this->sale(['time' => '13:00']))->assertJsonPath('storeId', (string) $other->id);
         $this->assertCount(2, Shift::first()->visits);
+    }
+
+    public function test_notes_photos_are_saved_and_shown_only_to_the_spg_and_their_leaders(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $this->actingAs($this->f['spg1a']);
+        $this->postJson('/api/shifts/start', ['storeId' => $this->f['store']->id, 'time' => '09:00'])->assertOk();
+        $this->postJson('/api/shifts/end', ['photos' => array_fill(0, 5, $this->jpeg())])->assertStatus(422); // max 4
+        $this->postJson('/api/shifts/end', ['photos' => ['data:text/plain;base64,eA==']])->assertStatus(422);
+        $res = $this->postJson('/api/shifts/end', ['time' => '21:00', 'photos' => [$this->jpeg(), $this->jpeg()]])->assertOk();
+        $paths = $res->json('shift.photos');
+        $this->assertCount(2, $paths);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists(substr($paths[0], strlen('storage/')));
+        $this->postJson('/api/shifts/end', ['photos' => [$this->jpeg()]])->assertOk(); // resend: no extra photo
+        $this->assertSame(2, \App\Models\ShiftPhoto::count());
+
+        $key = 'shifts.'.$this->f['spg1a']->id.'|2026-10-22.photos';
+        $this->getJson('/api/bootstrap')->assertJsonCount(2, $key);
+        $this->actingAs($this->f['leader1'])->getJson('/api/bootstrap')->assertJsonCount(2, $key);
+        $this->actingAs($this->f['spg1b'])->getJson('/api/bootstrap')->assertJsonCount(0, $key); // teammate
     }
 }

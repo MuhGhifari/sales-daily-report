@@ -61,7 +61,7 @@ class StateBuilder
             'settings' => static::settings($teamIds),
             'targets' => static::targets($me->role === 'admin' ? [] : $spgIds),
             'reports' => static::reports($fullIds, $totalsOnlyIds, $from, $today),
-            'shifts' => static::shifts($reportIds, $from, $today),
+            'shifts' => static::shifts($reportIds, $from, $today, $fullIds),
             'activity' => $me->isRole('admin', 'supervisor') ? static::activity() : [],
         ];
     }
@@ -144,21 +144,23 @@ class StateBuilder
         return $out;
     }
 
-    public static function shifts(array $userIds, string $from, string $to): array
+    /** Notes photos only for $photoIds (own / managed SPGs), not for teammates. */
+    public static function shifts(array $userIds, string $from, string $to, array $photoIds = []): array
     {
         $out = [];
-        foreach (Shift::with('visits')->whereIn('user_id', $userIds)->whereBetween('date', [$from, $to])->get() as $s) {
-            $out[$s->user_id.'|'.$s->date] = static::shift($s);
+        foreach (Shift::with('visits', 'photos')->whereIn('user_id', $userIds)->whereBetween('date', [$from, $to])->get() as $s) {
+            $out[$s->user_id.'|'.$s->date] = static::shift($s, in_array($s->user_id, $photoIds, true));
         }
 
         return $out;
     }
 
-    public static function shift(Shift $s): array
+    public static function shift(Shift $s, bool $withPhotos = false): array
     {
         return [
             'start' => $s->start_time, 'end' => $s->end_time, 'storeId' => Serializer::id($s->store_id),
             'visits' => $s->visits->map(fn ($v) => ['storeId' => (string) $v->store_id, 'from' => $v->from_time])->all(),
+            'photos' => $withPhotos ? $s->photos->pluck('path')->all() : [],
         ];
     }
 

@@ -4,10 +4,10 @@
 
   const root = document.body.dataset.root || '';
 
-  // Client logo: put the official file in assets/brand/ and set its path here, e.g. 'assets/brand/nivea-logo.svg'.
+  // Client logo (Beiersdorf wordmark), see assets/brand/README.md. Until the file is there, only the name shows.
   // Empty = show the generic app mark.
-  const BRAND_LOGO = 'assets/brand/nivea-logo.png';
-  const logoImg = () => `<img class="brand-logo" src="${root + BRAND_LOGO}" alt="NIVEA">`;
+  const BRAND_LOGO = 'assets/brand/beiersdorf-logo.png';
+  const logoImg = () => `<img class="brand-logo" src="${root + BRAND_LOGO}" alt="Beiersdorf" onerror="this.remove()">`;
 
   const ROLE_LABEL = { spg: 'SPG', leader: 'Team Leader', supervisor: 'Supervisor', admin: 'Admin' };
   const HOME = {
@@ -96,6 +96,50 @@
   const person = (u, sub, label) => `<div class="person">${avatar(u)}<div><b>${esc(label || (typeof u === 'string' ? u : u.name))}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div></div>`;
   const productSrc = p => imgSrc((p && p.image) || 'assets/products/placeholder.svg');
   const productImg = (p, cls) => `<img class="pimg${cls ? ' ' + cls : ''}" src="${esc(productSrc(p))}" alt="" loading="lazy">`;
+
+  // Photo of a document (the SPG's handwritten sales notes): opens the camera on phones, keeps the
+  // page's proportions and shrinks it to at most `maxSide` px, so it stays readable but small to send.
+  function pickPhoto(maxSide = 1280) {
+    return new Promise(resolve => {
+      const input = Object.assign(document.createElement('input'), { type: 'file', accept: 'image/*' });
+      input.setAttribute('capture', 'environment');
+      input.addEventListener('change', () => {
+        const file = input.files && input.files[0];
+        if (!file) return resolve(null);
+        const img = new Image();
+        img.onload = () => {
+          const k = Math.min(1, maxSide / Math.max(img.width, img.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+          const g = c.getContext('2d');
+          g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+          g.drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(img.src);
+          resolve(c.toDataURL('image/jpeg', 0.72));
+        };
+        img.onerror = () => resolve(null);
+        img.src = URL.createObjectURL(file);
+      });
+      input.click();
+    });
+  }
+  // Thumbnails of the notes photos of a shift; a click opens the photo large (viewPhoto)
+  const notePhotos = photos => `<div class="note-photos">${photos.map((p, i) =>
+    `<button type="button" class="note-photo" data-view-photo="${esc(imgSrc(p))}" aria-label="Lihat foto catatan ${i + 1}"><img src="${esc(imgSrc(p))}" alt="" loading="lazy"></button>`).join('')}</div>`;
+  function viewPhoto(src) {
+    const dlg = document.createElement('dialog');
+    dlg.className = 'modal photo-view';
+    dlg.innerHTML = `<div class="modal-head"><h3>Foto catatan</h3><button type="button" class="icon-btn" data-close aria-label="Tutup">${icon('x')}</button></div>
+      <div class="modal-body"><a href="${esc(src)}" target="_blank" rel="noopener"><img src="${esc(src)}" alt="Foto catatan penjualan"></a></div>`;
+    document.body.append(dlg);
+    modal(dlg);
+    dlg.addEventListener('close', () => dlg.remove());
+    dlg.showModal();
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-view-photo]');
+    if (b) viewPhoto(b.dataset.viewPhoto);
+  });
 
   // Let the user pick a photo (camera or gallery), then crop/resize it in the browser.
   // mode 'cover' = square crop (profile photos), 'contain' = fit on white (product photos).
@@ -546,7 +590,7 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, page, init, teamId, toast, busy, modal, pickStore, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, imgSrc, levelIcon, levelBadge,
+    root, HOME, ROLE_LABEL, page, init, teamId, toast, busy, modal, pickStore, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, pickPhoto, notePhotos, viewPhoto, imgSrc, levelIcon, levelBadge,
     esc, num, rp, rpK, phoneFmt, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
     BRAND_LOGO, logoImg,

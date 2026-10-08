@@ -5,7 +5,7 @@
   <div class="head">
     <span class="brand-mark" id="mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg></span>
     <span class="brand">Laporan SPG</span>
-    <p class="sub">NIVEA Indonesia · Laporan penjualan harian</p>
+    <p class="sub">Beiersdorf Indonesia · Laporan penjualan harian</p>
   </div>
   <form id="form" class="card" autocomplete="on">
     <p class="error" id="err" hidden></p>

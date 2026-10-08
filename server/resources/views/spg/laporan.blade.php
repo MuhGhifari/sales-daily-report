@@ -45,6 +45,23 @@
     <div class="rows wrap" id="list"></div>
   </section>
 
+  <section id="notes" hidden>
+    <h2>Foto catatan</h2>
+    <div id="notePhotos"></div>
+  </section>
+
   <button type="button" class="btn ghost block" id="endShift" hidden>Akhiri shift</button>
+
+  <dialog class="modal" id="endDlg" aria-labelledby="endTitle">
+    <form id="endForm">
+      <div class="modal-head"><h3 id="endTitle">Akhiri shift</h3><button type="button" class="icon-btn" data-close aria-label="Tutup" data-icon="x"></button></div>
+      <div class="modal-body">
+        <p class="note" style="margin:0 0 12px">Foto catatan penjualan hari ini <b>(wajib)</b>. Satu foto per halaman, pastikan tulisannya terbaca.</p>
+        <div class="note-photos" id="endPhotos"></div>
+        <button type="button" class="btn ghost block" id="addPhoto"><span data-icon="camera"></span><span id="addPhotoLabel">Ambil foto catatan</span></button>
+      </div>
+      <div class="modal-foot"><button type="button" class="btn ghost" data-close>Batal</button><button class="btn" type="submit" id="endSubmit" disabled>Akhiri shift</button></div>
+    </form>
+  </dialog>
 </main>
 @endsection

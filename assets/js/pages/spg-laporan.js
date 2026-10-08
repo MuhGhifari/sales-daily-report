@@ -79,10 +79,33 @@ Data.ready(function () {
     App.toast('Sekarang di ' + D.store(storeId).name + '.');
     render();
   });
-  $('endShift').addEventListener('click', () => {
-    if (!confirm('Akhiri shift sekarang?')) return;
-    D.endShift(owner.id, user.id);
-    App.toast('Shift selesai.');
+  // Ending a shift needs a photo of the SPG's handwritten sales notes (1–4 pages)
+  const MAX_PHOTOS = 4;
+  const endDlg = App.modal($('endDlg'));
+  let photos = [];
+  function renderPhotos() {
+    $('endPhotos').innerHTML = photos.map((p, i) =>
+      `<div class="note-photo"><img src="${p}" alt="Foto catatan ${i + 1}">${App.iconBtn('x', 'Hapus foto', `data-rm="${i}"`)}</div>`).join('');
+    $('endPhotos').hidden = !photos.length;
+    $('addPhoto').hidden = photos.length >= MAX_PHOTOS;
+    $('addPhotoLabel').textContent = photos.length ? 'Tambah halaman' : 'Ambil foto catatan';
+    $('endSubmit').disabled = !photos.length;
+  }
+  $('endShift').addEventListener('click', () => { photos = []; renderPhotos(); endDlg.open(); });
+  $('addPhoto').addEventListener('click', async () => {
+    const p = await App.pickPhoto();
+    if (p) { photos.push(p); renderPhotos(); }
+  });
+  $('endPhotos').addEventListener('click', e => {
+    const b = e.target.closest('[data-rm]');
+    if (b) { photos.splice(+b.dataset.rm, 1); renderPhotos(); }
+  });
+  $('endForm').addEventListener('submit', e => {
+    e.preventDefault();
+    if (!photos.length) { App.toast('Foto catatan penjualan dulu.'); return; }
+    D.endShift(owner.id, user.id, photos);
+    endDlg.close();
+    App.toast('Shift selesai. Foto catatan tersimpan.');
     render();
   });
 
@@ -117,6 +140,10 @@ Data.ready(function () {
     $('locked').hidden = canEdit;
     $('locked').textContent = `Laporan ini terkunci karena sudah lebih dari ${editDays} hari.`;
     $('late').hidden = !(canAdd && (!isToday || (shift && shift.end)));
+
+    const shiftPhotos = (shift && shift.photos) || [];
+    $('notes').hidden = !shiftPhotos.length;
+    $('notePhotos').innerHTML = shiftPhotos.length ? App.notePhotos(shiftPhotos) : '';
 
     $('total').textContent = App.rp(report ? report.total : 0);
     $('count').textContent = report && report.noSales ? 'Tidak ada penjualan' : `${tx.length} transaksi`;

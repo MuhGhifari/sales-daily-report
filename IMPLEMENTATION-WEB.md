@@ -281,6 +281,8 @@ Operations:
 - `data.js` live mode: `Data.ready()` uses the embedded data (or loads `/api/bootstrap`); writes update the page at once and go through an **offline queue** (localStorage "outbox", retried in order, re-applied on top of fresh data until confirmed). Adding users, products, stores and password resets wait for the server and show its error message.
 - Photos: cropped/resized in the browser, re-encoded by the server, stored on the `public` disk (`php artisan storage:link`).
 
+- **Notes photo at shift end**: SPGs still write their sales on paper; ending a shift requires 1–4 photos of those notes (`POST /api/shifts/end {photos}`, table `shift_photos`, files in `storage/app/public/notes`). The SPG, their Team Leader and Supervisor see them (Penjualan page, Laporan detail); teammates don't.
+
 **Different from the plan (on purpose, for v1)**
 - Dashboards, rankings and streaks are still **calculated in the browser** from the scoped data (`/bootstrap` sends the previous and current month). Fine for under 50 users; `/dashboard/...` endpoints can come later if pages get slow.
 - Session auth on the web middleware instead of Sanctum (same domain, nothing extra to set up).

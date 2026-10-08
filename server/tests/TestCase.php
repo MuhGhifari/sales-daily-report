@@ -14,6 +14,16 @@ abstract class TestCase extends BaseTestCase
 {
     protected array $f = [];
 
+    /** A small JPEG as the browser sends it (data URL). */
+    protected function jpeg(): string
+    {
+        $img = imagecreatetruecolor(8, 8);
+        ob_start();
+        imagejpeg($img);
+
+        return 'data:image/jpeg;base64,'.base64_encode(ob_get_clean());
+    }
+
     /**
      * Small fixture: one area with two teams.
      * admin, supervisor (area), leader1 + spg1a/spg1b (team 1), leader2 + spg2 (team 2), a store and a product.

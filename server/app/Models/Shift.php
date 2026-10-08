@@ -14,6 +14,11 @@ class Shift extends Model
         return $this->hasMany(ShiftStoreVisit::class)->orderBy('id');
     }
 
+    public function photos(): HasMany
+    {
+        return $this->hasMany(ShiftPhoto::class)->orderBy('id');
+    }
+
     /** Store the shift was at at a given time (last visit that started at or before it). */
     public function storeAt(?string $time): ?int
     {

@@ -9,6 +9,7 @@ use App\Models\Shift;
 use App\Models\Store;
 use App\Services\StateBuilder;
 use App\Support\Clock;
+use App\Support\Images;
 use Illuminate\Http\Request;
 
 /**
@@ -49,14 +50,26 @@ class ShiftController extends Controller
         return $this->ok(['shift' => StateBuilder::shift($shift->load('visits'))]);
     }
 
+    /** Ending a shift needs 1–4 photos of the SPG's handwritten sales notes. */
     public function end(Request $request)
     {
-        $data = $request->validate(['time' => ['nullable', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/']]);
+        $data = $request->validate([
+            'time' => ['nullable', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
+            'photos' => 'array|max:4',
+            'photos.*' => 'string|max:3000000',
+        ], ['photos.max' => 'Maksimal 4 foto catatan.']);
         $shift = $this->today();
         if (! $shift) {
             return $this->fail('Tidak ada shift yang berjalan.');
         }
-        if (! $shift->end_time) {
+        if (! $shift->end_time) { // already ended (e.g. resent from the offline queue): nothing to do
+            if (empty($data['photos'])) {
+                return $this->fail('Foto catatan penjualan dulu sebelum mengakhiri shift.');
+            }
+            $paths = array_map(fn ($p) => Images::store($p, 'notes'), $data['photos']);
+            foreach ($paths as $path) {
+                $shift->photos()->create(['path' => $path]);
+            }
             $shift->update(['end_time' => $data['time'] ?? Clock::time()]);
             // A shift without sales still counts as a report: "no sales"
             if (! Sale::where('user_id', $shift->user_id)->where('date', $shift->date)->exists()) {
@@ -64,7 +77,7 @@ class ShiftController extends Controller
             }
         }
 
-        return $this->ok(['shift' => StateBuilder::shift($shift->load('visits'))]);
+        return $this->ok(['shift' => StateBuilder::shift($shift->load('visits', 'photos'), true)]);
     }
 
     private function today(): ?Shift
