@@ -12,6 +12,7 @@ const TABLES = {
   Targets: ['user_id', 'month', 'monthly', 'weekly', 'daily', 'set_by', 'set_at'],
   Shifts: ['id', 'user_id', 'date', 'start', 'end', 'store_id'],
   StoreVisits: ['shift_id', 'store_id', 'from_time'],
+  ShiftPhotos: ['shift_id', 'url', 'at'], // photos of the SPG's handwritten notes, taken when ending a shift
   Sales: ['id', 'user_id', 'date', 'time', 'store_id', 'product_id', 'qty', 'price', 'subtotal', 'created_by', 'created_at', 'deleted'],
   DayReports: ['user_id', 'date', 'no_sales', 'unlocked', 'unlocked_by'],
   Settings: ['team_id', 'working_days', 'edit_days', 'reminder'],

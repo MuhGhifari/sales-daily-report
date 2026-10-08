@@ -382,10 +382,12 @@
     const sh = getShift(userId, date);
     return sh ? visitAt(sh, time) : lastStoreId(userId);
   }
-  function endShift(userId, by, time) {
+  // photos: pictures of the SPG's handwritten sales notes, required when ending a shift
+  function endShift(userId, by, photos, time) {
     const sh = getShift(userId, TODAY);
     if (!sh || sh.end) return sh;
     sh.end = time || nowTime();
+    sh.photos = (photos || []).slice();
     // A shift with no sales still counts as a report: "no sales"
     if (!getReport(userId, TODAY)) state.reports[userId + '|' + TODAY] = { ...emptyReport(userId, TODAY, by), noSales: true };
     persist();
@@ -788,7 +790,7 @@
   const REPLAY = {
     startShift: (u, st, t) => startShift(u, st, t),
     switchStore: (u, st, t) => switchStore(u, st, t),
-    endShift: (u, by, t) => endShift(u, by, t),
+    endShift: (u, by, photos, t) => endShift(u, by, photos, t),
     addSale: (u, d, sale, by) => { if (!getTransactions(getReport(u, d)).some(t => t.id === sale.id)) addSale(u, d, sale, by); },
     removeSale: (u, d, id, by) => removeSale(u, d, id, by),
     setUnlocked: (u, d, v) => setUnlocked(u, d, v),
@@ -875,9 +877,9 @@
       enqueue('switchStore', [userId, storeId, t], 'shift.switchStore', { storeId, time: t });
       return sh;
     },
-    endShift(userId, by) {
-      const t = nowTime(), sh = endShift(userId, by, t);
-      enqueue('endShift', [userId, by, t], 'shift.end', { time: t });
+    endShift(userId, by, photos) {
+      const t = nowTime(), sh = endShift(userId, by, photos, t);
+      enqueue('endShift', [userId, by, photos, t], 'shift.end', { time: t, photos });
       return sh;
     },
     addSale(userId, date, sale, by) {

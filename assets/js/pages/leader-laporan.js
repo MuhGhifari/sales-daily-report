@@ -19,8 +19,13 @@ Data.ready(function () {
 
   function shiftLine(r) {
     const sh = D.getShift(r.userId, r.date);
-    return sh ? `<p class="small muted" style="margin:0 0 8px">Shift ${sh.start}–${sh.end || 'sekarang'}</p>` : '';
+    if (!sh) return '';
+    const photos = sh.photos || [];
+    return `<p class="small muted" style="margin:0 0 8px">Shift ${sh.start}–${sh.end || 'sekarang'}${photos.length ? ` · Foto catatan (${photos.length})` : ''}</p>`
+      + (photos.length ? App.notePhotos(photos) : '');
   }
+
+  const hasPhotos = r => { const sh = D.getShift(r.userId, r.date); return !!(sh && sh.photos && sh.photos.length); };
 
   const TT = { placeholder: 'Cari SPG, tanggal, toko...' };
 
@@ -52,7 +57,7 @@ Data.ready(function () {
             <td>${App.person(u, storesOf(r).map(storeName).join(', ') || storeName(D.storeFor(r.userId, r.date, '')))}</td>
             <td class="num">${r.noSales ? '–' : D.getTransactions(r).length}</td>
             <td class="num">${App.num(r.total)}</td>
-            <td class="num"><span class="icon-group">${App.iconLink(`${App.page('../spg/laporan.html')}?spg=${encodeURIComponent(r.userId)}&tanggal=${r.date}`, 'pencil', 'Ubah laporan')}${lockBtn}</span></td>
+            <td class="num"><span class="icon-group">${hasPhotos(r) ? `<span class="icon-btn" title="Ada foto catatan" aria-label="Ada foto catatan">${App.icon('camera')}</span>` : ''}${App.iconLink(`${App.page('../spg/laporan.html')}?spg=${encodeURIComponent(r.userId)}&tanggal=${r.date}`, 'pencil', 'Ubah laporan')}${lockBtn}</span></td>
           </tr>
           <tr class="detail" data-detail="${key}" hidden><td colspan="5">
             ${shiftLine(r)}

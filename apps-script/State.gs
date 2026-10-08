@@ -42,7 +42,7 @@ function buildState_(me) {
     settings,
     targets: targetsFor_(me.role === 'admin' ? [] : spgIds),
     reports: reportsFor_(fullIds, totalsIds, from, today),
-    shifts: shiftsFor_(fullIds.concat(totalsIds), from, today),
+    shifts: shiftsFor_(fullIds.concat(totalsIds), from, today, fullIds),
     activity: me.role === 'admin' || me.role === 'supervisor' ? rows_('Activity').slice(-200).reverse()
       .map(a => ({ at: a.at, by: a.by, action: a.action, kind: a.kind, id: a.subject_id, name: a.name })) : [],
   };
@@ -111,14 +111,16 @@ function reportsFor_(fullIds, totalsIds, from, to) {
   return out;
 }
 
-function shiftsFor_(userIds, from, to) {
-  const out = {}, visits = {};
+/** Notes photos only for photoIds (own / managed SPGs), not for teammates. */
+function shiftsFor_(userIds, from, to, photoIds) {
+  const out = {}, visits = {}, photos = {};
   rows_('StoreVisits').forEach(v => { (visits[v.shift_id] = visits[v.shift_id] || []).push({ storeId: v.store_id, from: v.from_time }); });
+  rows_('ShiftPhotos').forEach(p => { (photos[p.shift_id] = photos[p.shift_id] || []).push(p.url); });
   rows_('Shifts').forEach(s => {
     if (userIds.indexOf(s.user_id) < 0 || s.date < from || s.date > to) return;
-    out[s.user_id + '|' + s.date] = shiftOut_(s, visits[s.id] || []);
+    out[s.user_id + '|' + s.date] = shiftOut_(s, visits[s.id] || [], (photoIds || []).indexOf(s.user_id) >= 0 ? photos[s.id] || [] : []);
   });
   return out;
 }
 
-const shiftOut_ = (s, visits) => ({ start: s.start, end: s.end || null, storeId: s.store_id || null, visits });
+const shiftOut_ = (s, visits, photos) => ({ start: s.start, end: s.end || null, storeId: s.store_id || null, visits, photos: photos || [] });

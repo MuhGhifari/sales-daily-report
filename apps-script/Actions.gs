@@ -40,6 +40,7 @@ function shiftInput_(req) {
   return { storeId: st.id, time: isTime_(req.time) ? req.time : nowTime_() };
 }
 const todayShift_ = me => find_('Shifts', s => s.user_id === me.id && s.date === today_());
+const photosOf_ = shift => rows_('ShiftPhotos').filter(p => p.shift_id === shift.id).map(p => p.url);
 const visitsOf_ = shift => rows_('StoreVisits').filter(v => v.shift_id === shift.id).map(v => ({ storeId: v.store_id, from: v.from_time }));
 
 function actShiftStart_(req, me) {
@@ -66,16 +67,22 @@ function actShiftSwitch_(req, me) {
   return { shift: shiftOut_(sh, visitsOf_(sh)) };
 }
 
+/** Ending a shift needs 1–4 photos of the SPG's handwritten sales notes (saved in Drive). */
 function actShiftEnd_(req, me) {
   const sh = todayShift_(me);
   if (!sh) fail_('Tidak ada shift yang berjalan.');
-  if (!sh.end) {
+  if (!sh.end) { // already ended (e.g. resent from the offline queue): nothing to do
+    const photos = Array.isArray(req.photos) ? req.photos : [];
+    if (!photos.length) fail_('Foto catatan penjualan dulu sebelum mengakhiri shift.');
+    if (photos.length > 4) fail_('Maksimal 4 foto catatan.');
+    const urls = photos.map((p, i) => savePhoto_(p, 'catatan-' + me.id + '-' + sh.date + '-' + (i + 1)));
+    append_('ShiftPhotos', urls.map(url => ({ shift_id: sh.id, url, at: nowStamp_() })));
     sh.end = isTime_(req.time) ? req.time : nowTime_();
     save_('Shifts', sh);
     // A shift without sales still counts as a report: "no sales"
     if (!activeSales_(me.id, sh.date).length) setDayReport_(me.id, sh.date, { no_sales: true });
   }
-  return { shift: shiftOut_(sh, visitsOf_(sh)) };
+  return { shift: shiftOut_(sh, visitsOf_(sh), photosOf_(sh)) };
 }
 
 /* ---------- Sales ---------- */

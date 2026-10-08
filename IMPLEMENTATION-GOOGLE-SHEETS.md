@@ -247,6 +247,8 @@ Each phase is a separate commit; demo mode keeps working throughout.
 - Front end: `assets/js/config.js` → `{ backend: 'sheets', url }`; `data.js` keeps the demo's data shape, writes go through an offline queue (outbox) and the page's data is cached on the phone so pages open at once.
 - Tests without Google: `tools/gas-mock.js` runs the real `.gs` files in Node; `node tools/test-apps-script.js` (14 backend tests: login, tokens, roles, edit window, idempotent sales, catalog rules, photos, hand edits) and `tools/test-sheets-browser.js` against `tools/sheets-dev-server.js` (also with 1.2 s latency).
 
+- **Notes photo at shift end**: SPGs still write their sales on paper; ending a shift requires 1–4 photos of those notes (`shift.end {photos}`), saved in Drive and listed in the `ShiftPhotos` tab. The SPG, their Team Leader and Supervisor see them; teammates don't.
+
 **Different from the plan**
 - No separate **Daily** tab: day totals come from the Sales rows; a **DayReports** tab holds "no sales" and "unlocked". Simpler and always consistent; fine for < 50 users.
 - `sales.list` is not needed: the bootstrap already carries the current and previous month's sales of the people the user may see.

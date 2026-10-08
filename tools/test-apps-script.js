@@ -29,6 +29,7 @@ function app() {
   g.fresh = () => g.ctx.handle_('{}'); // clears the per-request table cache
   return g;
 }
+const JPG = 'data:image/jpeg;base64,' + Buffer.from('fake jpeg').toString('base64');
 const uuid = () => require('crypto').randomUUID();
 const sale = (over = {}) => Object.assign({ clientId: uuid(), userId: 'u-sari', date: '2026-10-22', productId: 'p1', qty: 2, price: 45000, time: '14:00' }, over);
 
@@ -115,7 +116,8 @@ test('ending a shift without sales reports no sales', () => {
   const call = (action, p) => g.call(Object.assign({ action, token: tok }, p));
   assert.equal(call('sale.add', sale({ userId: g.rows('Users').find(u => u.phone === '081377777777').id })).status, 422, 'no shift yet');
   assert.ok(call('shift.start', { storeId: 'st1', time: '09:00' }).ok);
-  assert.ok(call('shift.end', { time: '21:00' }).ok);
+  assert.equal(call('shift.end', { time: '21:00' }).status, 422, 'photo of the notes is required');
+  assert.ok(call('shift.end', { time: '21:00', photos: [JPG] }).ok);
   const me = call('bootstrap').data;
   assert.equal(me.reports[me.me + '|2026-10-22'].noSales, true);
 });
@@ -204,4 +206,21 @@ test('hand edits in the Products tab are checked', () => {
   assert.equal(sh.backgrounds[row + 1], '#fde2e2');
   g.fresh();
   assert.ok(g.as('sari', 'bootstrap').data.products.some(p => p.name === 'NIVEA Tangan' && p.price === 45000));
+});
+
+test('notes photos at shift end: required, max 4, only for the SPG and their leaders', () => {
+  const g = app();
+  assert.equal(g.as('sari', 'shift.end', { photos: [JPG, JPG, JPG, JPG, JPG] }).error, 'Maksimal 4 foto catatan.');
+  assert.equal(g.as('sari', 'shift.end', { photos: ['data:text/html;base64,eA=='] }).status, 422);
+  const r = g.as('sari', 'shift.end', { time: '21:00', photos: [JPG, JPG] });
+  assert.ok(r.ok, r.error);
+  assert.equal(r.data.shift.photos.length, 2);
+  assert.match(r.data.shift.photos[0], /^https:\/\/drive\.google\.com\/thumbnail\?id=/);
+  assert.ok(g.as('sari', 'shift.end', { photos: [JPG] }).ok, 'resend is fine');
+  assert.equal(g.rows('ShiftPhotos').length, 2, 'no extra photo on resend');
+  const key = 'u-sari|2026-10-22';
+  assert.equal(g.as('sari', 'bootstrap').data.shifts[key].photos.length, 2);
+  assert.equal(g.as('rina', 'bootstrap').data.shifts[key].photos.length, 2);
+  assert.equal(g.as('budi', 'bootstrap').data.shifts[key].photos.length, 2);
+  assert.equal(g.as('dewi', 'bootstrap').data.shifts[key].photos.length, 0, 'teammate');
 });
