@@ -189,7 +189,7 @@ docs/SETUP-GOOGLE-SHEETS.md → step-by-step deployment for the client
 
 ## 10. Setup (done once by the owner of the Google account)
 
-1. Create a Google Sheet "Laporan SPG – NIVEA" and a Drive folder "Laporan SPG – Foto".
+1. Create a Google Sheet "Laporan SPG" and a Drive folder "Laporan SPG – Foto".
 2. In the Sheet: **Extensions → Apps Script**, paste the files from `server/`.
 3. Project settings: timezone **Asia/Jakarta**. Script Properties: `SECRET` (random), `PHOTO_FOLDER_ID`.
 4. Run `setupSheet()` once (creates tabs, headers, validation and protection), then `createAdmin("08xxxxxxxxxx", "<temporary password>")`.

@@ -6,7 +6,7 @@ Plan and design: [`IMPLEMENTATION-GOOGLE-SHEETS.md`](IMPLEMENTATION-GOOGLE-SHEET
 
 ## 1. Create the Sheet and the script
 
-1. In Google Drive create a new Google Sheet, e.g. **Laporan SPG – NIVEA**.
+1. In Google Drive create a new Google Sheet, e.g. **Laporan SPG**.
 2. **Extensions → Apps Script**. Name the project **Laporan SPG**.
 3. Copy the files from `apps-script/` into the project. For each `.gs` file: **+ → Script**, use the same name (without `.gs`), paste the contents. Replace the content of `Code.gs` with ours.
    - Show the manifest: **Project Settings (gear) → Show "appsscript.json"**, then paste ours into `appsscript.json`.
