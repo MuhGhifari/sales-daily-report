@@ -1,4 +1,4 @@
-# Laporan SPG — Laporan Penjualan Harian (NIVEA)
+# Laporan Penjualan Harian (NIVEA)
 
 Prototype of a daily sales report app for SPGs, Team Leaders and Supervisors. Static HTML/CSS/JS with demo data; no server needed.
 
