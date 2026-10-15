@@ -248,10 +248,25 @@
     ['I68', 'NDEO DERMA CONTROL RESTORE ANTI-PERSPIRANT 50ML', 'NIVEA DEO', 19350, '8999777002787'],
   ].map(([sku, name, brand, price, barcode]) => ({ id: 'p-' + sku.toLowerCase(), sku, name, brand, price, barcode }));
 
+  // The NMA stores (id, name, chain, city); city left empty where the client's list doesn't say
   const STORES = [
-    { id: 'st1', name: 'Yogya Cimanggu Avenue', chain: 'Yogya', city: 'Bogor', address: '' },
-    { id: 'st2', name: 'LSI PJR', chain: 'LSI', city: 'Bogor', address: '' },
-  ];
+    ['st1', 'Yogya Cimanggu', 'Yogya', 'Bogor'],
+    ['st2', 'LSI Pajajaran', 'LSI', 'Bogor'],
+    ['st3', 'AEON Sentul City', 'AEON', ''],
+    ['st4', 'Yogya Sukabumi', 'Yogya', 'Sukabumi'],
+    ['st5', 'Indogrosir Sukabumi', 'Indogrosir', 'Sukabumi'],
+    ['st6', 'Yogya Junction Bogor', 'Yogya', 'Bogor'],
+    ['st7', 'Toko Ailin', '', ''],
+    ['st8', 'AEON Mall Kota Wisata', 'AEON', ''],
+    ['st9', 'Indogrosir Ciputat', 'Indogrosir', ''],
+    ['st10', 'LSI Metland', 'LSI', ''],
+    ['st11', 'Indogrosir Cibinong', 'Indogrosir', ''],
+    ['st12', 'LSI Cikaret', 'LSI', ''],
+    ['st13', 'Beauty Lovers', '', ''],
+    ['st14', 'Yogya Cianjur', 'Yogya', 'Cianjur'],
+    ['st15', 'Guardian Citimall', 'Guardian', ''],
+    ['st16', 'Yogya Ciranjang', 'Yogya', ''],
+  ].map(([id, name, chain, city]) => ({ id, name, chain, city, address: '' }));
 
   const defaultSettings = () => ({
     workingDays: [1, 2, 3, 4, 5, 6], // Mon–Sat

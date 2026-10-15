@@ -19,7 +19,7 @@ Plan and design: [`IMPLEMENTATION-GOOGLE-SHEETS.md`](IMPLEMENTATION-GOOGLE-SHEET
 2. **Laporan SPG → 1. Siapkan tab**: creates the tabs (Users, Teams, Products, Stores, Sales, …) with their columns, all as plain text.
 3. **Laporan SPG → 2. Buat akun Admin**: phone number, name and a temporary password (min. 8 characters). The Admin chooses a new password at the first login.
 
-Instead of step 3, on an **empty** Sheet: **Laporan SPG → Isi data demo…** and leave the address empty (or, if the GitHub repository is private, upload `apps-script/demo-data.json` to Drive and give its file id). It loads the starting data: the Admin `0811 0000 0001` / `admin123` (change the password after logging in), the 199 products and the 2 stores. To replace only the products, paste `apps-script/products.csv` (from `node tools/export-demo-data.js`) into the Products tab from row 1.
+Instead of step 3, on an **empty** Sheet: **Laporan SPG → Isi data demo…** and leave the address empty (or, if the GitHub repository is private, upload `apps-script/demo-data.json` to Drive and give its file id). It loads the starting data: the Admin `0811 0000 0001` / `admin123` (change the password after logging in), the 199 products and the 16 stores. To replace only the products, paste `apps-script/products.csv` (from `node tools/export-demo-data.js`) into the Products tab from row 1.
 
 ## 3. Publish the web app
 

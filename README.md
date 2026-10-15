@@ -15,7 +15,7 @@ The app starts with the **Admin** account, the product catalog and the stores; t
 Log in with **phone number + password** (any format works: `0811 0000 0001`, `62811…`, `+62 811-…`). The Admin adds Supervisors and Team Leaders (Pengguna); Team Leaders add their SPGs (Tim) and set targets. New accounts start with `super123`, `leader123` or `spg123` and must choose their own password at the first login.
 
 - **Products**: the 199 SKUs of the client's file *SOH OFFTAKE YCA & LSI PJR AGUST'26 FILE BARU 199 SKU* (KODE SKU, Nama SKU di HO, Subbrand, price, barcode), kept in `assets/js/data.js`.
-- **Stores**: Yogya Cimanggu Avenue and LSI PJR.
+- **Stores**: the 16 NMA stores (Yogya Cimanggu, LSI Pajajaran, AEON Sentul City, … Yogya Ciranjang).
 
 In demo mode (`backend: 'demo'`) changes are saved in your browser; use **Reset data demo** on the login page to start over. The Admin password is in `assets/js/data.js` and visible to anyone: change it after the first login on a real server.
 

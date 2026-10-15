@@ -225,14 +225,14 @@ test('notes photos at shift end: required, max 4, only for the SPG and their lea
   assert.equal(g.as('dewi', 'bootstrap').data.shifts[key].photos.length, 0, 'teammate');
 });
 
-test('starting data: Admin, 199 products with subbrand and barcode, 2 stores', () => {
+test('starting data: Admin, 199 products with subbrand and barcode, 16 stores', () => {
   const g = load({ DEMO_TODAY: '2026-10-22' }, { quiet: true });
   g.ctx.setupSheet();
   g.ctx.importDemoData('file://' + path.join(__dirname, '..', 'apps-script', 'demo-data.json'));
   const login = g.call({ action: 'login', phone: '081100000001', password: 'admin123' });
   assert.ok(login.ok);
   const s = login.data.state;
-  assert.deepEqual([s.users.length, s.products.length, s.stores.length], [1, 199, 2]);
+  assert.deepEqual([s.users.length, s.products.length, s.stores.length], [1, 199, 16]);
   const a1 = s.products.find(p => p.sku === 'A1');
   assert.deepEqual([a1.name, a1.brand, a1.barcode, a1.price], ['NCRM CREME TIN 60ML', 'NIVEA ALL PURPOSE CREAMS', '8850029801025', 22470]);
   const saved = g.call({ action: 'product.save', token: login.data.token, id: a1.id, name: a1.name, sku: 'A1', brand: 'NIVEA BODY', barcode: '123', price: 23000 });
