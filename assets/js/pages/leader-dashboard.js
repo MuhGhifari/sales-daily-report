@@ -94,7 +94,7 @@ Data.ready(function () {
     App.downloadCsv(`laporan-${team.name.toLowerCase().replace(/\s+/g, '-')}-${from}-sd-${end}.csv`, rows);
   });
 
-  // Daily recap for a date range, as a new Google Sheet
+  // Daily recap for a date range, as an Excel file
   $('dxWrap').innerHTML = App.dailyExportHtml();
   App.dailyExport(() => teamId);
 

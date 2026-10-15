@@ -29,7 +29,7 @@ const actions_ = () => ({
   'user.photo': [actUserPhoto_, true, true],
   'product.save': [actProductSave_, true, true],
   'store.save': [actStoreSave_, true, true],
-  'report.exportDaily': [actExportDaily_, true, false],
+  'report.dailyRecap': [actDailyRecap_, true, false],
 });
 // Allowed while the user still has to choose a new password
 const BEFORE_NEW_PASSWORD = ['bootstrap', 'password.change'];

@@ -84,19 +84,6 @@ class Spreadsheet {
   getId() { return 'mock-sheet'; }
 }
 
-// A Spreadsheet made by SpreadsheetApp.create (exports): keeps the values written; formatting calls are accepted and ignored
-function exported(name, list) {
-  const values = {};
-  const range = (row, col) => new Proxy({}, {
-    get: (t, k) => (k === 'setValues' ? v => { v.forEach((line, i) => line.forEach((x, j) => { values[(row + i) + ',' + (col + j)] = x; })); return range(row, col); } : () => range(row, col)),
-  });
-  const sheet = new Proxy({}, { get: (t, k) => (k === 'getRange' ? (r, c) => range(r, c) : () => sheet) });
-  const id = 'export' + (list.length + 1);
-  const ss = { name, values, getSheets: () => [sheet], getId: () => id, getName: () => name, getUrl: () => 'https://docs.google.com/spreadsheets/d/' + id, setSpreadsheetLocale() {} };
-  list.push(ss);
-  return ss;
-}
-
 function chain() { const p = new Proxy({}, { get: (t, k) => (k === 'build' ? () => ({}) : () => p) }); return p; }
 
 function formatDate(date, tz, fmt) {
@@ -116,12 +103,10 @@ function load(props = {}, opts = {}) {
   const properties = Object.assign({}, props);
   const cache = new Map();
   const files = new Map();
-  const exports = [];
   const ctx = {
     console: opts.quiet ? { log() {}, error() {}, warn() {} } : console,
     SpreadsheetApp: {
       getActiveSpreadsheet: () => ss, openById: () => ss, newDataValidation: chain,
-      create: name => exported(name, exports), flush() {}, BorderStyle: { SOLID: 'SOLID' },
       ProtectionType: { SHEET: 'SHEET', RANGE: 'RANGE' },
       getUi: () => { throw new Error('No UI in tests'); },
     },
@@ -150,7 +135,6 @@ function load(props = {}, opts = {}) {
       Access: { ANYONE_WITH_LINK: 'ANYONE_WITH_LINK' }, Permission: { VIEW: 'VIEW' },
       createFolder: name => folder('folder-1', name),
       getFolderById: id => folder(id),
-      getFileById: () => ({ moveTo() {}, setSharing() {} }),
     },
     ContentService: {
       MimeType: { JSON: 'application/json' },
@@ -173,7 +157,7 @@ function load(props = {}, opts = {}) {
   fs.readdirSync(dir).filter(f => f.endsWith('.gs')).sort().forEach(f => vm.runInContext(fs.readFileSync(path.join(dir, f), 'utf8'), ctx, { filename: f }));
   // POST body (string) → parsed JSON reply, as the web app would answer
   const call = body => JSON.parse(ctx.doPost({ postData: { contents: typeof body === 'string' ? body : JSON.stringify(body) } }).getContent());
-  return { ctx, ss, properties, files, exports, call };
+  return { ctx, ss, properties, files, call };
 }
 
 module.exports = { load };

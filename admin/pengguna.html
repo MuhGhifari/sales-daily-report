@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#ffffff">
 <title>Pengguna</title>
 <link rel="icon" type="image/png" href="../assets/brand/favicon.png">
-<link rel="stylesheet" href="../assets/css/style.css?v=20261016063019">
-<script>/* version check */(function(v,r){try{fetch(r+"assets/version.json?t="+Date.now(),{cache:"no-store"}).then(function(x){return x.json()}).then(function(j){if(j.v&&j.v!==v){var u=new URL(location.href);if(u.searchParams.get("_v")!==j.v){u.searchParams.set("_v",j.v);location.replace(u.href)}}}).catch(function(){})}catch(e){}})("20261016063019","../")</script>
+<link rel="stylesheet" href="../assets/css/style.css?v=20261016063637">
+<script>/* version check */(function(v,r){try{fetch(r+"assets/version.json?t="+Date.now(),{cache:"no-store"}).then(function(x){return x.json()}).then(function(j){if(j.v&&j.v!==v){var u=new URL(location.href);if(u.searchParams.get("_v")!==j.v){u.searchParams.set("_v",j.v);location.replace(u.href)}}}).catch(function(){})}catch(e){}})("20261016063637","../")</script>
 </head>
 <body data-root="../">
 <main>
@@ -15,8 +15,8 @@
   <p class="note" style="margin:-12px 0 20px">Admin mengelola Supervisor dan Team Leader. SPG ditambahkan oleh Team Leader atau Supervisor.</p>
   <section><div class="table-wrap"><table id="table"></table></div></section>
   <section>
-    <h2>Rekap harian ke Google Sheets</h2>
-    <p class="muted small">Penjualan per SPG per hari untuk rentang tanggal, per tim atau semua tim: OFF di hari libur, merah bila hari kerja belum lapor, lalu total, target, dan pencapaian. Dibuat sebagai Google Sheet baru.</p>
+    <h2>Rekap harian (Excel)</h2>
+    <p class="muted small">Penjualan per SPG per hari untuk rentang tanggal, per tim atau semua tim: OFF di hari libur, merah bila hari kerja belum lapor, lalu total, target, dan pencapaian.</p>
     <div id="dxWrap"></div>
   </section>
   <dialog class="modal" id="dlg" aria-labelledby="dlgTitle">
@@ -42,9 +42,10 @@
     </form>
   </dialog>
 </main>
-<script src="../assets/js/config.js?v=20261016063019"></script>
-<script src="../assets/js/data.js?v=20261016063019"></script>
-<script src="../assets/js/common.js?v=20261016063019"></script>
-<script src="../assets/js/pages/admin-pengguna.js?v=20261016063019"></script>
+<script src="../assets/js/config.js?v=20261016063637"></script>
+<script src="../assets/js/data.js?v=20261016063637"></script>
+<script src="../assets/js/common.js?v=20261016063637"></script>
+<script src="../assets/js/recap-export.js?v=20261016063637"></script>
+<script src="../assets/js/pages/admin-pengguna.js?v=20261016063637"></script>
 </body>
 </html>

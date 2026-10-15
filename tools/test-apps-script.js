@@ -239,41 +239,39 @@ test('starting data: Admin, 199 products with subbrand and barcode, 16 stores', 
   assert.deepEqual([saved.data.product.brand, saved.data.product.barcode, saved.data.product.price], ['NIVEA BODY', '123', 23000]);
 });
 
-test('daily recap export: layout, totals, OFF and missing days, sorted by achievement', () => {
+test('daily recap: days, totals, OFF and missing days, sorted by achievement', () => {
   const g = app();
-  const r = g.as('rina', 'report.exportDaily', { from: '2026-10-01', to: '2026-10-11' });
+  const r = g.as('rina', 'report.dailyRecap', { from: '2026-10-01', to: '2026-10-11' });
   assert.ok(r.ok, r.error);
-  assert.deepEqual([r.data.spgs, r.data.days], [8, 11]);
-  assert.match(r.data.url, /^https:\/\/docs\.google\.com\/spreadsheets\//);
-  const v = g.exports[0].values, at = (row, col) => v[row + ',' + col];
-  assert.deepEqual([at(1, 2), at(2, 1), at(2, 2), at(2, 12), at(2, 13), at(2, 14), at(2, 15)],
-    ['Kamis', 'Nama NMA', '01/10/2026', '11/10/2026', 'Total Achievement', 'TOTAL TARGET', 'Ach']);
+  const d = r.data;
+  assert.deepEqual([d.days.length, d.days[0], d.rows.length, d.teams[0].name], [11, '2026-10-01', 8, 'Jakarta Selatan']);
   // 4 Oct 2026 is a Sunday: day off for Tim Jakarta Selatan (Mon–Sat)
-  assert.equal(at(1, 5), 'Minggu');
-  for (let row = 3; row <= 10; row++) assert.equal(at(row, 5), 'OFF');
+  assert.equal(d.offDays[3], true);
+  d.rows.forEach(x => assert.equal(x.cells[3], 'OFF'));
   // Totals match the Sales tab, targets are the October targets, rows sorted by achievement
   const sales = g.rows('Sales'), users = g.rows('Users'), targets = g.rows('Targets');
   let prev = Infinity;
-  for (let row = 3; row <= 10; row++) {
-    const u = users.find(x => x.name === at(row, 1));
+  d.rows.forEach(x => {
+    const u = users.find(y => y.name === x.name);
     const total = sales.filter(s => s.user_id === u.id && !s.deleted && s.date >= '2026-10-01' && s.date <= '2026-10-11').reduce((a, s) => a + s.subtotal, 0);
-    const target = targets.find(t => t.user_id === u.id && t.month === '2026-10').monthly;
-    assert.deepEqual([at(row, 13), at(row, 14)], [total, target]);
-    assert.ok(at(row, 15) <= prev);
-    prev = at(row, 15);
-  }
+    assert.deepEqual([x.total, x.target], [total, targets.find(t => t.user_id === u.id && t.month === '2026-10').monthly]);
+    assert.equal(x.total, x.cells.filter(c => typeof c === 'number').reduce((a, c) => a + c, 0));
+    assert.ok(x.ach <= prev);
+    prev = x.ach;
+  });
+  // Sari skipped 13 Oct (a Tuesday, working day): MISSING
+  const sari = g.as('rina', 'report.dailyRecap', { from: '2026-10-13', to: '2026-10-13' }).data.rows.find(x => x.name === 'Sari Wulandari');
+  assert.deepEqual(sari.cells, ['MISSING']);
 });
 
-test('daily recap export: who may export what', () => {
+test('daily recap: who may see what', () => {
   const g = app();
-  assert.equal(g.as('sari', 'report.exportDaily', { from: '2026-10-01', to: '2026-10-11' }).status, 403);
-  assert.equal(g.as('rina', 'report.exportDaily', { from: '2026-10-01', to: '2026-10-11', teamId: 't2' }).status, 403);
-  assert.equal(g.as('rina', 'report.exportDaily', { from: '2026-10-11', to: '2026-10-01' }).status, 422);
-  assert.equal(g.as('rina', 'report.exportDaily', { from: '2026-08-01', to: '2026-10-11' }).status, 422);
-  const all = g.as('admin', 'report.exportDaily', { from: '2026-10-20', to: '2026-10-22' });
-  assert.ok(all.ok, all.error);
-  assert.equal(all.data.spgs, g.rows('Users').filter(u => u.role === 'spg' && u.active).length);
-  assert.equal(g.exports[0].values['2,2'], 'Tim'); // all teams: a team column after the name
-  const one = g.as('admin', 'report.exportDaily', { from: '2026-10-20', to: '2026-10-22', teamId: 't3' });
-  assert.equal(one.data.spgs, g.rows('Users').filter(u => u.role === 'spg' && u.active && u.team_id === 't3').length);
+  assert.equal(g.as('sari', 'report.dailyRecap', { from: '2026-10-01', to: '2026-10-11' }).status, 403);
+  assert.equal(g.as('rina', 'report.dailyRecap', { from: '2026-10-01', to: '2026-10-11', teamId: 't2' }).status, 403);
+  assert.equal(g.as('rina', 'report.dailyRecap', { from: '2026-10-11', to: '2026-10-01' }).status, 422);
+  assert.equal(g.as('rina', 'report.dailyRecap', { from: '2026-08-01', to: '2026-10-11' }).status, 422);
+  const all = g.as('admin', 'report.dailyRecap', { from: '2026-10-20', to: '2026-10-22' }).data;
+  assert.deepEqual([all.teams.length, all.rows.length], [g.rows('Teams').length, g.rows('Users').filter(u => u.role === 'spg' && u.active).length]);
+  const one = g.as('admin', 'report.dailyRecap', { from: '2026-10-20', to: '2026-10-22', teamId: 't3' }).data;
+  assert.equal(one.rows.length, g.rows('Users').filter(u => u.role === 'spg' && u.active && u.team_id === 't3').length);
 });

@@ -1024,9 +1024,9 @@
       changed();
       return null;
     },
-    // Daily recap as a new Google Sheet (apps-script/Export.gs): { url, name, spgs, days } or { error }
-    async exportDaily({ from, to, teamId }) {
-      const res = await call('report.exportDaily', { from, to, teamId: teamId || null });
+    // Daily recap numbers for the Excel export (apps-script/Export.gs): { teams, days, offDays, rows } or { error }
+    async dailyRecap({ from, to, teamId }) {
+      const res = await call('report.dailyRecap', { from, to, teamId: teamId || null });
       return res.ok ? res.data : { error: res.data.message };
     },
     async saveStore(st) {
@@ -1076,6 +1076,6 @@
     getShift, startShift, endShift, switchStore, lastStoreId, storeLabel, storeFor, getTransactions, addSale, removeSale,
     addUser, resetPassword, canManageUser, canAddCatalog, canEditCatalog, saveStore, stores, store, activity, storeTotals,
     allUsers, setUserPhoto, normalizePhone, exportState, areas,
-    exportDaily: async () => ({ error: 'Export ke Google Sheets hanya bisa saat aplikasi terhubung ke Google Sheets.' }),
+    dailyRecap: async () => ({ error: 'Rekap harian hanya bisa saat aplikasi terhubung ke Google Sheets.' }),
   }, LIVE ? LIVE_API : {});
 })();
