@@ -50,7 +50,7 @@ After editing any page, run `python3 tools/bump-version.py` before committing. I
 
 ## Photos
 
-- **Profile photos**: SPGs tap their photo on Beranda to take or choose a new one; Team Leaders can set an SPG's photo in Kelola Tim. The Admin starts with an illustrated portrait in `assets/avatars/` (DiceBear "Lorelei" by Lisa Wischofsky, CC0 1.0, generated with `tools/generate-avatars.js`).
+- **Profile photos**: SPGs tap their photo on Beranda to take or choose a new one; Team Leaders can set an SPG's photo in Kelola Tim. Users without a photo (or whose photo can't be loaded) get `assets/avatars/default.svg`. The Admin starts with an illustrated portrait in `assets/avatars/` (DiceBear "Lorelei" by Lisa Wischofsky, CC0 1.0, generated with `tools/generate-avatars.js`).
 - **Product photos**: Admin can upload a photo per product. Products start with a placeholder image (`assets/products/placeholder.svg`) until a packshot is uploaded.
 - Uploaded photos are resized in the browser and stored with the demo data.
 - **Logo**: see `assets/brand/README.md`.

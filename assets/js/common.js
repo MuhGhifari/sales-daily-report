@@ -81,16 +81,15 @@
     `<button type="button" class="icon-btn${cls ? ' ' + cls : ''}" aria-label="${esc(label)}" title="${esc(label)}" ${attrs || ''}>${icon(name)}</button>`;
   const iconLink = (href, name, label, attrs, cls) =>
     `<a class="icon-btn${cls ? ' ' + cls : ''}" href="${href}" aria-label="${esc(label)}" title="${esc(label)}" ${attrs || ''}>${icon(name)}</a>`;
-  const initials = name => String(name || '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
   // Images are stored as a site-relative path or as an uploaded data URL
   const imgSrc = v => (/^(data:|https?:)/.test(v) ? v : root + v);
-  // Avatar: the user's photo, or initials when there is none. Accepts a user object or a name.
+  // Avatar: the user's photo, or the default profile picture when there is none or it fails to load.
+  // Accepts a user object or a name.
+  const DEFAULT_AVATAR = 'assets/avatars/default.svg';
   function avatar(u, cls) {
-    const name = typeof u === 'string' ? u : u && u.name;
-    const photo = u && typeof u === 'object' && u.photo;
-    return photo
-      ? `<img class="avatar${cls ? ' ' + cls : ''}" src="${esc(imgSrc(photo))}" alt="" loading="lazy">`
-      : `<span class="avatar${cls ? ' ' + cls : ''}" aria-hidden="true">${esc(initials(name))}</span>`;
+    const photo = (u && typeof u === 'object' && u.photo) || DEFAULT_AVATAR;
+    const fallback = esc(imgSrc(DEFAULT_AVATAR));
+    return `<img class="avatar${cls ? ' ' + cls : ''}" src="${esc(imgSrc(photo))}" alt="" loading="lazy" onerror="this.onerror=null;this.src='${fallback}'">`;
   }
   // Name with avatar and an optional second line
   const person = (u, sub, label) => `<div class="person">${avatar(u)}<div><b>${esc(label || (typeof u === 'string' ? u : u.name))}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div></div>`;
