@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /*
  * Tests for the Apps Script backend (apps-script/*.gs), run in Node with tools/gas-mock.js.
- * Uses the demo data (DEMO_TODAY 2026-10-22). Usage: node tools/test-apps-script.js
+ * Uses the test data in tools/fixtures/demo-data.json (made-up people and sales, DEMO_TODAY 2026-10-22). Usage: node tools/test-apps-script.js
  */
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('path');
 const { load } = require('./gas-mock');
 
-const DEMO = 'file://' + path.join(__dirname, '..', 'apps-script', 'demo-data.json');
+const DEMO = 'file://' + path.join(__dirname, 'fixtures', 'demo-data.json');
 const PHONE = { admin: '081100000001', budi: '081100000002', rina: '081200000001', andi: '081200000002', sari: '081300000001', dewi: '081300000002', rani: '081300000004' };
 const PW = { admin: 'admin123', budi: 'super123', rina: 'leader123', andi: 'leader123', sari: 'spg123', dewi: 'spg123', rani: 'spg123' };
 
@@ -223,4 +223,18 @@ test('notes photos at shift end: required, max 4, only for the SPG and their lea
   assert.equal(g.as('rina', 'bootstrap').data.shifts[key].photos.length, 2);
   assert.equal(g.as('budi', 'bootstrap').data.shifts[key].photos.length, 2);
   assert.equal(g.as('dewi', 'bootstrap').data.shifts[key].photos.length, 0, 'teammate');
+});
+
+test('starting data: Admin, 199 products with subbrand and barcode, 2 stores', () => {
+  const g = load({ DEMO_TODAY: '2026-10-22' }, { quiet: true });
+  g.ctx.setupSheet();
+  g.ctx.importDemoData('file://' + path.join(__dirname, '..', 'apps-script', 'demo-data.json'));
+  const login = g.call({ action: 'login', phone: '081100000001', password: 'admin123' });
+  assert.ok(login.ok);
+  const s = login.data.state;
+  assert.deepEqual([s.users.length, s.products.length, s.stores.length], [1, 199, 2]);
+  const a1 = s.products.find(p => p.sku === 'A1');
+  assert.deepEqual([a1.name, a1.brand, a1.barcode, a1.price], ['NCRM CREME TIN 60ML', 'NIVEA ALL PURPOSE CREAMS', '8850029801025', 22470]);
+  const saved = g.call({ action: 'product.save', token: login.data.token, id: a1.id, name: a1.name, sku: 'A1', brand: 'NIVEA BODY', barcode: '123', price: 23000 });
+  assert.deepEqual([saved.data.product.brand, saved.data.product.barcode, saved.data.product.price], ['NIVEA BODY', '123', 23000]);
 });
