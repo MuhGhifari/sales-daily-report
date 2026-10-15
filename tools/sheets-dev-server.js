@@ -24,7 +24,7 @@ gas.ctx.setupSheet();
 console.log(gas.ctx.importDemoData('file://' + path.join(__dirname, 'fixtures', 'demo-data.json')));
 
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg' };
-const CONFIG = "window.APP_CONFIG = { backend: 'sheets', url: '/exec', demoAccounts: true };\n";
+const CONFIG = "window.APP_CONFIG = { backend: 'sheets', url: '/exec' };\n";
 
 http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');

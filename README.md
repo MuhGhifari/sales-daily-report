@@ -17,7 +17,7 @@ Log in with **phone number + password** (any format works: `0811 0000 0001`, `62
 - **Products**: the 199 SKUs of the client's file *SOH OFFTAKE YCA & LSI PJR AGUST'26 FILE BARU 199 SKU* (KODE SKU, Nama SKU di HO, Subbrand, price, barcode), kept in `assets/js/data.js`.
 - **Stores**: the 16 NMA stores (Yogya Cimanggu, LSI Pajajaran, AEON Sentul City, … Yogya Ciranjang).
 
-In demo mode (`backend: 'demo'`) changes are saved in your browser; use **Reset data demo** on the login page to start over. The Admin password is in `assets/js/data.js` and visible to anyone: change it after the first login on a real server.
+In demo mode (`backend: 'demo'`) changes are saved in your browser; clear the site's data in the browser to start over. The Admin password is in `assets/js/data.js` and visible to anyone: change it after the first login on a real server.
 
 ## Pages
 
