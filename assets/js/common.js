@@ -494,6 +494,44 @@
     try { return await fn(); } finally { if (btn) btn.disabled = false; }
   }
 
+  /**
+   * "Rekap harian ke Google Sheets" form (markup: dailyExportHtml). getTeam() gives the team id, or '' for all teams.
+   * The server makes the Sheet and answers with its address; it opens in a new tab (a link is shown too, in case
+   * the browser blocks the tab).
+   */
+  const dailyExportHtml = (teamSelect = '') => `
+    <form class="actions" id="dxForm" style="align-items:flex-end">
+      ${teamSelect}
+      <div class="field" style="margin:0"><label for="dxFrom">Dari</label><input class="input" type="date" id="dxFrom" required></div>
+      <div class="field" style="margin:0"><label for="dxTo">Sampai</label><input class="input" type="date" id="dxTo" required></div>
+      <button class="btn" type="submit">${icon('download')}Export ke Google Sheets</button>
+    </form>
+    <p class="small" id="dxResult" hidden></p>`;
+  function dailyExport(getTeam) {
+    const form = document.getElementById('dxForm'), from = document.getElementById('dxFrom'), to = document.getElementById('dxTo');
+    const result = document.getElementById('dxResult');
+    from.value = Data.monthStart(Data.TODAY);
+    to.value = Data.TODAY;
+    to.max = from.max = Data.TODAY;
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (from.value > to.value) { toast('Tanggal mulai harus sebelum tanggal selesai.'); return; }
+      if (!Data.LIVE) { toast('Export ke Google Sheets hanya bisa saat aplikasi terhubung ke Google Sheets.'); return; }
+      const tab = window.open('', '_blank'); // opened now, before waiting, so the browser does not block it
+      result.hidden = false;
+      result.textContent = 'Membuat Google Sheet… (beberapa detik)';
+      const res = await busy(form, () => Data.exportDaily({ from: from.value, to: to.value, teamId: getTeam() }));
+      if (res.error) {
+        if (tab) tab.close();
+        result.textContent = res.error;
+        toast(res.error);
+        return;
+      }
+      if (tab) tab.location.href = res.url;
+      result.innerHTML = `Selesai: ${res.spgs} SPG, ${res.days} hari. <a href="${esc(res.url)}" target="_blank" rel="noopener">Buka Google Sheet</a>`;
+    });
+  }
+
   /* ---------- Big progress ring (SVG) ---------- */
   // Single-color ring: blue until the target is reached, then green.
   function ring(p, centerHtml, label) {
@@ -590,7 +628,7 @@
   }
 
   window.App = {
-    root, HOME, ROLE_LABEL, page, init, teamId, toast, busy, modal, pickStore, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, pickPhoto, notePhotos, viewPhoto, imgSrc, levelIcon, levelBadge,
+    root, HOME, ROLE_LABEL, page, init, dailyExportHtml, dailyExport, teamId, toast, busy, modal, pickStore, tableTools, combobox, enhanceSelects, ring, animateRings, bar, trendChart, downloadCsv, icon, iconBtn, iconLink, avatar, person, rankBadge, podium, productImg, productSrc, pickImage, pickPhoto, notePhotos, viewPhoto, imgSrc, levelIcon, levelBadge,
     esc, num, rp, rpK, phoneFmt, rpShort, pct, pct1, dateLong, dateShort, dateMid, monthName, param, parseNum,
     home: user => root + HOME[user.role],
     BRAND_LOGO, logoImg,

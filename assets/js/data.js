@@ -1024,6 +1024,11 @@
       changed();
       return null;
     },
+    // Daily recap as a new Google Sheet (apps-script/Export.gs): { url, name, spgs, days } or { error }
+    async exportDaily({ from, to, teamId }) {
+      const res = await call('report.exportDaily', { from, to, teamId: teamId || null });
+      return res.ok ? res.data : { error: res.data.message };
+    },
     async saveStore(st) {
       const res = await call('store.save', { id: st.id || null, name: st.name, chain: st.chain || '', city: st.city, address: st.address || '', active: st.active !== false });
       if (!res.ok) return res.data.message;
@@ -1071,5 +1076,6 @@
     getShift, startShift, endShift, switchStore, lastStoreId, storeLabel, storeFor, getTransactions, addSale, removeSale,
     addUser, resetPassword, canManageUser, canAddCatalog, canEditCatalog, saveStore, stores, store, activity, storeTotals,
     allUsers, setUserPhoto, normalizePhone, exportState, areas,
+    exportDaily: async () => ({ error: 'Export ke Google Sheets hanya bisa saat aplikasi terhubung ke Google Sheets.' }),
   }, LIVE ? LIVE_API : {});
 })();

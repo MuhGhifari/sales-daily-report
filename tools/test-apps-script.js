@@ -238,3 +238,42 @@ test('starting data: Admin, 199 products with subbrand and barcode, 16 stores', 
   const saved = g.call({ action: 'product.save', token: login.data.token, id: a1.id, name: a1.name, sku: 'A1', brand: 'NIVEA BODY', barcode: '123', price: 23000 });
   assert.deepEqual([saved.data.product.brand, saved.data.product.barcode, saved.data.product.price], ['NIVEA BODY', '123', 23000]);
 });
+
+test('daily recap export: layout, totals, OFF and missing days, sorted by achievement', () => {
+  const g = app();
+  const r = g.as('rina', 'report.exportDaily', { from: '2026-10-01', to: '2026-10-11' });
+  assert.ok(r.ok, r.error);
+  assert.deepEqual([r.data.spgs, r.data.days], [8, 11]);
+  assert.match(r.data.url, /^https:\/\/docs\.google\.com\/spreadsheets\//);
+  const v = g.exports[0].values, at = (row, col) => v[row + ',' + col];
+  assert.deepEqual([at(1, 2), at(2, 1), at(2, 2), at(2, 12), at(2, 13), at(2, 14), at(2, 15)],
+    ['Kamis', 'Nama NMA', '01/10/2026', '11/10/2026', 'Total Achievement', 'TOTAL TARGET', 'Ach']);
+  // 4 Oct 2026 is a Sunday: day off for Tim Jakarta Selatan (Mon–Sat)
+  assert.equal(at(1, 5), 'Minggu');
+  for (let row = 3; row <= 10; row++) assert.equal(at(row, 5), 'OFF');
+  // Totals match the Sales tab, targets are the October targets, rows sorted by achievement
+  const sales = g.rows('Sales'), users = g.rows('Users'), targets = g.rows('Targets');
+  let prev = Infinity;
+  for (let row = 3; row <= 10; row++) {
+    const u = users.find(x => x.name === at(row, 1));
+    const total = sales.filter(s => s.user_id === u.id && !s.deleted && s.date >= '2026-10-01' && s.date <= '2026-10-11').reduce((a, s) => a + s.subtotal, 0);
+    const target = targets.find(t => t.user_id === u.id && t.month === '2026-10').monthly;
+    assert.deepEqual([at(row, 13), at(row, 14)], [total, target]);
+    assert.ok(at(row, 15) <= prev);
+    prev = at(row, 15);
+  }
+});
+
+test('daily recap export: who may export what', () => {
+  const g = app();
+  assert.equal(g.as('sari', 'report.exportDaily', { from: '2026-10-01', to: '2026-10-11' }).status, 403);
+  assert.equal(g.as('rina', 'report.exportDaily', { from: '2026-10-01', to: '2026-10-11', teamId: 't2' }).status, 403);
+  assert.equal(g.as('rina', 'report.exportDaily', { from: '2026-10-11', to: '2026-10-01' }).status, 422);
+  assert.equal(g.as('rina', 'report.exportDaily', { from: '2026-08-01', to: '2026-10-11' }).status, 422);
+  const all = g.as('admin', 'report.exportDaily', { from: '2026-10-20', to: '2026-10-22' });
+  assert.ok(all.ok, all.error);
+  assert.equal(all.data.spgs, g.rows('Users').filter(u => u.role === 'spg' && u.active).length);
+  assert.equal(g.exports[0].values['2,2'], 'Tim'); // all teams: a team column after the name
+  const one = g.as('admin', 'report.exportDaily', { from: '2026-10-20', to: '2026-10-22', teamId: 't3' });
+  assert.equal(one.data.spgs, g.rows('Users').filter(u => u.role === 'spg' && u.active && u.team_id === 't3').length);
+});

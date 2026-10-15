@@ -94,6 +94,10 @@ Data.ready(function () {
     App.downloadCsv(`laporan-${team.name.toLowerCase().replace(/\s+/g, '-')}-${from}-sd-${end}.csv`, rows);
   });
 
+  // Daily recap for a date range, as a new Google Sheet
+  $('dxWrap').innerHTML = App.dailyExportHtml();
+  App.dailyExport(() => teamId);
+
   // Monthly Excel in the client's SOH / offtake layout (assets/js/soh-export.js)
   const months = [];
   for (let mk = D.monthKey(D.TODAY); mk >= D.monthKey(D.DATA_START); mk = D.addMonths(mk, -1)) months.push(mk);
